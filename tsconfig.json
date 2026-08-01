@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "lib": ["ES2022", "dom"],
+    "skipLibCheck": true,
+    "paths": {
+      "@angular/*": ["dashboard/node_modules/@angular/*"],
+      "rxjs": ["dashboard/node_modules/rxjs"],
+      "rxjs/*": ["dashboard/node_modules/rxjs/*"],
+      "chart.js": ["dashboard/node_modules/chart.js"]
+    }
+  },
+  "include": [
+    "dashboard/src/**/*.ts"
+  ],
+  "exclude": [
+    "dashboard/node_modules"
+  ]
+}

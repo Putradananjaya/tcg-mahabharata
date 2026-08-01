@@ -1,0 +1,53 @@
+{
+    "set_name": "SciFi_StarCraft_01",
+    "faction": "Zerg",
+    "mechanic_focus": "Disruption_and_Discard",
+    "cards": [
+        {
+            "id": "ZER-001",
+            "name": "Infestor",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 92,
+            "retreat_cost": 1,
+            "attacks": [
+                {
+                    "name": "Fungal Growth",
+                    "prana_cost": {
+                        "Zerg": 1,
+                        "Universal": 1
+                    },
+                    "base_damage": 31,
+                    "effect": "mill_enemy_deck",
+                    "value": 2
+                }
+            ]
+        },
+        {
+            "id": "ZER-002",
+            "name": "Ultralisk",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 112,
+            "retreat_cost": 3,
+            "attacks": [
+                {
+                    "name": "Kaiser Blades",
+                    "prana_cost": {
+                        "Universal": 2
+                    },
+                    "base_damage": 20
+                },
+                {
+                    "name": "Swarm Strike",
+                    "prana_cost": {
+                        "Zerg": 1
+                    },
+                    "base_damage": 39,
+                    "effect": "scaled_damage_per_discard_tamasika",
+                    "scale_value": 10
+                }
+            ]
+        }
+    ]
+}

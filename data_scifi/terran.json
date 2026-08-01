@@ -1,0 +1,53 @@
+{
+    "set_name": "SciFi_StarCraft_01",
+    "faction": "Terran",
+    "mechanic_focus": "Defense_and_Synergy",
+    "cards": [
+        {
+            "id": "TER-001",
+            "name": "Jim Raynor",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 140,
+            "retreat_cost": 1,
+            "damage_reduction": 30,
+            "attacks": [
+                {
+                    "name": "Tactical Command",
+                    "prana_cost": {
+                        "Terran": 2,
+                        "Universal": 1
+                    },
+                    "base_damage": 34,
+                    "effect": "heal_bench_card",
+                    "value": 30
+                }
+            ]
+        },
+        {
+            "id": "TER-002",
+            "name": "Marine",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 111,
+            "retreat_cost": 2,
+            "attacks": [
+                {
+                    "name": "Gauss Rifle",
+                    "prana_cost": {
+                        "Terran": 1
+                    },
+                    "base_damage": 20
+                },
+                {
+                    "name": "Stimpack Booster",
+                    "prana_cost": {
+                        "Terran": 3
+                    },
+                    "base_damage": 50,
+                    "bench_scaling": 20
+                }
+            ]
+        }
+    ]
+}

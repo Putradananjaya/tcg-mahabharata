@@ -1,0 +1,43 @@
+{
+    "set_name": "SciFi_StarCraft_01",
+    "faction": "Protoss",
+    "mechanic_focus": "Aggro_and_Speed",
+    "cards": [
+        {
+            "id": "PRO-001",
+            "name": "Zealot",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 83,
+            "retreat_cost": 2,
+            "attacks": [
+                {
+                    "name": "Psi Blades",
+                    "prana_cost": {
+                        "Protoss": 2
+                    },
+                    "base_damage": 36
+                }
+            ]
+        },
+        {
+            "id": "PRO-002",
+            "name": "Dark Templar",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 114,
+            "retreat_cost": 1,
+            "attacks": [
+                {
+                    "name": "Warp Blade",
+                    "prana_cost": {
+                        "Protoss": 1
+                    },
+                    "base_damage": 64,
+                    "effect": "recoil_damage",
+                    "value": 11
+                }
+            ]
+        }
+    ]
+}

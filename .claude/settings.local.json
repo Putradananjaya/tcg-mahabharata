@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(perl -pi -e ' *)",
+      "Bash(lsof -ti:4200 -sTCP:LISTEN)",
+      "Bash(xargs -r ps -p)",
+      "Bash(pkill -f \"ng serve\" -0)",
+      "Bash(ps -p 23541 -o pid,lstart,command)",
+      "Bash(curl -sf -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:4200 --max-time 3)",
+      "Bash(lsof -ti:4200)",
+      "Bash(npm start *)",
+      "Bash(npx playwright *)"
+    ]
+  }
+}

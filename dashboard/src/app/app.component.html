@@ -1,0 +1,52 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="logo-area">
+      <span class="logo-icon">⚔️</span>
+      <div class="logo-text">
+        <h1>Mahabharata TCG</h1>
+        <p>AI Balancing & Research Suite</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="dashboard-layout">
+    <!-- Navigation Sidebar -->
+    <nav class="dashboard-nav glass-card">
+      <button routerLink="/guide" routerLinkActive="active" class="nav-btn">
+        <span class="btn-icon">🕹️</span>
+        <span class="btn-label">Panduan Bermain</span>
+      </button>
+      <button routerLink="/simulator" routerLinkActive="active" class="nav-btn">
+        <span class="btn-icon">🎮</span>
+        <span class="btn-label">Game Simulator</span>
+      </button>
+      <button routerLink="/balancer" routerLinkActive="active" class="nav-btn">
+        <span class="btn-icon">⚖️</span>
+        <span class="btn-label">Auto-Balancer Engine</span>
+      </button>
+      <button routerLink="/creator" routerLinkActive="active" class="nav-btn">
+        <span class="btn-icon">➕</span>
+        <span class="btn-label">Card Creator</span>
+      </button>
+      <button routerLink="/tuning" routerLinkActive="active" class="nav-btn">
+        <span class="btn-icon">🎛️</span>
+        <span class="btn-label">Parameter Sliders</span>
+      </button>
+      <button routerLink="/analytics" routerLinkActive="active" class="nav-btn">
+        <span class="btn-icon">📊</span>
+        <span class="btn-label">Visual Analytics</span>
+      </button>
+      <button routerLink="/flow" routerLinkActive="active" class="nav-btn">
+        <span class="btn-icon">⚙️</span>
+        <span class="btn-label">Flow & Schema</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="dashboard-main">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

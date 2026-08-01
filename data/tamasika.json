@@ -1,0 +1,53 @@
+{
+    "set_name": "Kurukshetra_Set_01",
+    "faction": "Tamasika",
+    "mechanic_focus": "Disruption_and_Discard",
+    "cards": [
+        {
+            "id": "TMS-001",
+            "name": "Patih Sengkuni",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 95,
+            "retreat_cost": 1,
+            "attacks": [
+                {
+                    "name": "Hasutan Amarta",
+                    "prana_cost": {
+                        "Tamasika": 1,
+                        "Universal": 1
+                    },
+                    "base_damage": 35,
+                    "effect": "mill_enemy_deck",
+                    "value": 2
+                }
+            ]
+        },
+        {
+            "id": "TMS-002",
+            "name": "Duryodana",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 135,
+            "retreat_cost": 3,
+            "attacks": [
+                {
+                    "name": "Gada Kelana",
+                    "prana_cost": {
+                        "Universal": 2
+                    },
+                    "base_damage": 20
+                },
+                {
+                    "name": "Angkara 100 Kurawa",
+                    "prana_cost": {
+                        "Tamasika": 2
+                    },
+                    "base_damage": 42,
+                    "effect": "scaled_damage_per_discard_tamasika",
+                    "scale_value": 5
+                }
+            ]
+        }
+    ]
+}

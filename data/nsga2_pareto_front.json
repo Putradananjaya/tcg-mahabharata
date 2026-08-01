@@ -1,0 +1,254 @@
+[
+  {
+    "params": {
+      "stw_yudhistira_hp": 124,
+      "stw_yudhistira_dmg": 44,
+      "stw_yudhistira_dr": 26,
+      "stw_yudhistira_heal": 20,
+      "stw_yudhistira_cost_satwika": 2,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 85,
+      "stw_arjuna_pasupati_dmg": 43,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 62,
+      "rjs_balarama_dmg": 30,
+      "rjs_balarama_cost": 2,
+      "rjs_karna_hp": 107,
+      "rjs_karna_dmg": 59,
+      "rjs_karna_recoil": 5,
+      "rjs_karna_cost": 1,
+      "tms_sengkuni_hp": 96,
+      "tms_sengkuni_dmg": 38,
+      "tms_sengkuni_mill": 1,
+      "tms_sengkuni_cost_tamasika": 1,
+      "tms_sengkuni_cost_univ": 1,
+      "tms_duryodana_hp": 146,
+      "tms_duryodana_angkara_dmg": 47,
+      "tms_duryodana_scale_value": 7,
+      "tms_duryodana_angkara_cost": 3
+    },
+    "f1_fairness": 3352.399999999999,
+    "f2_length": 0.0,
+    "f3_diversity": 0.013512942297936315,
+    "rates": {
+      "PANDAWA_vs_KURAWA": 82.19999999999999,
+      "KURAWA_vs_RAJASIKA": 7.000000000000001,
+      "RAJASIKA_vs_PANDAWA": 71.6
+    },
+    "avg_turns": {
+      "PANDAWA_vs_KURAWA": 27.45,
+      "KURAWA_vs_RAJASIKA": 10.782,
+      "RAJASIKA_vs_PANDAWA": 12.878
+    }
+  },
+  {
+    "params": {
+      "stw_yudhistira_hp": 108,
+      "stw_yudhistira_dmg": 45,
+      "stw_yudhistira_dr": 26,
+      "stw_yudhistira_heal": 28,
+      "stw_yudhistira_cost_satwika": 2,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 94,
+      "stw_arjuna_pasupati_dmg": 43,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 62,
+      "rjs_balarama_dmg": 38,
+      "rjs_balarama_cost": 2,
+      "rjs_karna_hp": 106,
+      "rjs_karna_dmg": 58,
+      "rjs_karna_recoil": 12,
+      "rjs_karna_cost": 1,
+      "tms_sengkuni_hp": 100,
+      "tms_sengkuni_dmg": 27,
+      "tms_sengkuni_mill": 1,
+      "tms_sengkuni_cost_tamasika": 1,
+      "tms_sengkuni_cost_univ": 0,
+      "tms_duryodana_hp": 146,
+      "tms_duryodana_angkara_dmg": 49,
+      "tms_duryodana_scale_value": 7,
+      "tms_duryodana_angkara_cost": 3
+    },
+    "f1_fairness": 438.72,
+    "f2_length": 0.0,
+    "f3_diversity": 0.06624874637445521,
+    "rates": {
+      "PANDAWA_vs_KURAWA": 64.0,
+      "KURAWA_vs_RAJASIKA": 39.6,
+      "RAJASIKA_vs_PANDAWA": 61.6
+    },
+    "avg_turns": {
+      "PANDAWA_vs_KURAWA": 26.798,
+      "KURAWA_vs_RAJASIKA": 10.234,
+      "RAJASIKA_vs_PANDAWA": 12.278
+    }
+  },
+  {
+    "params": {
+      "stw_yudhistira_hp": 124,
+      "stw_yudhistira_dmg": 44,
+      "stw_yudhistira_dr": 26,
+      "stw_yudhistira_heal": 28,
+      "stw_yudhistira_cost_satwika": 2,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 85,
+      "stw_arjuna_pasupati_dmg": 45,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 62,
+      "rjs_balarama_dmg": 30,
+      "rjs_balarama_cost": 2,
+      "rjs_karna_hp": 106,
+      "rjs_karna_dmg": 58,
+      "rjs_karna_recoil": 9,
+      "rjs_karna_cost": 1,
+      "tms_sengkuni_hp": 96,
+      "tms_sengkuni_dmg": 38,
+      "tms_sengkuni_mill": 1,
+      "tms_sengkuni_cost_tamasika": 1,
+      "tms_sengkuni_cost_univ": 1,
+      "tms_duryodana_hp": 150,
+      "tms_duryodana_angkara_dmg": 49,
+      "tms_duryodana_scale_value": 7,
+      "tms_duryodana_angkara_cost": 3
+    },
+    "f1_fairness": 1566.7999999999997,
+    "f2_length": 0.0,
+    "f3_diversity": 0.03469517839724179,
+    "rates": {
+      "PANDAWA_vs_KURAWA": 76.6,
+      "KURAWA_vs_RAJASIKA": 21.8,
+      "RAJASIKA_vs_PANDAWA": 57.99999999999999
+    },
+    "avg_turns": {
+      "PANDAWA_vs_KURAWA": 27.154,
+      "KURAWA_vs_RAJASIKA": 11.354,
+      "RAJASIKA_vs_PANDAWA": 12.864
+    }
+  },
+  {
+    "params": {
+      "stw_yudhistira_hp": 108,
+      "stw_yudhistira_dmg": 45,
+      "stw_yudhistira_dr": 27,
+      "stw_yudhistira_heal": 28,
+      "stw_yudhistira_cost_satwika": 2,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 94,
+      "stw_arjuna_pasupati_dmg": 43,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 62,
+      "rjs_balarama_dmg": 44,
+      "rjs_balarama_cost": 2,
+      "rjs_karna_hp": 106,
+      "rjs_karna_dmg": 60,
+      "rjs_karna_recoil": 12,
+      "rjs_karna_cost": 1,
+      "tms_sengkuni_hp": 100,
+      "tms_sengkuni_dmg": 27,
+      "tms_sengkuni_mill": 1,
+      "tms_sengkuni_cost_tamasika": 2,
+      "tms_sengkuni_cost_univ": 0,
+      "tms_duryodana_hp": 146,
+      "tms_duryodana_angkara_dmg": 49,
+      "tms_duryodana_scale_value": 7,
+      "tms_duryodana_angkara_cost": 3
+    },
+    "f1_fairness": 5045.0,
+    "f2_length": 0.0,
+    "f3_diversity": 0.0016705078126159068,
+    "rates": {
+      "PANDAWA_vs_KURAWA": 100.0,
+      "KURAWA_vs_RAJASIKA": 1.0,
+      "RAJASIKA_vs_PANDAWA": 62.0
+    },
+    "avg_turns": {
+      "PANDAWA_vs_KURAWA": 29.99,
+      "KURAWA_vs_RAJASIKA": 10.14,
+      "RAJASIKA_vs_PANDAWA": 12.492
+    }
+  },
+  {
+    "params": {
+      "stw_yudhistira_hp": 110,
+      "stw_yudhistira_dmg": 44,
+      "stw_yudhistira_dr": 28,
+      "stw_yudhistira_heal": 25,
+      "stw_yudhistira_cost_satwika": 2,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 94,
+      "stw_arjuna_pasupati_dmg": 43,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 70,
+      "rjs_balarama_dmg": 30,
+      "rjs_balarama_cost": 2,
+      "rjs_karna_hp": 104,
+      "rjs_karna_dmg": 64,
+      "rjs_karna_recoil": 5,
+      "rjs_karna_cost": 2,
+      "tms_sengkuni_hp": 97,
+      "tms_sengkuni_dmg": 40,
+      "tms_sengkuni_mill": 1,
+      "tms_sengkuni_cost_tamasika": 2,
+      "tms_sengkuni_cost_univ": 1,
+      "tms_duryodana_hp": 146,
+      "tms_duryodana_angkara_dmg": 47,
+      "tms_duryodana_scale_value": 3,
+      "tms_duryodana_angkara_cost": 3
+    },
+    "f1_fairness": 3741.6000000000004,
+    "f2_length": 0.0,
+    "f3_diversity": 0.010744806212475533,
+    "rates": {
+      "PANDAWA_vs_KURAWA": 100.0,
+      "KURAWA_vs_RAJASIKA": 48.4,
+      "RAJASIKA_vs_PANDAWA": 14.799999999999999
+    },
+    "avg_turns": {
+      "PANDAWA_vs_KURAWA": 28.844,
+      "KURAWA_vs_RAJASIKA": 16.726,
+      "RAJASIKA_vs_PANDAWA": 17.454
+    }
+  },
+  {
+    "params": {
+      "stw_yudhistira_hp": 124,
+      "stw_yudhistira_dmg": 44,
+      "stw_yudhistira_dr": 26,
+      "stw_yudhistira_heal": 20,
+      "stw_yudhistira_cost_satwika": 2,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 85,
+      "stw_arjuna_pasupati_dmg": 43,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 62,
+      "rjs_balarama_dmg": 30,
+      "rjs_balarama_cost": 2,
+      "rjs_karna_hp": 107,
+      "rjs_karna_dmg": 59,
+      "rjs_karna_recoil": 5,
+      "rjs_karna_cost": 1,
+      "tms_sengkuni_hp": 96,
+      "tms_sengkuni_dmg": 38,
+      "tms_sengkuni_mill": 1,
+      "tms_sengkuni_cost_tamasika": 1,
+      "tms_sengkuni_cost_univ": 1,
+      "tms_duryodana_hp": 146,
+      "tms_duryodana_angkara_dmg": 47,
+      "tms_duryodana_scale_value": 7,
+      "tms_duryodana_angkara_cost": 3
+    },
+    "f1_fairness": 3042.16,
+    "f2_length": 0.0,
+    "f3_diversity": 0.016658792726629734,
+    "rates": {
+      "PANDAWA_vs_KURAWA": 76.6,
+      "KURAWA_vs_RAJASIKA": 7.3999999999999995,
+      "RAJASIKA_vs_PANDAWA": 72.8
+    },
+    "avg_turns": {
+      "PANDAWA_vs_KURAWA": 27.086,
+      "KURAWA_vs_RAJASIKA": 10.438,
+      "RAJASIKA_vs_PANDAWA": 12.724
+    }
+  }
+]

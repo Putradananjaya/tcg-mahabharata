@@ -1,0 +1,43 @@
+{
+    "set_name": "Kurukshetra_Set_01",
+    "faction": "Rajasika",
+    "mechanic_focus": "Aggro_and_Speed",
+    "cards": [
+        {
+            "id": "RJS-001",
+            "name": "Balarama",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 70,
+            "retreat_cost": 2,
+            "attacks": [
+                {
+                    "name": "Hantaman Nanggala",
+                    "prana_cost": {
+                        "Rajasika": 1
+                    },
+                    "base_damage": 38
+                }
+            ]
+        },
+        {
+            "id": "RJS-002",
+            "name": "Karna",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 90,
+            "retreat_cost": 1,
+            "attacks": [
+                {
+                    "name": "Senjata Konta",
+                    "prana_cost": {
+                        "Rajasika": 2
+                    },
+                    "base_damage": 60,
+                    "effect": "recoil_damage",
+                    "value": 10
+                }
+            ]
+        }
+    ]
+}

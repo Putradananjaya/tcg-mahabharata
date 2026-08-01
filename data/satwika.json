@@ -1,0 +1,53 @@
+{
+    "set_name": "Kurukshetra_Set_01",
+    "faction": "Satwika",
+    "mechanic_focus": "Defense_and_Synergy",
+    "cards": [
+        {
+            "id": "STW-001",
+            "name": "Yudhistira",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 130,
+            "retreat_cost": 1,
+            "damage_reduction": 20,
+            "attacks": [
+                {
+                    "name": "Sabda Rahayu",
+                    "prana_cost": {
+                        "Satwika": 1,
+                        "Universal": 1
+                    },
+                    "base_damage": 32,
+                    "effect": "heal_bench_card",
+                    "value": 25
+                }
+            ]
+        },
+        {
+            "id": "STW-002",
+            "name": "Raden Arjuna",
+            "type": "Tokoh",
+            "stage": "Basic",
+            "hp": 110,
+            "retreat_cost": 2,
+            "attacks": [
+                {
+                    "name": "Panah Kendali",
+                    "prana_cost": {
+                        "Satwika": 1
+                    },
+                    "base_damage": 20
+                },
+                {
+                    "name": "Panah Pasupati",
+                    "prana_cost": {
+                        "Satwika": 3
+                    },
+                    "base_damage": 50,
+                    "bench_scaling": 20
+                }
+            ]
+        }
+    ]
+}
