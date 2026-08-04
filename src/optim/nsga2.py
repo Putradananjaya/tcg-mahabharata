@@ -4,7 +4,7 @@ import json
 import random
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 -- registers the 3d projection
-from src.simulator.fitness import BOUNDS, SMART_START, evaluate_chromosome_multi
+from src.simulator.fitness import BOUNDS, SMART_START, evaluate_chromosome_multi, evaluate_chromosome_power_balance
 from src.optim.ga import generate_random_chromosome, crossover, mutate
 
 
@@ -206,3 +206,136 @@ def run_nsga2_balancing(pop_size=10, generations=10, num_runs=80):
     _plot_pareto_front(pareto_front)
 
     return pareto_front
+
+
+# --- Fase 7: the objectives the paper's Pers. (4) review actually asked
+# for -- f1 = pairwise balance deviation, f2 = power creep penalty
+# (src.metrics.power_creep), f3 = -Faction Identity Index
+# (src.metrics.diversity.faction_identity_index). Separate from
+# run_nsga2_balancing above (which predates this phase and uses a
+# different f2/f3 -- game-length health and within-faction dominant-attack
+# score -- kept untouched rather than silently repurposed). Reuses the
+# same generic dominates/fast_non_dominated_sort/crowding_distance/
+# tournament_select machinery, which is objective-count-agnostic.
+
+def _evaluate_population_power_balance(population, num_runs):
+    objs, diags = [], []
+    for chromo in population:
+        obj, diag = evaluate_chromosome_power_balance(chromo, num_runs=num_runs)
+        objs.append(obj)
+        diags.append(diag)
+    return objs, diags
+
+
+def _plot_pareto_front_power_balance(pareto_front, out_path="figures/nsga2_power_balance_pareto_front.png"):
+    f1_vals = [p["f1_balance"] for p in pareto_front]
+    f2_vals = [p["f2_power_creep"] for p in pareto_front]
+    f3_vals = [p["f3_neg_identity"] for p in pareto_front]
+
+    fig = plt.figure(figsize=(9, 7))
+    ax = fig.add_subplot(111, projection='3d')
+    scatter = ax.scatter(f1_vals, f2_vals, f3_vals, c=f1_vals, cmap='viridis', s=70, edgecolor='k')
+    ax.set_xlabel('F1: Pairwise Balance Deviation', fontsize=10)
+    ax.set_ylabel('F2: Power Creep Penalty', fontsize=10)
+    ax.set_zlabel('F3: -Faction Identity Index', fontsize=10)
+    ax.set_title('NSGA-II Pareto Front: Balance vs. Power Creep vs. Identity\n(all axes: lower = better)',
+                  fontsize=12, fontweight='bold')
+    fig.colorbar(scatter, ax=ax, label='F1 Balance Deviation', shrink=0.6)
+
+    os.makedirs("figures", exist_ok=True)
+    plt.savefig(out_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"Grafik '{out_path}' berhasil disimpan.")
+
+
+def run_nsga2_power_balance(pop_size=24, generations=30, num_runs=80, validation_num_runs=500, seed=None):
+    """f1=pairwise balance deviation, f2=power creep, f3=-faction identity
+    index -- see module comment above and rules_spec.md section 14.2."""
+    if seed is not None:
+        random.seed(seed)
+
+    print("=== Fase 7: NSGA-II (balance vs. power creep vs. identity) ===")
+
+    population = [generate_random_chromosome() for _ in range(pop_size)]
+    population[0] = SMART_START.copy()
+
+    objs, _ = _evaluate_population_power_balance(population, num_runs)
+
+    start_time = time.time()
+    history = []
+
+    for gen in range(generations):
+        fronts = fast_non_dominated_sort(objs)
+        ranks, crowding = {}, {}
+        for rank_idx, front in enumerate(fronts):
+            cd = crowding_distance(front, objs)
+            for idx in front:
+                ranks[idx] = rank_idx
+                crowding[idx] = cd[idx]
+
+        offspring = []
+        while len(offspring) < pop_size:
+            i1 = tournament_select(len(population), ranks, crowding)
+            i2 = tournament_select(len(population), ranks, crowding)
+            c1, c2 = crossover(population[i1], population[i2])
+            offspring.append(mutate(c1))
+            if len(offspring) < pop_size:
+                offspring.append(mutate(c2))
+
+        offspring_objs, _ = _evaluate_population_power_balance(offspring, num_runs)
+
+        combined_pop = population + offspring
+        combined_objs = objs + offspring_objs
+        combined_fronts = fast_non_dominated_sort(combined_objs)
+
+        new_population, new_objs = [], []
+        for front in combined_fronts:
+            if len(new_population) + len(front) <= pop_size:
+                for idx in front:
+                    new_population.append(combined_pop[idx])
+                    new_objs.append(combined_objs[idx])
+            else:
+                remaining = pop_size - len(new_population)
+                cd = crowding_distance(front, combined_objs)
+                sorted_front = sorted(front, key=lambda idx: cd[idx], reverse=True)
+                for idx in sorted_front[:remaining]:
+                    new_population.append(combined_pop[idx])
+                    new_objs.append(combined_objs[idx])
+                break
+
+        population, objs = new_population, new_objs
+
+        front0 = fast_non_dominated_sort(objs)[0]
+        best_f1 = min(objs[i][0] for i in front0)
+        best_f2 = min(objs[i][1] for i in front0)
+        best_f3 = min(objs[i][2] for i in front0)
+        history.append({"gen": gen, "front0_size": len(front0), "best_f1": best_f1, "best_f2": best_f2, "best_f3": best_f3})
+        print(f"  Gen {gen:<3} | Front-0: {len(front0):<3} | best F1={best_f1:8.2f} | best F2={best_f2:.4f} | best F3={best_f3:.3f}")
+
+    elapsed = time.time() - start_time
+    final_front0 = fast_non_dominated_sort(objs)[0]
+
+    print(f"\nNSGA-II selesai in {elapsed:.1f}s. Front-0 size: {len(final_front0)}. "
+          f"Re-validating at num_runs={validation_num_runs}...")
+
+    pareto_front = []
+    for idx in final_front0:
+        chromo = population[idx]
+        val_obj, val_diag = evaluate_chromosome_power_balance(chromo, num_runs=validation_num_runs)
+        pareto_front.append({
+            "params": chromo,
+            "f1_balance": val_obj[0], "f2_power_creep": val_obj[1], "f3_neg_identity": val_obj[2],
+            "rates": val_diag["rates"], "mean_pairwise_jsd": val_diag["mean_pairwise_jsd"],
+        })
+
+    validated_objs = [(p["f1_balance"], p["f2_power_creep"], p["f3_neg_identity"]) for p in pareto_front]
+    validated_front0 = fast_non_dominated_sort(validated_objs)[0]
+    dropped = len(pareto_front) - len(validated_front0)
+    pareto_front = [pareto_front[i] for i in validated_front0]
+    if dropped > 0:
+        print(f"{dropped} solusi dibuang (didominasi setelah validasi n={validation_num_runs}) "
+              f"-> front final: {len(pareto_front)} solusi.")
+
+    return {"pareto_front": pareto_front, "history": history, "elapsed_seconds": elapsed,
+            "pop_size": pop_size, "generations": generations, "num_runs": num_runs,
+            "validation_num_runs": validation_num_runs}

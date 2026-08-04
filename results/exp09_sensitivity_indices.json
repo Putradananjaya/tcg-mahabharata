@@ -1,0 +1,468 @@
+{
+  "base_seed": 20260801,
+  "num_runs_per_eval": 100,
+  "morris": {
+    "param_names": [
+      "rjs_balarama_cost",
+      "rjs_balarama_dmg",
+      "rjs_balarama_hp",
+      "rjs_karna_cost",
+      "rjs_karna_dmg",
+      "rjs_karna_hp",
+      "rjs_karna_recoil",
+      "stw_arjuna_hp",
+      "stw_arjuna_pasupati_cost",
+      "stw_arjuna_pasupati_dmg",
+      "stw_yudhistira_cost_satwika",
+      "stw_yudhistira_cost_univ",
+      "stw_yudhistira_dmg",
+      "stw_yudhistira_dr",
+      "stw_yudhistira_heal",
+      "stw_yudhistira_hp",
+      "tms_duryodana_angkara_cost",
+      "tms_duryodana_angkara_dmg",
+      "tms_duryodana_hp",
+      "tms_duryodana_scale_value",
+      "tms_sengkuni_cost_tamasika",
+      "tms_sengkuni_cost_univ",
+      "tms_sengkuni_dmg",
+      "tms_sengkuni_hp",
+      "tms_sengkuni_mill"
+    ],
+    "mu": {
+      "rjs_balarama_cost": 300.95,
+      "rjs_balarama_dmg": 62.9,
+      "rjs_balarama_hp": 6.1,
+      "rjs_karna_cost": 470.5,
+      "rjs_karna_dmg": -451.15,
+      "rjs_karna_hp": -241.35,
+      "rjs_karna_recoil": 10.2,
+      "stw_arjuna_hp": -375.6,
+      "stw_arjuna_pasupati_cost": -67.3,
+      "stw_arjuna_pasupati_dmg": 148.1,
+      "stw_yudhistira_cost_satwika": -869.9,
+      "stw_yudhistira_cost_univ": -1086.65,
+      "stw_yudhistira_dmg": 1574.5,
+      "stw_yudhistira_dr": 1163.45,
+      "stw_yudhistira_heal": 194.4,
+      "stw_yudhistira_hp": 542.45,
+      "tms_duryodana_angkara_cost": 1211.55,
+      "tms_duryodana_angkara_dmg": -833.1,
+      "tms_duryodana_hp": -623.6,
+      "tms_duryodana_scale_value": -286.0,
+      "tms_sengkuni_cost_tamasika": 453.15,
+      "tms_sengkuni_cost_univ": 446.15,
+      "tms_sengkuni_dmg": 779.5,
+      "tms_sengkuni_hp": -265.05,
+      "tms_sengkuni_mill": -493.05
+    },
+    "mu_star": {
+      "rjs_balarama_cost": 1290.95,
+      "rjs_balarama_dmg": 1299.5,
+      "rjs_balarama_hp": 823.5,
+      "rjs_karna_cost": 2414.1,
+      "rjs_karna_dmg": 2060.85,
+      "rjs_karna_hp": 1320.05,
+      "rjs_karna_recoil": 1332.3,
+      "stw_arjuna_hp": 764.0,
+      "stw_arjuna_pasupati_cost": 1527.3,
+      "stw_arjuna_pasupati_dmg": 652.3,
+      "stw_yudhistira_cost_satwika": 2052.8,
+      "stw_yudhistira_cost_univ": 2063.95,
+      "stw_yudhistira_dmg": 2361.1,
+      "stw_yudhistira_dr": 1898.75,
+      "stw_yudhistira_heal": 530.8,
+      "stw_yudhistira_hp": 1322.75,
+      "tms_duryodana_angkara_cost": 2245.75,
+      "tms_duryodana_angkara_dmg": 1235.3,
+      "tms_duryodana_hp": 962.8,
+      "tms_duryodana_scale_value": 764.0,
+      "tms_sengkuni_cost_tamasika": 1868.45,
+      "tms_sengkuni_cost_univ": 1438.55,
+      "tms_sengkuni_dmg": 1323.6,
+      "tms_sengkuni_hp": 1212.95,
+      "tms_sengkuni_mill": 864.25
+    },
+    "sigma": {
+      "rjs_balarama_cost": 1646.5572460911199,
+      "rjs_balarama_dmg": 1851.4699816911557,
+      "rjs_balarama_hp": 1166.1679907966177,
+      "rjs_karna_cost": 3045.0562420489673,
+      "rjs_karna_dmg": 2567.5291125838316,
+      "rjs_karna_hp": 1743.3419756219712,
+      "rjs_karna_recoil": 1786.4635582142687,
+      "stw_arjuna_hp": 1235.1799003412,
+      "stw_arjuna_pasupati_cost": 2196.521692318923,
+      "stw_arjuna_pasupati_dmg": 897.6895285426763,
+      "stw_yudhistira_cost_satwika": 2537.736258408541,
+      "stw_yudhistira_cost_univ": 2554.10865803884,
+      "stw_yudhistira_dmg": 2413.324370498375,
+      "stw_yudhistira_dr": 2254.259708556379,
+      "stw_yudhistira_heal": 647.8396113768944,
+      "stw_yudhistira_hp": 1714.6833544519181,
+      "tms_duryodana_angkara_cost": 2437.6954505193544,
+      "tms_duryodana_angkara_dmg": 1452.152578190332,
+      "tms_duryodana_hp": 1304.8844142232517,
+      "tms_duryodana_scale_value": 1275.472873770406,
+      "tms_sengkuni_cost_tamasika": 2508.471330587478,
+      "tms_sengkuni_cost_univ": 1995.2212225024416,
+      "tms_sengkuni_dmg": 1739.756047107834,
+      "tms_sengkuni_hp": 1508.3195739195874,
+      "tms_sengkuni_mill": 1110.694923429037
+    },
+    "num_trajectories": 30,
+    "num_levels": 4,
+    "num_evaluations": 780
+  },
+  "sobol": {
+    "param_names": [
+      "rjs_balarama_cost",
+      "rjs_balarama_dmg",
+      "rjs_balarama_hp",
+      "rjs_karna_cost",
+      "rjs_karna_dmg",
+      "rjs_karna_hp",
+      "rjs_karna_recoil",
+      "stw_arjuna_hp",
+      "stw_arjuna_pasupati_cost",
+      "stw_arjuna_pasupati_dmg",
+      "stw_yudhistira_cost_satwika",
+      "stw_yudhistira_cost_univ",
+      "stw_yudhistira_dmg",
+      "stw_yudhistira_dr",
+      "stw_yudhistira_heal",
+      "stw_yudhistira_hp",
+      "tms_duryodana_angkara_cost",
+      "tms_duryodana_angkara_dmg",
+      "tms_duryodana_hp",
+      "tms_duryodana_scale_value",
+      "tms_sengkuni_cost_tamasika",
+      "tms_sengkuni_cost_univ",
+      "tms_sengkuni_dmg",
+      "tms_sengkuni_hp",
+      "tms_sengkuni_mill"
+    ],
+    "S1": {
+      "rjs_balarama_cost": -0.2163555898581197,
+      "rjs_balarama_dmg": -0.008973910824909014,
+      "rjs_balarama_hp": 0.019923641184247463,
+      "rjs_karna_cost": -0.045119513955540494,
+      "rjs_karna_dmg": 0.07532528474049241,
+      "rjs_karna_hp": 0.039803932307889096,
+      "rjs_karna_recoil": -0.11351422566738557,
+      "stw_arjuna_hp": -0.02637636259337215,
+      "stw_arjuna_pasupati_cost": 0.20865581628529817,
+      "stw_arjuna_pasupati_dmg": -0.05375220629651283,
+      "stw_yudhistira_cost_satwika": 0.1590411642812057,
+      "stw_yudhistira_cost_univ": 0.16315630050469818,
+      "stw_yudhistira_dmg": 0.11522552959213568,
+      "stw_yudhistira_dr": 0.27459880348157234,
+      "stw_yudhistira_heal": -0.013783917119878579,
+      "stw_yudhistira_hp": 0.025785792219133217,
+      "tms_duryodana_angkara_cost": -0.05530678024485025,
+      "tms_duryodana_angkara_dmg": 0.05762367702446946,
+      "tms_duryodana_hp": 0.09805570827450509,
+      "tms_duryodana_scale_value": -0.05357549001394493,
+      "tms_sengkuni_cost_tamasika": 0.07769408983000413,
+      "tms_sengkuni_cost_univ": -0.19257441145533785,
+      "tms_sengkuni_dmg": 0.008496730601168727,
+      "tms_sengkuni_hp": 0.03502224131126501,
+      "tms_sengkuni_mill": 0.1806342720170461
+    },
+    "ST": {
+      "rjs_balarama_cost": 0.2587243400260161,
+      "rjs_balarama_dmg": 0.15691143852183237,
+      "rjs_balarama_hp": 0.10837790669362296,
+      "rjs_karna_cost": 0.2661878007058939,
+      "rjs_karna_dmg": 0.08849366088506819,
+      "rjs_karna_hp": 0.08014673751477579,
+      "rjs_karna_recoil": 0.13638542124634984,
+      "stw_arjuna_hp": 0.06006397041276428,
+      "stw_arjuna_pasupati_cost": 0.11356309427381224,
+      "stw_arjuna_pasupati_dmg": 0.04093443589519653,
+      "stw_yudhistira_cost_satwika": 0.16738854104834505,
+      "stw_yudhistira_cost_univ": 0.2329145535954171,
+      "stw_yudhistira_dmg": 0.14526309424075487,
+      "stw_yudhistira_dr": 0.14223869880344137,
+      "stw_yudhistira_heal": 0.01680169480547149,
+      "stw_yudhistira_hp": 0.07603942878357516,
+      "tms_duryodana_angkara_cost": 0.3889052178343935,
+      "tms_duryodana_angkara_dmg": 0.06647865561326786,
+      "tms_duryodana_hp": 0.07371143350416347,
+      "tms_duryodana_scale_value": 0.0872814895745092,
+      "tms_sengkuni_cost_tamasika": 0.20410419399614804,
+      "tms_sengkuni_cost_univ": 0.22720521879079808,
+      "tms_sengkuni_dmg": 0.0675353036175779,
+      "tms_sengkuni_hp": 0.07630227818542877,
+      "tms_sengkuni_mill": 0.1067126609289301
+    },
+    "S1_conf": {
+      "rjs_balarama_cost": 0.3176832745966349,
+      "rjs_balarama_dmg": 0.2296878821533333,
+      "rjs_balarama_hp": 0.23130804940083488,
+      "rjs_karna_cost": 0.3733427981508243,
+      "rjs_karna_dmg": 0.20171616544255186,
+      "rjs_karna_hp": 0.21008050931338632,
+      "rjs_karna_recoil": 0.2230042268219716,
+      "stw_arjuna_hp": 0.15488922791677992,
+      "stw_arjuna_pasupati_cost": 0.22805325965811604,
+      "stw_arjuna_pasupati_dmg": 0.1272553011387532,
+      "stw_yudhistira_cost_satwika": 0.27489220194866115,
+      "stw_yudhistira_cost_univ": 0.3436407409611369,
+      "stw_yudhistira_dmg": 0.2612812061950801,
+      "stw_yudhistira_dr": 0.22947259858364694,
+      "stw_yudhistira_heal": 0.08185201347564751,
+      "stw_yudhistira_hp": 0.18602725296766254,
+      "tms_duryodana_angkara_cost": 0.41121264633156773,
+      "tms_duryodana_angkara_dmg": 0.14769430228001754,
+      "tms_duryodana_hp": 0.1946666933132128,
+      "tms_duryodana_scale_value": 0.19329455724581676,
+      "tms_sengkuni_cost_tamasika": 0.28672335911286007,
+      "tms_sengkuni_cost_univ": 0.28946827720512747,
+      "tms_sengkuni_dmg": 0.1801109085658209,
+      "tms_sengkuni_hp": 0.17310624301663965,
+      "tms_sengkuni_mill": 0.21386223683090025
+    },
+    "ST_conf": {
+      "rjs_balarama_cost": 0.08145414410232611,
+      "rjs_balarama_dmg": 0.06234953534026402,
+      "rjs_balarama_hp": 0.03945588055892411,
+      "rjs_karna_cost": 0.09398072820593874,
+      "rjs_karna_dmg": 0.03476920728633566,
+      "rjs_karna_hp": 0.03161253299527372,
+      "rjs_karna_recoil": 0.049804656891091585,
+      "stw_arjuna_hp": 0.024652754585238672,
+      "stw_arjuna_pasupati_cost": 0.05085958430240226,
+      "stw_arjuna_pasupati_dmg": 0.016773618469527685,
+      "stw_yudhistira_cost_satwika": 0.06283328591993882,
+      "stw_yudhistira_cost_univ": 0.08857444836976011,
+      "stw_yudhistira_dmg": 0.05854552304416972,
+      "stw_yudhistira_dr": 0.06027329264791126,
+      "stw_yudhistira_heal": 0.004807536505466478,
+      "stw_yudhistira_hp": 0.027620621674013655,
+      "tms_duryodana_angkara_cost": 0.13987942931249944,
+      "tms_duryodana_angkara_dmg": 0.024518830469782087,
+      "tms_duryodana_hp": 0.031187942717211196,
+      "tms_duryodana_scale_value": 0.038446597985690174,
+      "tms_sengkuni_cost_tamasika": 0.06970734250371648,
+      "tms_sengkuni_cost_univ": 0.08801934398960762,
+      "tms_sengkuni_dmg": 0.03153003833987216,
+      "tms_sengkuni_hp": 0.03414716877760961,
+      "tms_sengkuni_mill": 0.04216496729251769
+    },
+    "num_samples": 150,
+    "num_evaluations": 4050,
+    "output_variance": 3256896.6385172796
+  },
+  "morris_ranked": [
+    [
+      "rjs_karna_cost",
+      2414.1
+    ],
+    [
+      "stw_yudhistira_dmg",
+      2361.1
+    ],
+    [
+      "tms_duryodana_angkara_cost",
+      2245.75
+    ],
+    [
+      "stw_yudhistira_cost_univ",
+      2063.95
+    ],
+    [
+      "rjs_karna_dmg",
+      2060.85
+    ],
+    [
+      "stw_yudhistira_cost_satwika",
+      2052.8
+    ],
+    [
+      "stw_yudhistira_dr",
+      1898.75
+    ],
+    [
+      "tms_sengkuni_cost_tamasika",
+      1868.45
+    ],
+    [
+      "stw_arjuna_pasupati_cost",
+      1527.3
+    ],
+    [
+      "tms_sengkuni_cost_univ",
+      1438.55
+    ],
+    [
+      "rjs_karna_recoil",
+      1332.3
+    ],
+    [
+      "tms_sengkuni_dmg",
+      1323.6
+    ],
+    [
+      "stw_yudhistira_hp",
+      1322.75
+    ],
+    [
+      "rjs_karna_hp",
+      1320.05
+    ],
+    [
+      "rjs_balarama_dmg",
+      1299.5
+    ],
+    [
+      "rjs_balarama_cost",
+      1290.95
+    ],
+    [
+      "tms_duryodana_angkara_dmg",
+      1235.3
+    ],
+    [
+      "tms_sengkuni_hp",
+      1212.95
+    ],
+    [
+      "tms_duryodana_hp",
+      962.8
+    ],
+    [
+      "tms_sengkuni_mill",
+      864.25
+    ],
+    [
+      "rjs_balarama_hp",
+      823.5
+    ],
+    [
+      "stw_arjuna_hp",
+      764.0
+    ],
+    [
+      "tms_duryodana_scale_value",
+      764.0
+    ],
+    [
+      "stw_arjuna_pasupati_dmg",
+      652.3
+    ],
+    [
+      "stw_yudhistira_heal",
+      530.8
+    ]
+  ],
+  "sobol_ranked_by_ST": [
+    [
+      "tms_duryodana_angkara_cost",
+      0.3889052178343935
+    ],
+    [
+      "rjs_karna_cost",
+      0.2661878007058939
+    ],
+    [
+      "rjs_balarama_cost",
+      0.2587243400260161
+    ],
+    [
+      "stw_yudhistira_cost_univ",
+      0.2329145535954171
+    ],
+    [
+      "tms_sengkuni_cost_univ",
+      0.22720521879079808
+    ],
+    [
+      "tms_sengkuni_cost_tamasika",
+      0.20410419399614804
+    ],
+    [
+      "stw_yudhistira_cost_satwika",
+      0.16738854104834505
+    ],
+    [
+      "rjs_balarama_dmg",
+      0.15691143852183237
+    ],
+    [
+      "stw_yudhistira_dmg",
+      0.14526309424075487
+    ],
+    [
+      "stw_yudhistira_dr",
+      0.14223869880344137
+    ],
+    [
+      "rjs_karna_recoil",
+      0.13638542124634984
+    ],
+    [
+      "stw_arjuna_pasupati_cost",
+      0.11356309427381224
+    ],
+    [
+      "rjs_balarama_hp",
+      0.10837790669362296
+    ],
+    [
+      "tms_sengkuni_mill",
+      0.1067126609289301
+    ],
+    [
+      "rjs_karna_dmg",
+      0.08849366088506819
+    ],
+    [
+      "tms_duryodana_scale_value",
+      0.0872814895745092
+    ],
+    [
+      "rjs_karna_hp",
+      0.08014673751477579
+    ],
+    [
+      "tms_sengkuni_hp",
+      0.07630227818542877
+    ],
+    [
+      "stw_yudhistira_hp",
+      0.07603942878357516
+    ],
+    [
+      "tms_duryodana_hp",
+      0.07371143350416347
+    ],
+    [
+      "tms_sengkuni_dmg",
+      0.0675353036175779
+    ],
+    [
+      "tms_duryodana_angkara_dmg",
+      0.06647865561326786
+    ],
+    [
+      "stw_arjuna_hp",
+      0.06006397041276428
+    ],
+    [
+      "stw_arjuna_pasupati_dmg",
+      0.04093443589519653
+    ],
+    [
+      "stw_yudhistira_heal",
+      0.01680169480547149
+    ]
+  ],
+  "sum_S1": 0.7597105756252793,
+  "sum_ST": 3.3886712694975545,
+  "wall_time_seconds": {
+    "morris": 42.90238404273987,
+    "sobol": 224.5265462398529
+  },
+  "caveat": "num_runs_per_eval=100 is far below N_MATCH=20000; some unexplained variance in these indices is irreducible simulation noise, not a real interaction effect -- see module docstring."
+}

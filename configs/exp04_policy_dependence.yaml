@@ -1,0 +1,54 @@
+# Experiment 04 (Fase 4): is the balance found in exp03 policy-dependent?
+# exp03 measured the payoff matrix under Player.attack()'s one implicit,
+# automatic policy. This experiment self-plays each of 9 explicit agents
+# (src/agents/*) against ga_balanced_params.json and reports the range of
+# parity across that population -- not a single balance number.
+
+extends: base.yaml
+
+experiment:
+  id: exp04_policy_dependence
+  runner: experiments/exp04_policy_dependence.py
+
+parameter_set:
+  label: ga_balanced
+  source: data/ga_balanced_params.json   # the set exp03 found balanced under the automatic policy
+
+factions: [SATWIKA, RAJASIKA, TAMASIKA]
+pairs:
+  - [SATWIKA, TAMASIKA]
+  - [TAMASIKA, RAJASIKA]
+  - [RAJASIKA, SATWIKA]
+
+env:
+  max_turns: 60
+  base_seed: 20260801
+
+agents:
+  # n/cell is calibrated per agent, not uniform -- see rules_spec.md section
+  # 10 for the measured per-game compute cost this was based on.
+  - {label: random, type: RandomAgent, n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)}
+  - {label: greedy, type: GreedyAgent, n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)}
+  - {label: scripted_aggro, type: AggroAgent, n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)}
+  - {label: scripted_control, type: ControlAgent, n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)}
+  - {label: dqn_25pct, type: TabularQLearningAgent, checkpoint_fraction: 0.25, n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)}
+  - {label: dqn_50pct, type: TabularQLearningAgent, checkpoint_fraction: 0.50, n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)}
+  - {label: dqn_100pct, type: TabularQLearningAgent, checkpoint_fraction: 1.00, n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)}
+  - {label: mcts_budget100, type: MCTSAgent, budget: 100, rollout_depth: 10, n_per_cell: 15}
+  - {label: mcts_budget2000, type: MCTSAgent, budget: 2000, rollout_depth: 10, n_per_cell: 3}
+
+dqn_training:
+  # cumulative fraction of training -> games played since the previous checkpoint
+  schedule:
+    - {fraction: 0.25, games_since_last: 750}
+    - {fraction: 0.50, games_since_last: 750}
+    - {fraction: 1.00, games_since_last: 1500}
+  train_matchup: [SATWIKA, TAMASIKA]   # arbitrary -- agent generalizes via its abstracted feature vector
+  epsilon: 0.2
+  alpha: 0.1
+  gamma: 0.9
+
+output:
+  artifact: results/exp04_policy_dependence.json
+  figures:
+    - figures/policy_dependence_heatmap.png

@@ -5,9 +5,24 @@ import numpy as np
 
 from src.domain.models import Player, Card
 
-# NOTE: tabular Q-learning, not a neural DQN. Kept as QLearningAgent pending
-# the refactor to a true function-approximation agent + the shared Agent
-# interface in base.py.
+# --- LEGACY, NOT USED FOR ANY PAPER CLAIM (Fase 5 review) -----------------
+# QLearningAgent / play_rl_game / run_rl_self_play below is the ORIGINAL
+# tabular Q-learning implementation (3 macro-actions: Attack/Heal/Switch).
+# As of Fase 5 it is superseded by TabularQLearningAgent + train_tabular_agent
+# further down this file, which is the canonical RL agent for this project
+# (see rules_spec.md section 12 for the formal spec, Eq. (2), hyperparameters
+# in results/dqn_hparams.json). This legacy path is kept only for archival
+# reference and has two known defects that disqualify it from paper claims:
+#   1. Its "Heal" action (action=1) is dead in expectation: bench characters
+#      can never be damaged (rules_spec.md 4.3), so `damaged_bench` is always
+#      empty and the +10/-10 heal-shaping term always resolves to -10.
+#   2. `run_rl_self_play` used to print an unverified narrative conclusion
+#      ("Kesimpulan: ... win rate > 70% membuktikan...") from a single,
+#      un-seeded, non-CI'd run -- exactly the kind of claim Aturan Main
+#      Fase 2 bans. That print statement has been removed; do not
+#      reintroduce a claim like it without a Wilson CI and an artifact.
+# Do not cite QLearningAgent, play_rl_game, or run_rl_self_play's printed
+# output as a paper result.
 class QLearningAgent:
     def __init__(self, epsilon=0.2, alpha=0.1, gamma=0.9):
         self.epsilon = epsilon
@@ -250,6 +265,154 @@ def run_rl_self_play(num_train_games=2500, num_eval_games=500):
     print(f"  - Kemenangan Agen RL   : {rl_wins} / {num_eval_games} pertandingan")
     print(f"  - Win Rate Agen RL     : {win_rate:.2f}%")
     print(f"  - Win Rate Agen Random : {100 - win_rate:.2f}%")
-    
-    if win_rate > 70:
-        print("\nKesimpulan: Agen RL berhasil mempelajari taktik game! Win rate > 70% membuktikan keunggulan strategi penyesuaian aksi dibanding aksi acak.")
+    print("  (single un-seeded run, no Wilson CI -- diagnostic only, not a paper claim;"
+          " see experiments/exp05_reward_sensitivity.py for the citable equivalent)")
+
+
+# --- Fase 4: tabular Q-learning over src.simulator.agent_env's action space
+# (attack CHOICE + switch, see src/agents/base.py) -- separate from
+# QLearningAgent above, which uses the older 3-macro-action space where
+# attack choice was never actually agent-controlled and "Heal" is dead code
+# (rules_spec.md section 4.3). Implements the src.agents.base.Agent
+# interface so it plays in exp04_policy_dependence.py alongside every other
+# agent type.
+
+from src.agents.base import Agent
+
+
+class TabularQLearningAgent(Agent):
+    def __init__(self, epsilon=0.2, alpha=0.1, gamma=0.9, name="dqn", rng=None):
+        self.epsilon = epsilon
+        self.alpha = alpha
+        self.gamma = gamma
+        self.q = {}  # {(features, action): value}
+        self.name = name
+        self.train_mode = True
+        self._rng = rng or random.Random()
+
+    def _q(self, features, action):
+        return self.q.get((features, action), 0.0)
+
+    def act(self, observation):
+        legal = observation.legal_actions
+        if self.train_mode and self._rng.random() < self.epsilon:
+            return self._rng.choice(legal)
+        best = max(legal, key=lambda a: self._q(observation.features, a))
+        return best
+
+    def learn_from_episode(self, history):
+        """history: list of (features, legal_actions, action, reward) for
+        ONE side's consecutive decisions across one game, in order."""
+        for t in range(len(history)):
+            features, _legal, action, reward = history[t]
+            if t + 1 < len(history):
+                next_features, next_legal, _, _ = history[t + 1]
+                next_max = max((self._q(next_features, a) for a in next_legal), default=0.0)
+            else:
+                next_max = 0.0  # terminal
+            old = self._q(features, action)
+            self.q[(features, action)] = old + self.alpha * (reward + self.gamma * next_max - old)
+
+    def snapshot(self, name=None):
+        """Frozen, greedy (epsilon=0) copy for evaluation/checkpointing --
+        training continues on `self`, unaffected by later use of the snapshot."""
+        clone = TabularQLearningAgent(epsilon=0.0, alpha=self.alpha, gamma=self.gamma, name=name or self.name)
+        clone.q = dict(self.q)
+        clone.train_mode = False
+        return clone
+
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class RewardWeights:
+    """Named reward-shaping weights for train_tabular_agent (Fase 5 review:
+    "bobot reward w1,w2,w3,w_KO tidak pernah disebut"). See rules_spec.md
+    section 12.4 for the full derivation. Defaults reproduce Fase 4's
+    original (unnamed) reward exactly: w1=-0.01 per step, w2=w3=0 (no
+    shaping beyond step cost), w_KO=+-1.0 terminal -- so every Fase 4
+    artifact (results/exp04_policy_dependence.json) remains reproducible
+    under RewardWeights() with no argument changes.
+
+    w1_step_cost      : flat reward applied every action, regardless of
+                         state or action taken. NOT potential-based shaping
+                         in the Ng/Harada/Russell (ICML 1999) sense -- it is
+                         a constant, not a function of a state potential --
+                         but a UNIFORM per-step constant is a standard,
+                         policy-preserving time cost as long as it does not
+                         interact with action choice (see rules_spec.md
+                         12.4 for why w3 below is different).
+    w2_hp_potential   : coefficient on the POTENTIAL-BASED shaping term
+                         F(s,a,s') = gamma*Phi(s') - Phi(s), with
+                         Phi(s) = own_active_hp_fraction(s) - opp_active_hp_fraction(s)
+                         (AgentGameEnv.hp_fraction), Phi(terminal) := 0 by
+                         convention. Per Ng, Harada & Russell (1999,
+                         Theorem 1), ANY value of this coefficient leaves the
+                         optimal policy unchanged -- only learning speed is
+                         affected. This is the term the sensitivity sweep in
+                         experiments/exp05_reward_sensitivity.py uses as the
+                         "should not move the balance conclusion" control.
+    w3_aggression_bias: flat bonus added when the chosen action is ATTACK
+                         (0 for SWITCH), independent of the resulting state.
+                         Deliberately NOT of the F=gamma*Phi(s')-Phi(s) form
+                         (it depends on the ACTION, not a state-potential
+                         difference) -- included specifically as the
+                         textbook non-potential-based case Ng et al. 1999
+                         warn can change the optimal policy. The sweep
+                         empirically checks whether it does, here.
+    w_ko              : magnitude of the terminal win(+w_ko)/lose(-w_ko)
+                         reward appended to the acting side's final
+                         transition of the episode.
+    """
+
+    w1_step_cost: float = -0.01
+    w2_hp_potential: float = 0.0
+    w3_aggression_bias: float = 0.0
+    w_ko: float = 1.0
+
+
+def train_tabular_agent(agent, deck_a, deck_b, num_games, max_turns=60, base_seed=0,
+                         weights: "RewardWeights" = None):
+    """Self-play training: `agent` (in train_mode) controls both sides,
+    sharing one Q-table. Reward = w1_step_cost (every action)
+    + w2_hp_potential * (gamma*Phi(s') - Phi(s)) (potential-based HP-diff
+    shaping, gamma taken from `agent.gamma` so the shaping telescopes
+    correctly against the same discount the Q-update uses)
+    + w3_aggression_bias (if the action was ATTACK)
+    on every step, plus +-w_ko on the final transition of each side's
+    episode. See RewardWeights' docstring and rules_spec.md section 12.4."""
+    from src.simulator.agent_env import AgentGameEnv
+
+    weights = weights or RewardWeights()
+    total_steps = 0
+
+    for i in range(num_games):
+        env = AgentGameEnv(deck_a, deck_b, "A", "B", max_turns=max_turns)
+        obs = env.reset(seed=base_seed + i)
+        history = {"A": [], "B": []}
+
+        while not env.done:
+            side = env.current_side
+            opp_side = "B" if side == "A" else "A"
+            phi_before = env.hp_fraction(side) - env.hp_fraction(opp_side)
+
+            action = agent.act(obs)
+            features, legal = obs.features, obs.legal_actions
+            is_attack = action.kind == "ATTACK"
+
+            obs, done, winner = env.step(action)
+
+            phi_after = 0.0 if env.done else (env.hp_fraction(side) - env.hp_fraction(opp_side))
+            shaping = weights.w2_hp_potential * (agent.gamma * phi_after - phi_before)
+            reward = weights.w1_step_cost + shaping + (weights.w3_aggression_bias if is_attack else 0.0)
+
+            history[side].append([features, legal, action, reward])
+            total_steps += 1
+
+        for side in ("A", "B"):
+            if history[side]:
+                history[side][-1][3] += weights.w_ko if env.winner_side == side else -weights.w_ko
+            agent.learn_from_episode([tuple(h) for h in history[side]])
+
+    return total_steps

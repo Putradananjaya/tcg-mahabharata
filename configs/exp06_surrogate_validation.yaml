@@ -1,0 +1,51 @@
+# Experiment 06a (Fase 6): does the win-rate surrogate predict anything
+# useful? Supersedes the never-implemented exp02_surrogate_validation with
+# the protocol the Fase 6 review demanded: split by design point (not by
+# match -- see leakage_demo), three mandatory baselines, MAE/RMSE/R2,
+# calibration (reliability diagram), and an out-of-distribution eval.
+
+extends: base.yaml
+
+experiment:
+  id: exp06_surrogate_validation
+  runner: experiments/exp06_surrogate_validation.py
+
+dataset:
+  n_id_total: 380          # distinct narrow-range design points; split 300 train / 80 ID-test
+  n_id_train: 300
+  n_ood_test: 80            # distinct design points sampled uniformly across the FULL BOUNDS range
+  num_runs_label: 150       # games/matchup per design point (matches exp00's established precedent)
+  narrow_scale: 0.08        # gaussian perturbation scale around SMART_START, fraction of (high-low)
+  split_unit: design_point  # NOT match/game -- see module docstring and leakage_demo()
+
+baselines:
+  - {label: constant_0.5, type: ConstantPredictor}
+  - {label: linear_regression, type: LinearRegressionBaseline}
+  - {label: gradient_boosting, type: GradientBoostingBaseline, n_estimators: 60, learning_rate: 0.1, max_depth: 3}
+
+surrogate:
+  type: MLPEnsemble
+  num_models: 5             # deep ensemble (Lakshminarayanan et al. 2017), diverse init per member
+  hidden_dim: 16
+  epochs: 2500
+  learning_rate: 0.03
+
+significance_test:
+  method: paired_bootstrap_mae_diff
+  n_boot: 3000
+  claim: "MLP ensemble must beat constant_0.5 by a 95%-CI-excludes-0 margin, or the surrogate contribution is retracted"
+
+calibration:
+  method: cdf_quantile_reliability   # Kuleshov, Fenner & Ermon, ICML 2018
+  levels: [0.05, 0.10, ..., 0.95]    # 19 evenly-spaced levels
+
+leakage_demo:
+  n_points: 100
+  replicate_runs: 40   # games/matchup per noisy replicate label, 4 replicates/point
+  truth_runs: 200      # games/matchup for the held-out ground-truth label, never trained on
+
+output:
+  artifact: results/exp06_surrogate_validation.json
+  figures:
+    - figures/surrogate_baseline_comparison.png
+    - figures/surrogate_calibration.png

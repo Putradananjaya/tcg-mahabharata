@@ -1,0 +1,253 @@
+{
+  "base_seed": 20260801,
+  "n_repetitions": 5,
+  "parameters": {
+    "population_size": 12,
+    "n_generations": 30,
+    "n_match_per_eval": 60,
+    "dataset_size": 200,
+    "ensemble_epochs": 2000,
+    "final_verification_n_match": 2000
+  },
+  "surrogate_pipeline": {
+    "t_data_generation": {
+      "mean": 6.609975814819336,
+      "std": 0.08067884587774478
+    },
+    "t_surrogate_training": {
+      "mean": 1.191800022125244,
+      "std": 0.009093374998944116
+    },
+    "t_optimization": {
+      "mean": 0.04435052871704102,
+      "std": 0.000348923965485506
+    },
+    "t_elite_verification": {
+      "mean": 0.9691155433654786,
+      "std": 0.06562938461226463
+    },
+    "total": {
+      "mean": 8.8152419090271,
+      "std": 0.04241103891709951
+    },
+    "mean_surrogate_eval_seconds": {
+      "mean": 9.24629635281033e-05,
+      "std": 7.82311169418542e-07
+    }
+  },
+  "pure_monte_carlo": {
+    "t_total": {
+      "mean": 12.583475112915039,
+      "std": 0.8330169020621278
+    },
+    "mean_real_eval_seconds": {
+      "mean": 0.03277254581451416,
+      "std": 0.0005683221624275622
+    }
+  },
+  "per_evaluation_speedup": 354.4397082249395,
+  "fixed_setup_cost_seconds": 7.80177583694458,
+  "per_run_cost_surrogate_seconds": 1.0134660720825195,
+  "per_run_cost_monte_carlo_seconds": 12.583475112915039,
+  "break_even_num_runs": 0.6743102628019384,
+  "amortized_speedup_at_10_runs": 7.0155936896306645,
+  "cumulative_cost_curve": {
+    "n_runs": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "surrogate_seconds": [
+      8.8152419090271,
+      9.82870798110962,
+      10.842174053192139,
+      11.855640125274657,
+      12.869106197357178,
+      13.882572269439697,
+      14.896038341522218,
+      15.909504413604736,
+      16.922970485687255,
+      17.936436557769774,
+      18.949902629852296,
+      19.96336870193481,
+      20.976834774017334,
+      21.990300846099853,
+      23.00376691818237,
+      24.017232990264894,
+      25.03069906234741,
+      26.04416513442993,
+      27.057631206512454,
+      28.07109727859497,
+      29.08456335067749,
+      30.098029422760007,
+      31.11149549484253,
+      32.124961566925045,
+      33.13842763900757,
+      34.15189371109009,
+      35.165359783172605,
+      36.17882585525513,
+      37.19229192733764,
+      38.205757999420165
+    ],
+    "monte_carlo_seconds": [
+      12.583475112915039,
+      25.166950225830078,
+      37.75042533874512,
+      50.333900451660156,
+      62.917375564575195,
+      75.50085067749023,
+      88.08432579040527,
+      100.66780090332031,
+      113.25127601623535,
+      125.83475112915039,
+      138.41822624206543,
+      151.00170135498047,
+      163.5851764678955,
+      176.16865158081055,
+      188.7521266937256,
+      201.33560180664062,
+      213.91907691955566,
+      226.5025520324707,
+      239.08602714538574,
+      251.66950225830078,
+      264.2529773712158,
+      276.83645248413086,
+      289.4199275970459,
+      302.00340270996094,
+      314.586877822876,
+      327.170352935791,
+      339.75382804870605,
+      352.3373031616211,
+      364.92077827453613,
+      377.5042533874512
+    ]
+  },
+  "raw_repetitions": {
+    "surrogate": [
+      {
+        "t_data_generation": 6.569439172744751,
+        "t_surrogate_training": 1.2062010765075684,
+        "t_optimization": 0.0448760986328125,
+        "t_elite_verification": 0.987220048904419,
+        "total": 8.80773639678955,
+        "mean_surrogate_eval_seconds": 9.342034657796224e-05,
+        "final_verified_loss": 5161.29,
+        "final_verified_rates": {
+          "SATWIKA_vs_TAMASIKA": 0.0,
+          "TAMASIKA_vs_RAJASIKA": 100.0,
+          "RAJASIKA_vs_SATWIKA": 37.3
+        }
+      },
+      {
+        "t_data_generation": 6.617932081222534,
+        "t_surrogate_training": 1.185270071029663,
+        "t_optimization": 0.044156789779663086,
+        "t_elite_verification": 1.0201809406280518,
+        "total": 8.867539882659912,
+        "mean_surrogate_eval_seconds": 9.167326821221245e-05,
+        "final_verified_loss": 5378.8625,
+        "final_verified_rates": {
+          "SATWIKA_vs_TAMASIKA": 7.85,
+          "TAMASIKA_vs_RAJASIKA": 83.2,
+          "RAJASIKA_vs_SATWIKA": 100.0
+        }
+      },
+      {
+        "t_data_generation": 6.746738910675049,
+        "t_surrogate_training": 1.1950769424438477,
+        "t_optimization": 0.04452180862426758,
+        "t_elite_verification": 0.8601229190826416,
+        "total": 8.846460580825806,
+        "mean_surrogate_eval_seconds": 9.270509084065755e-05,
+        "final_verified_loss": 5012.6025,
+        "final_verified_rates": {
+          "SATWIKA_vs_TAMASIKA": 0.0,
+          "TAMASIKA_vs_RAJASIKA": 53.55,
+          "RAJASIKA_vs_SATWIKA": 100.0
+        }
+      },
+      {
+        "t_data_generation": 6.547919034957886,
+        "t_surrogate_training": 1.1842448711395264,
+        "t_optimization": 0.0440058708190918,
+        "t_elite_verification": 1.0174970626831055,
+        "total": 8.79366683959961,
+        "mean_surrogate_eval_seconds": 9.163949224683973e-05,
+        "final_verified_loss": 4990.1,
+        "final_verified_rates": {
+          "SATWIKA_vs_TAMASIKA": 0.0,
+          "TAMASIKA_vs_RAJASIKA": 99.9,
+          "RAJASIKA_vs_SATWIKA": 49.7
+        }
+      },
+      {
+        "t_data_generation": 6.56784987449646,
+        "t_surrogate_training": 1.1882071495056152,
+        "t_optimization": 0.04419207572937012,
+        "t_elite_verification": 0.9605567455291748,
+        "total": 8.76080584526062,
+        "mean_surrogate_eval_seconds": 9.287661976284452e-05,
+        "final_verified_loss": 4823.525,
+        "final_verified_rates": {
+          "SATWIKA_vs_TAMASIKA": 0.0,
+          "TAMASIKA_vs_RAJASIKA": 92.55,
+          "RAJASIKA_vs_SATWIKA": 72.65
+        }
+      }
+    ],
+    "monte_carlo": [
+      {
+        "t_total": 14.054885149002075,
+        "best_value": 2.7777777777777697,
+        "mean_real_eval_seconds": 0.03209719657897949
+      },
+      {
+        "t_total": 12.222763061523438,
+        "best_value": 169.4444444444444,
+        "mean_real_eval_seconds": 0.032374441623687744
+      },
+      {
+        "t_total": 12.038825035095215,
+        "best_value": 52.02111355001264,
+        "mean_real_eval_seconds": 0.03347247838973999
+      },
+      {
+        "t_total": 12.19168734550476,
+        "best_value": 2.7777777777777697,
+        "mean_real_eval_seconds": 0.03271670341491699
+      },
+      {
+        "t_total": 12.409214973449707,
+        "best_value": 491.66666666666674,
+        "mean_real_eval_seconds": 0.03320190906524658
+      }
+    ]
+  }
+}

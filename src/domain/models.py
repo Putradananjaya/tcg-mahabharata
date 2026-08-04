@@ -161,31 +161,44 @@ class Player:
                     self.prana_pool[p_type] -= 1
                     break
 
-    def attack(self, opponent):
+    def attack(self, opponent, forced_attack=None):
+        """forced_attack: optional, an entry from self.active_character's own
+        `attacks` list to use instead of the automatic best-damage/panic
+        selection below. Lets an external decision-maker (src.agents, via
+        src.simulator.agent_env) choose which attack to use, while every
+        existing caller (unaffected, forced_attack defaults to None) keeps
+        the original automatic behavior byte-for-byte. Returns False if
+        forced_attack isn't affordable -- the caller is expected to only
+        pass attacks that passed can_afford (e.g. from legal_actions())."""
         if not self.active_character: return False
-        
+
         attacks = self.active_character.raw_data.get("attacks", [])
         if not attacks: return False
-        
-        sorted_attacks = sorted(attacks, key=lambda x: x.get("base_damage", 0), reverse=True)
-        best_attack = sorted_attacks[0]
-        best_cost_dict = best_attack.get("prana_cost", {})
-        
-        is_panic = self.active_character.current_hp <= (self.active_character.hp * 0.4)
-        chosen_attack = None
-        
-        if self.can_afford(best_cost_dict):
-            chosen_attack = best_attack
-        elif is_panic:
-            for atk in sorted_attacks:
-                if self.can_afford(atk.get("prana_cost", {})):
-                    chosen_attack = atk
-                    break
+
+        if forced_attack is not None:
+            if not self.can_afford(forced_attack.get("prana_cost", {})):
+                return False
+            chosen_attack = forced_attack
         else:
-            return False
-            
-        if not chosen_attack:
-            return False
+            sorted_attacks = sorted(attacks, key=lambda x: x.get("base_damage", 0), reverse=True)
+            best_attack = sorted_attacks[0]
+            best_cost_dict = best_attack.get("prana_cost", {})
+
+            is_panic = self.active_character.current_hp <= (self.active_character.hp * 0.4)
+            chosen_attack = None
+
+            if self.can_afford(best_cost_dict):
+                chosen_attack = best_attack
+            elif is_panic:
+                for atk in sorted_attacks:
+                    if self.can_afford(atk.get("prana_cost", {})):
+                        chosen_attack = atk
+                        break
+            else:
+                return False
+
+            if not chosen_attack:
+                return False
         
         self.pay_prana(chosen_attack.get("prana_cost", {}))
         self.attack_log.append(chosen_attack.get("name"))

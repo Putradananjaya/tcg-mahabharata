@@ -1,0 +1,315 @@
+{
+  "params": "data/ga_balanced_params.json",
+  "base_seed": 20260801,
+  "max_turns": 60,
+  "pairs": [
+    "SATWIKA_vs_TAMASIKA",
+    "TAMASIKA_vs_RAJASIKA",
+    "RAJASIKA_vs_SATWIKA"
+  ],
+  "agents": {
+    "random": {
+      "n": 783,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 635,
+          "n": 783,
+          "win_rate": 0.8109833971902938,
+          "wilson_ci_95": {
+            "lower": 0.7820665449311429,
+            "upper": 0.8368637294470122
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 669,
+          "n": 783,
+          "win_rate": 0.8544061302681992,
+          "wilson_ci_95": {
+            "lower": 0.8279713791369936,
+            "upper": 0.8773803709243535
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 48,
+          "n": 783,
+          "win_rate": 0.06130268199233716,
+          "wilson_ci_95": {
+            "lower": 0.04654689915467182,
+            "upper": 0.08034201563425523
+          }
+        }
+      }
+    },
+    "greedy": {
+      "n": 783,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 180,
+          "n": 783,
+          "win_rate": 0.22988505747126436,
+          "wilson_ci_95": {
+            "lower": 0.20177488819760472,
+            "upper": 0.26063269689077395
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 611,
+          "n": 783,
+          "win_rate": 0.7803320561941252,
+          "wilson_ci_95": {
+            "lower": 0.750002475040713,
+            "upper": 0.8079244047375418
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 464,
+          "n": 783,
+          "win_rate": 0.5925925925925926,
+          "wilson_ci_95": {
+            "lower": 0.5578057308744887,
+            "upper": 0.6264753569793767
+          }
+        }
+      }
+    },
+    "scripted_aggro": {
+      "n": 783,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 92,
+          "n": 783,
+          "win_rate": 0.11749680715197956,
+          "wilson_ci_95": {
+            "lower": 0.0967872281106595,
+            "upper": 0.14194124344475145
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 427,
+          "n": 783,
+          "win_rate": 0.545338441890166,
+          "wilson_ci_95": {
+            "lower": 0.5103242093018421,
+            "upper": 0.5799099785438437
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 552,
+          "n": 783,
+          "win_rate": 0.7049808429118773,
+          "wilson_ci_95": {
+            "lower": 0.6720990734390786,
+            "upper": 0.7358611279477545
+          }
+        }
+      }
+    },
+    "scripted_control": {
+      "n": 783,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 403,
+          "n": 783,
+          "win_rate": 0.5146871008939975,
+          "wilson_ci_95": {
+            "lower": 0.4796942939639006,
+            "upper": 0.549536499281885
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 719,
+          "n": 783,
+          "win_rate": 0.9182630906768838,
+          "wilson_ci_95": {
+            "lower": 0.8969700369494162,
+            "upper": 0.9354721185283901
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 330,
+          "n": 783,
+          "win_rate": 0.421455938697318,
+          "wilson_ci_95": {
+            "lower": 0.38733491139916365,
+            "upper": 0.4563438899385919
+          }
+        }
+      }
+    },
+    "dqn_25pct": {
+      "n": 783,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 643,
+          "n": 783,
+          "win_rate": 0.8212005108556832,
+          "wilson_ci_95": {
+            "lower": 0.7928125504771639,
+            "upper": 0.8464521887676246
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 534,
+          "n": 783,
+          "win_rate": 0.6819923371647509,
+          "wilson_ci_95": {
+            "lower": 0.6485520392024103,
+            "upper": 0.7136556162344977
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 31,
+          "n": 783,
+          "win_rate": 0.03959131545338442,
+          "wilson_ci_95": {
+            "lower": 0.02803004573329671,
+            "upper": 0.05564813121403433
+          }
+        }
+      }
+    },
+    "dqn_50pct": {
+      "n": 783,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 599,
+          "n": 783,
+          "win_rate": 0.7650063856960408,
+          "wilson_ci_95": {
+            "lower": 0.734058898239381,
+            "upper": 0.7933662842389235
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 672,
+          "n": 783,
+          "win_rate": 0.8582375478927203,
+          "wilson_ci_95": {
+            "lower": 0.8320540446674394,
+            "upper": 0.8809231297188953
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 49,
+          "n": 783,
+          "win_rate": 0.06257982120051085,
+          "wilson_ci_95": {
+            "lower": 0.047657708261041355,
+            "upper": 0.08177301463621489
+          }
+        }
+      }
+    },
+    "dqn_100pct": {
+      "n": 783,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 541,
+          "n": 783,
+          "win_rate": 0.6909323116219668,
+          "wilson_ci_95": {
+            "lower": 0.6576981174290353,
+            "upper": 0.722302194766177
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 664,
+          "n": 783,
+          "win_rate": 0.8480204342273308,
+          "wilson_ci_95": {
+            "lower": 0.8211796783189439,
+            "upper": 0.8714630312007573
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 90,
+          "n": 783,
+          "win_rate": 0.11494252873563218,
+          "wilson_ci_95": {
+            "lower": 0.09445735920038593,
+            "upper": 0.13918749613836662
+          }
+        }
+      }
+    },
+    "mcts_budget100": {
+      "n": 15,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 13,
+          "n": 15,
+          "win_rate": 0.8666666666666667,
+          "wilson_ci_95": {
+            "lower": 0.6211801716767765,
+            "upper": 0.9626387408969347
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 15,
+          "n": 15,
+          "win_rate": 1.0,
+          "wilson_ci_95": {
+            "lower": 0.7961166989641515,
+            "upper": 1.0
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 0,
+          "n": 15,
+          "win_rate": 0.0,
+          "wilson_ci_95": {
+            "lower": 2.7755575615628914e-17,
+            "upper": 0.2038833010358485
+          }
+        }
+      }
+    },
+    "mcts_budget2000": {
+      "n": 3,
+      "cells": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 2,
+          "n": 3,
+          "win_rate": 0.6666666666666666,
+          "wilson_ci_95": {
+            "lower": 0.20765960080204776,
+            "upper": 0.9385080552796037
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 3,
+          "n": 3,
+          "win_rate": 1.0,
+          "wilson_ci_95": {
+            "lower": 0.4385029682449546,
+            "upper": 1.0
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 0,
+          "n": 3,
+          "win_rate": 0.0,
+          "wilson_ci_95": {
+            "lower": 0.0,
+            "upper": 0.5614970317550454
+          }
+        }
+      }
+    }
+  },
+  "parity_range_pp": {
+    "min_abs_deviation_pp": 1.4687100893997496,
+    "max_abs_deviation_pp": 50.0
+  },
+  "per_agent_max_deviation_pp": {
+    "random": 43.86973180076628,
+    "greedy": 28.033205619412517,
+    "scripted_aggro": 38.25031928480204,
+    "scripted_control": 41.826309067688385,
+    "dqn_25pct": 46.04086845466156,
+    "dqn_50pct": 43.74201787994891,
+    "dqn_100pct": 38.50574712643679,
+    "mcts_budget100": 50.0,
+    "mcts_budget2000": 50.0
+  }
+}

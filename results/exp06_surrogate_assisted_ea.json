@@ -1,0 +1,845 @@
+{
+  "base_seed": 20260801,
+  "managed_loop": {
+    "pop_size": 30,
+    "generations": 60,
+    "validate_every": 3,
+    "top_m": 5,
+    "num_seed_points": 50,
+    "num_runs_seed": 150,
+    "num_runs_real": 150,
+    "acquisition": "ei",
+    "num_real_evaluations": 155,
+    "wall_time_seconds": 17.92165994644165,
+    "best_chromo": {
+      "stw_yudhistira_hp": 133,
+      "stw_yudhistira_dmg": 42,
+      "stw_yudhistira_dr": 18,
+      "stw_yudhistira_heal": 34,
+      "stw_yudhistira_cost_satwika": 1,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 85,
+      "stw_arjuna_pasupati_dmg": 53,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 86,
+      "rjs_balarama_dmg": 44,
+      "rjs_balarama_cost": 1,
+      "rjs_karna_hp": 98,
+      "rjs_karna_dmg": 50,
+      "rjs_karna_recoil": 8,
+      "rjs_karna_cost": 2,
+      "tms_sengkuni_hp": 78,
+      "tms_sengkuni_dmg": 25,
+      "tms_sengkuni_mill": 3,
+      "tms_sengkuni_cost_tamasika": 1,
+      "tms_sengkuni_cost_univ": 1,
+      "tms_duryodana_hp": 149,
+      "tms_duryodana_angkara_dmg": 46,
+      "tms_duryodana_scale_value": 8,
+      "tms_duryodana_angkara_cost": 2
+    },
+    "final_verified_loss": 176.75094999999996,
+    "final_verified_rates": {
+      "SATWIKA_vs_TAMASIKA": 39.47,
+      "TAMASIKA_vs_RAJASIKA": 56.855,
+      "RAJASIKA_vs_SATWIKA": 54.345
+    },
+    "final_verified_num_runs": 20000,
+    "history": [
+      {
+        "gen": 0,
+        "surrogate_best_mu_loss": 1967.9509534156837,
+        "surrogate_best_sigma_loss": 215.00371232724865,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6495.111111111111,
+          2077.3333333333335,
+          3180.0,
+          1451.5555555555557,
+          7500.0
+        ],
+        "elite_surrogate_mu_losses": [
+          1967.9509534156837,
+          1704.5300292419076,
+          2043.3754763786371,
+          1729.9440408311343,
+          2085.152430807268
+        ],
+        "surrogate_truth_gap_mean_abs": 2345.964807975305,
+        "dataset_size": 55
+      },
+      {
+        "gen": 1,
+        "surrogate_best_mu_loss": 1893.290614175407,
+        "surrogate_best_sigma_loss": 204.0153320241784,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 2,
+        "surrogate_best_mu_loss": 1763.4707181323618,
+        "surrogate_best_sigma_loss": 206.0972793064046,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 3,
+        "surrogate_best_mu_loss": 1719.3569052042071,
+        "surrogate_best_sigma_loss": 279.43626903514433,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6348.88888888889,
+          3149.333333333333,
+          3440.888888888889,
+          5044.444444444444,
+          2921.7777777777774
+        ],
+        "elite_surrogate_mu_losses": [
+          1719.3569052042071,
+          1805.5646422305872,
+          1844.699700969788,
+          1849.7107304369645,
+          1830.1222676897148
+        ],
+        "surrogate_truth_gap_mean_abs": 2371.175817360415,
+        "dataset_size": 60
+      },
+      {
+        "gen": 4,
+        "surrogate_best_mu_loss": 1332.1621164808455,
+        "surrogate_best_sigma_loss": 226.68719434083775,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 5,
+        "surrogate_best_mu_loss": 1332.1621164808455,
+        "surrogate_best_sigma_loss": 226.68719434083775,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 6,
+        "surrogate_best_mu_loss": 1092.757958679265,
+        "surrogate_best_sigma_loss": 196.65024445053322,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          4318.222222222222,
+          2284.4444444444443,
+          5974.222222222221,
+          2313.777777777778,
+          1856.4444444444441
+        ],
+        "elite_surrogate_mu_losses": [
+          1092.757958679265,
+          1345.8178019799427,
+          1206.5545214754934,
+          1332.8680270897416,
+          1332.1621164808455
+        ],
+        "surrogate_truth_gap_mean_abs": 2087.390137081164,
+        "dataset_size": 65
+      },
+      {
+        "gen": 7,
+        "surrogate_best_mu_loss": 880.3488193910101,
+        "surrogate_best_sigma_loss": 169.06390900939846,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 8,
+        "surrogate_best_mu_loss": 825.2360989599587,
+        "surrogate_best_sigma_loss": 188.04584864086445,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 9,
+        "surrogate_best_mu_loss": 828.3839081658214,
+        "surrogate_best_sigma_loss": 190.2283458325193,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          7433.777777777777,
+          6697.777777777777,
+          6980.8888888888905,
+          7304.0,
+          5105.777777777778
+        ],
+        "elite_surrogate_mu_losses": [
+          828.3839081658214,
+          825.2360989599587,
+          902.9389832939487,
+          827.5578581653396,
+          861.1746912630819
+        ],
+        "surrogate_truth_gap_mean_abs": 5855.3861364748145,
+        "dataset_size": 70
+      },
+      {
+        "gen": 10,
+        "surrogate_best_mu_loss": 611.5877088600284,
+        "surrogate_best_sigma_loss": 89.68156922035455,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 11,
+        "surrogate_best_mu_loss": 616.1240999909444,
+        "surrogate_best_sigma_loss": 92.79534863275116,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 12,
+        "surrogate_best_mu_loss": 613.1325707531519,
+        "surrogate_best_sigma_loss": 98.29666151545064,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          4371.555555555556,
+          5024.888888888888,
+          6348.888888888889,
+          2359.5555555555557,
+          4105.333333333333
+        ],
+        "elite_surrogate_mu_losses": [
+          613.1325707531519,
+          613.457066745483,
+          607.5405741853654,
+          614.3310187157333,
+          608.506823244742
+        ],
+        "surrogate_truth_gap_mean_abs": 3830.6508337155487,
+        "dataset_size": 75
+      },
+      {
+        "gen": 13,
+        "surrogate_best_mu_loss": 764.0597444800808,
+        "surrogate_best_sigma_loss": 212.40584673838842,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 14,
+        "surrogate_best_mu_loss": 803.8349837364792,
+        "surrogate_best_sigma_loss": 224.5152649859459,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 15,
+        "surrogate_best_mu_loss": 813.0624654079833,
+        "surrogate_best_sigma_loss": 234.35123238905058,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6680.0,
+          6375.555555555557,
+          6666.666666666667,
+          6028.88888888889,
+          6727.555555555556
+        ],
+        "elite_surrogate_mu_losses": [
+          813.0624654079833,
+          795.6011600414753,
+          800.7734200203295,
+          803.7478327133324,
+          792.5790221849542
+        ],
+        "surrogate_truth_gap_mean_abs": 5694.58055325972,
+        "dataset_size": 80
+      },
+      {
+        "gen": 16,
+        "surrogate_best_mu_loss": 1380.8598855698729,
+        "surrogate_best_sigma_loss": 308.22747043719295,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 17,
+        "surrogate_best_mu_loss": 1301.4376122842864,
+        "surrogate_best_sigma_loss": 296.75995966144956,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 18,
+        "surrogate_best_mu_loss": 1337.2405112360248,
+        "surrogate_best_sigma_loss": 309.56378027864776,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6005.333333333334,
+          6857.333333333334,
+          6610.222222222223,
+          6096.888888888889,
+          6727.555555555556
+        ],
+        "elite_surrogate_mu_losses": [
+          1337.2405112360248,
+          1338.1654026412978,
+          1294.0160598113082,
+          1323.6817147019135,
+          1374.42536184431
+        ],
+        "surrogate_truth_gap_mean_abs": 5125.960856619696,
+        "dataset_size": 85
+      },
+      {
+        "gen": 19,
+        "surrogate_best_mu_loss": 1786.8684040198866,
+        "surrogate_best_sigma_loss": 253.43935344781076,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 20,
+        "surrogate_best_mu_loss": 1702.1345551076386,
+        "surrogate_best_sigma_loss": 262.63556652570685,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 21,
+        "surrogate_best_mu_loss": 1698.545278409419,
+        "surrogate_best_sigma_loss": 270.7001690070417,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6486.666666666668,
+          6663.111111111111,
+          6735.555555555557,
+          6075.555555555556,
+          5488.444444444444
+        ],
+        "elite_surrogate_mu_losses": [
+          1698.545278409419,
+          1719.9632512561457,
+          1613.5642989883709,
+          1699.7899632332847,
+          1657.4814162116556
+        ],
+        "surrogate_truth_gap_mean_abs": 4611.997825046892,
+        "dataset_size": 90
+      },
+      {
+        "gen": 22,
+        "surrogate_best_mu_loss": 1920.7717981587248,
+        "surrogate_best_sigma_loss": 297.1547099131773,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 23,
+        "surrogate_best_mu_loss": 1824.1769149601284,
+        "surrogate_best_sigma_loss": 284.3514255988881,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 24,
+        "surrogate_best_mu_loss": 1721.6628685125931,
+        "surrogate_best_sigma_loss": 303.1794816333963,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6536.88888888889,
+          5028.444444444445,
+          5659.555555555556,
+          5931.111111111111,
+          5188.0
+        ],
+        "elite_surrogate_mu_losses": [
+          1721.6628685125931,
+          1854.0385782997982,
+          1680.5924330059831,
+          1837.7750811804624,
+          1777.6216655228352
+        ],
+        "surrogate_truth_gap_mean_abs": 3894.4618746956658,
+        "dataset_size": 95
+      },
+      {
+        "gen": 25,
+        "surrogate_best_mu_loss": 2114.2607134405093,
+        "surrogate_best_sigma_loss": 216.67893145280996,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 26,
+        "surrogate_best_mu_loss": 1799.745667706527,
+        "surrogate_best_sigma_loss": 202.57714196124843,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 27,
+        "surrogate_best_mu_loss": 2013.5973874344286,
+        "surrogate_best_sigma_loss": 236.9525762652615,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6221.333333333334,
+          4424.0,
+          6198.222222222223,
+          4879.111111111111,
+          4776.444444444445
+        ],
+        "elite_surrogate_mu_losses": [
+          2013.5973874344286,
+          1783.7860686021581,
+          1880.0382483384892,
+          1721.6464525729334,
+          1780.0267977892981
+        ],
+        "surrogate_truth_gap_mean_abs": 3464.0032312747617,
+        "dataset_size": 100
+      },
+      {
+        "gen": 28,
+        "surrogate_best_mu_loss": 1979.5378796461046,
+        "surrogate_best_sigma_loss": 223.61295406927817,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 29,
+        "surrogate_best_mu_loss": 1769.0828509810974,
+        "surrogate_best_sigma_loss": 222.82236028140997,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 30,
+        "surrogate_best_mu_loss": 1705.6468573731995,
+        "surrogate_best_sigma_loss": 237.17331158461707,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          4400.888888888889,
+          6310.222222222223,
+          6179.555555555556,
+          4679.555555555556,
+          6366.666666666667
+        ],
+        "elite_surrogate_mu_losses": [
+          1705.6468573731995,
+          1932.950385087,
+          2055.0074177936767,
+          1770.6738570291768,
+          1866.2184944021524
+        ],
+        "surrogate_truth_gap_mean_abs": 3721.278375440737,
+        "dataset_size": 105
+      },
+      {
+        "gen": 31,
+        "surrogate_best_mu_loss": 2050.5608223320114,
+        "surrogate_best_sigma_loss": 265.39149619276856,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 32,
+        "surrogate_best_mu_loss": 1970.491930385701,
+        "surrogate_best_sigma_loss": 266.9761985770704,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 33,
+        "surrogate_best_mu_loss": 2029.203975554563,
+        "surrogate_best_sigma_loss": 294.35202318586136,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          5732.0,
+          4020.0000000000005,
+          6020.0,
+          7046.222222222222,
+          6417.777777777777
+        ],
+        "elite_surrogate_mu_losses": [
+          2029.203975554563,
+          1942.3681053293708,
+          2069.8825006281463,
+          2145.4073758193667,
+          1970.491930385701
+        ],
+        "surrogate_truth_gap_mean_abs": 3815.7292224565704,
+        "dataset_size": 110
+      },
+      {
+        "gen": 34,
+        "surrogate_best_mu_loss": 2475.2117622915875,
+        "surrogate_best_sigma_loss": 178.95754644729,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 35,
+        "surrogate_best_mu_loss": 2165.0755977569047,
+        "surrogate_best_sigma_loss": 161.7392988916273,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 36,
+        "surrogate_best_mu_loss": 2298.7114740460224,
+        "surrogate_best_sigma_loss": 188.83967892925364,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          4327.555555555556,
+          3967.1111111111113,
+          6671.111111111111,
+          6732.88888888889,
+          4196.0
+        ],
+        "elite_surrogate_mu_losses": [
+          2298.7114740460224,
+          2236.002359576649,
+          2300.1607373077013,
+          2493.8131896583673,
+          2460.2242154146197
+        ],
+        "surrogate_truth_gap_mean_abs": 2821.1509381326623,
+        "dataset_size": 115
+      },
+      {
+        "gen": 37,
+        "surrogate_best_mu_loss": 2918.3407393530533,
+        "surrogate_best_sigma_loss": 140.30943562178132,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 38,
+        "surrogate_best_mu_loss": 2568.7526579095193,
+        "surrogate_best_sigma_loss": 139.6512281082354,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 39,
+        "surrogate_best_mu_loss": 2665.241278503857,
+        "surrogate_best_sigma_loss": 166.08450002634632,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6142.666666666668,
+          6244.0,
+          6512.444444444444,
+          5916.888888888888,
+          5936.888888888889
+        ],
+        "elite_surrogate_mu_losses": [
+          2665.241278503857,
+          2708.8942507651745,
+          2928.1135473758013,
+          2759.6925911336753,
+          2666.760367830311
+        ],
+        "surrogate_truth_gap_mean_abs": 3404.8373706560137,
+        "dataset_size": 120
+      },
+      {
+        "gen": 40,
+        "surrogate_best_mu_loss": 3058.984965962516,
+        "surrogate_best_sigma_loss": 255.63602109253017,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 41,
+        "surrogate_best_mu_loss": 2856.530146085389,
+        "surrogate_best_sigma_loss": 261.60734441814634,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 42,
+        "surrogate_best_mu_loss": 2781.216581926038,
+        "surrogate_best_sigma_loss": 273.0762963504749,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6074.666666666666,
+          6372.88888888889,
+          6016.888888888889,
+          6304.888888888889,
+          5904.88888888889
+        ],
+        "elite_surrogate_mu_losses": [
+          2781.216581926038,
+          2922.839202127412,
+          2751.5771000775967,
+          2856.530146085389,
+          2679.1144185855023
+        ],
+        "surrogate_truth_gap_mean_abs": 3336.5889546840567,
+        "dataset_size": 125
+      },
+      {
+        "gen": 43,
+        "surrogate_best_mu_loss": 3046.4014106724994,
+        "surrogate_best_sigma_loss": 301.2486504700622,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 44,
+        "surrogate_best_mu_loss": 2940.520438655948,
+        "surrogate_best_sigma_loss": 296.82156377910195,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 45,
+        "surrogate_best_mu_loss": 3069.164438987794,
+        "surrogate_best_sigma_loss": 323.1443609252221,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6241.333333333332,
+          6068.444444444444,
+          6169.333333333335,
+          6666.666666666666,
+          6208.888888888889
+        ],
+        "elite_surrogate_mu_losses": [
+          3069.164438987794,
+          2860.5905025224242,
+          3033.293411454368,
+          2940.520438655948,
+          2940.520438655948
+        ],
+        "surrogate_truth_gap_mean_abs": 3302.1154872780367,
+        "dataset_size": 130
+      },
+      {
+        "gen": 46,
+        "surrogate_best_mu_loss": 3086.4637366489296,
+        "surrogate_best_sigma_loss": 255.18519886510487,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 47,
+        "surrogate_best_mu_loss": 3054.49180146782,
+        "surrogate_best_sigma_loss": 260.1201226398881,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 48,
+        "surrogate_best_mu_loss": 2963.998890634409,
+        "surrogate_best_sigma_loss": 287.3152680695969,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6372.88888888889,
+          6790.222222222223,
+          5896.444444444444,
+          5972.444444444444,
+          6418.666666666666
+        ],
+        "elite_surrogate_mu_losses": [
+          2963.998890634409,
+          3010.4701351830795,
+          2931.215471477587,
+          3115.2256749274507,
+          3115.2256749274507
+        ],
+        "surrogate_truth_gap_mean_abs": 3262.906163903338,
+        "dataset_size": 135
+      },
+      {
+        "gen": 49,
+        "surrogate_best_mu_loss": 3152.7153108207112,
+        "surrogate_best_sigma_loss": 273.1385035866625,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 50,
+        "surrogate_best_mu_loss": 2818.377762894591,
+        "surrogate_best_sigma_loss": 261.67517434604355,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 51,
+        "surrogate_best_mu_loss": 2926.4791039887705,
+        "surrogate_best_sigma_loss": 298.9004204524495,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          6372.88888888889,
+          4192.888888888889,
+          6555.555555555557,
+          6764.0,
+          6512.444444444444
+        ],
+        "elite_surrogate_mu_losses": [
+          2926.4791039887705,
+          3119.0921057792866,
+          3425.332278832632,
+          3152.349899357737,
+          2818.377762894591
+        ],
+        "surrogate_truth_gap_mean_abs": 2991.2293253849525,
+        "dataset_size": 140
+      },
+      {
+        "gen": 52,
+        "surrogate_best_mu_loss": 3086.8884670811276,
+        "surrogate_best_sigma_loss": 324.2520431718403,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 53,
+        "surrogate_best_mu_loss": 3271.0116810215577,
+        "surrogate_best_sigma_loss": 355.89833126952595,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 54,
+        "surrogate_best_mu_loss": 3111.9507012719864,
+        "surrogate_best_sigma_loss": 358.1763307031251,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          4385.777777777778,
+          5939.111111111111,
+          5696.0,
+          4918.222222222223,
+          6348.888888888889
+        ],
+        "elite_surrogate_mu_losses": [
+          3111.9507012719864,
+          3180.036408736469,
+          3207.360187373392,
+          3263.819672648168,
+          3160.3864637761276
+        ],
+        "surrogate_truth_gap_mean_abs": 2272.889313238772,
+        "dataset_size": 145
+      },
+      {
+        "gen": 55,
+        "surrogate_best_mu_loss": 3420.907574639533,
+        "surrogate_best_sigma_loss": 277.4375695449062,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 56,
+        "surrogate_best_mu_loss": 3018.2742788279975,
+        "surrogate_best_sigma_loss": 273.81463855269544,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 57,
+        "surrogate_best_mu_loss": 3120.82944143421,
+        "surrogate_best_sigma_loss": 309.3847502258985,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          5019.555555555555,
+          6116.000000000001,
+          5269.333333333334,
+          4870.222222222223,
+          4747.111111111111
+        ],
+        "elite_surrogate_mu_losses": [
+          3120.82944143421,
+          2950.14504507238,
+          3226.3382616070767,
+          3139.655603701963,
+          2918.0329285517582
+        ],
+        "surrogate_truth_gap_mean_abs": 2133.444188370967,
+        "dataset_size": 150
+      },
+      {
+        "gen": 58,
+        "surrogate_best_mu_loss": 2505.7249657546477,
+        "surrogate_best_sigma_loss": 292.83272914543187,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": false
+      },
+      {
+        "gen": 59,
+        "surrogate_best_mu_loss": 2505.7249657546477,
+        "surrogate_best_sigma_loss": 292.83272914543187,
+        "f_best_true_so_far": 39.5555555555556,
+        "validated": true,
+        "elite_true_losses": [
+          3553.3333333333335,
+          3670.6666666666665,
+          3766.6666666666665,
+          5756.88888888889,
+          6287.555555555556
+        ],
+        "elite_surrogate_mu_losses": [
+          2505.7249657546477,
+          2505.7249657546477,
+          2515.7198736107725,
+          2580.3376471598467,
+          2760.7212767342253
+        ],
+        "surrogate_truth_gap_mean_abs": 2033.3764764193943,
+        "dataset_size": 155
+      }
+    ]
+  },
+  "naive_frozen_surrogate_ga": {
+    "num_samples": 50,
+    "wall_time_seconds": 1.2947940826416016,
+    "best_chromo": {
+      "stw_yudhistira_hp": 121,
+      "stw_yudhistira_dmg": 42,
+      "stw_yudhistira_dr": 27,
+      "stw_yudhistira_heal": 22,
+      "stw_yudhistira_cost_satwika": 1,
+      "stw_yudhistira_cost_univ": 1,
+      "stw_arjuna_hp": 80,
+      "stw_arjuna_pasupati_dmg": 65,
+      "stw_arjuna_pasupati_cost": 3,
+      "rjs_balarama_hp": 62,
+      "rjs_balarama_dmg": 45,
+      "rjs_balarama_cost": 1,
+      "rjs_karna_hp": 90,
+      "rjs_karna_dmg": 58,
+      "rjs_karna_recoil": 16,
+      "rjs_karna_cost": 2,
+      "tms_sengkuni_hp": 100,
+      "tms_sengkuni_dmg": 20,
+      "tms_sengkuni_mill": 2,
+      "tms_sengkuni_cost_tamasika": 1,
+      "tms_sengkuni_cost_univ": 1,
+      "tms_duryodana_hp": 150,
+      "tms_duryodana_angkara_dmg": 45,
+      "tms_duryodana_scale_value": 5,
+      "tms_duryodana_angkara_cost": 2
+    },
+    "final_verified_loss": 1748.85785,
+    "final_verified_rates": {
+      "SATWIKA_vs_TAMASIKA": 67.7,
+      "TAMASIKA_vs_RAJASIKA": 55.584999999999994,
+      "RAJASIKA_vs_SATWIKA": 12.525
+    },
+    "final_verified_num_runs": 20000
+  }
+}

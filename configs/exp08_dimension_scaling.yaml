@@ -1,0 +1,27 @@
+# Experiment 08b (Fase 8): extends the paper's Fig. 1 (originally tested
+# only d in [4, 20], looked perfectly flat) out to d=200 as explicitly
+# requested, and further to d=50000 to actually show where the surrogate's
+# O(d*h) cost starts rising above system overhead -- a flat-then-rising
+# curve is the honest, credible result, not flat-forever.
+
+extends: base.yaml
+
+experiment:
+  id: exp08_dimension_scaling
+  runner: experiments/exp08_dimension_scaling.py
+
+benchmark:
+  type: synthetic   # MLPSurrogate.forward() cost only; the real game's BOUNDS space is fixed at 25 dims and cannot be resized
+  d_values: [4, 8, 12, 16, 20, 30, 50, 75, 100, 150, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000]
+  d_originally_tested_range: [4, 20]
+  d_task_specified_extension: 200
+  hidden_dim: 16
+  batch_size: 12          # matches exp08_cost_accounting's population_size
+  n_timing_reps: 2000
+  n_timing_blocks: 7        # median across blocks, robust to OS-scheduling timing noise
+  monte_carlo_n_match_per_eval: 60   # matches exp08_cost_accounting
+
+output:
+  artifact: results/exp08_dimension_scaling.json
+  figures:
+    - figures/exp08_dimension_scaling.png

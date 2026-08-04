@@ -1,0 +1,28 @@
+# Experiment 07b (Fase 7): genuine multi-objective optimization -- balance
+# vs. power creep vs. faction identity kept as SEPARATE objectives (NSGA-II
+# Pareto front), not collapsed into Pers. (4)'s single-lambda scalarization.
+# Replaces the "single equilibrium point" framing with an actual trade-off
+# surface.
+
+extends: base.yaml
+
+experiment:
+  id: exp07_nsga2_power_balance
+  runner: experiments/exp07_nsga2_power_balance.py
+
+objectives:
+  f1_balance: "pairwise 3-matchup squared deviation from 50%, same formula as evaluate_chromosome's loss"
+  f2_power_creep: "src.metrics.power_creep.power_creep_penalty(Theta)"
+  f3_neg_identity: "-mean_pairwise_jsd, src.metrics.diversity.faction_identity_index, keyed on ATTACK RANK not raw attack name (see rules_spec.md 14.2 for why name-keying is degenerate here)"
+
+search:
+  pop_size: 40
+  generations: 40
+  num_runs: 60            # games/matchup per evaluation during search
+  validation_num_runs: 500   # final front re-validated at higher precision, non-dominated members re-filtered
+  seed: 20260801
+
+output:
+  artifact: results/exp07_nsga2_power_balance.json
+  figures:
+    - figures/nsga2_power_balance_pareto_front.png

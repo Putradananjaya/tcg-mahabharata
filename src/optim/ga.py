@@ -2,6 +2,7 @@ import time
 import random
 import copy
 from src.simulator.fitness import BOUNDS, SMART_START, evaluate_chromosome
+from src.optim.objective import scalarized_objective
 
 def generate_random_chromosome():
     chromo = {}
@@ -89,5 +90,76 @@ def run_ga_balancing(pop_size=6, generations=10, num_runs=150):
     print(f"Rasio Kemenangan Seimbang (150 Run):")
     for matchup, wr in best_rates.items():
         print(f"  - {matchup}: {wr:.2f}%")
-        
+
     return best_chromo
+
+
+# --- Fase 7 ablation entrypoint ------------------------------------------
+# Uniform interface shared by every optimizer compared in
+# experiments/exp07_optimizer_ablation.py: run_X_ablation(budget, num_runs,
+# seed) -> {"best_theta", "best_value", "history": [(evals_used,
+# best_value_so_far), ...]}, minimizing src.optim.objective.scalarized_objective
+# (Pers. 4, BalanceDeviation + lambda*PowerCreepPenalty). `budget` = total
+# number of scalarized_objective calls (the fair, method-agnostic unit --
+# NOT wall-clock time, NOT "generations", since those mean different things
+# per algorithm). See rules_spec.md section 14.4.
+
+GA_ABLATION_POP_SIZE = 10
+
+
+def run_ga_ablation(budget: int, num_runs: int, seed: int):
+    rng = random.Random(seed)
+    pop_size = GA_ABLATION_POP_SIZE
+    generations = max(1, budget // pop_size)
+
+    def rand_chromo():
+        return {k: rng.randint(low, high) for k, (low, high) in BOUNDS.items()}
+
+    def xover(p1, p2):
+        c1, c2 = {}, {}
+        for k in BOUNDS.keys():
+            if rng.random() < 0.5:
+                c1[k], c2[k] = p1[k], p2[k]
+            else:
+                c1[k], c2[k] = p2[k], p1[k]
+        return c1, c2
+
+    def mut(chromo, rate=0.15):
+        m = copy.deepcopy(chromo)
+        for k, (low, high) in BOUNDS.items():
+            if rng.random() < rate:
+                step = int(rng.gauss(0, (high - low) * 0.1))
+                m[k] = max(low, min(high, m[k] + step))
+        return m
+
+    population = [rand_chromo() for _ in range(pop_size)]
+    population[0] = SMART_START.copy()
+
+    history = []
+    evals_used = 0
+    best_theta, best_value = None, float("inf")
+
+    for _gen in range(generations):
+        scored = []
+        for chromo in population:
+            total, _bal, _pc, _rates = scalarized_objective(chromo, num_runs=num_runs)
+            scored.append((total, chromo))
+            evals_used += 1
+            if total < best_value:
+                best_value = total
+                best_theta = copy.deepcopy(chromo)
+            history.append((evals_used, best_value))
+
+        scored.sort(key=lambda x: x[0])
+        new_pop = [copy.deepcopy(scored[0][1]), copy.deepcopy(scored[1][1])]
+        while len(new_pop) < pop_size:
+            c1 = rng.sample(scored[:4], 1)[0][1]
+            c2 = rng.sample(scored[:4], 1)[0][1]
+            child1, child2 = xover(c1, c2)
+            new_pop.append(mut(child1))
+            if len(new_pop) < pop_size:
+                new_pop.append(mut(child2))
+        population = new_pop
+
+    return {"best_theta": best_theta, "best_value": best_value, "history": history,
+            "evals_used": evals_used, "method": "ga_only"}

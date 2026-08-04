@@ -1,0 +1,55 @@
+# Experiment 05a (Fase 5): reward-weight sensitivity sweep + baseline-relative
+# evaluation, replacing "88.6% tactical accuracy" with win rate vs baseline
+# agents (Wilson CI) and Elo within the resulting population. Sweeps
+# RewardWeights.w2_hp_potential (potential-based, Ng/Harada/Russell 1999 --
+# should not change the optimal policy) and w3_aggression_bias
+# (non-potential-based -- may change it) one-factor-at-a-time against a
+# baseline that exactly reproduces exp04's dqn_100pct training config.
+
+extends: base.yaml
+
+experiment:
+  id: exp05_reward_sensitivity
+  runner: experiments/exp05_reward_sensitivity.py
+
+parameter_set:
+  label: ga_balanced
+  source: data/ga_balanced_params.json
+
+factions: [SATWIKA, RAJASIKA, TAMASIKA]
+pairs:
+  - [SATWIKA, TAMASIKA]
+  - [TAMASIKA, RAJASIKA]
+  - [RAJASIKA, SATWIKA]
+
+env:
+  max_turns: 60
+  base_seed: 20260801
+
+reward_weight_settings:
+  # w1_step_cost and w_ko held fixed at Fase 4's values (-0.01, 1.0) for
+  # every setting; only w2/w3 vary, one at a time.
+  - {label: baseline_w2_0_w3_0, w2_hp_potential: 0.0, w3_aggression_bias: 0.0}
+  - {label: w2_0.5, w2_hp_potential: 0.5, w3_aggression_bias: 0.0}
+  - {label: w2_1.0, w2_hp_potential: 1.0, w3_aggression_bias: 0.0}
+  - {label: w2_2.0, w2_hp_potential: 2.0, w3_aggression_bias: 0.0}
+  - {label: w3_0.1, w2_hp_potential: 0.0, w3_aggression_bias: 0.1}
+  - {label: w3_0.5, w2_hp_potential: 0.0, w3_aggression_bias: 0.5}
+
+training:
+  schedule_cumulative_games: [750, 750, 1500]   # total 3000, same as exp04's dqn_100pct
+  train_matchup: [SATWIKA, TAMASIKA]
+  epsilon: 0.2
+  alpha: 0.1
+  gamma: 0.9
+
+evaluation:
+  n_per_cell: required_n(delta=0.05,alpha=0.05,power=0.8)   # 783, see CLAIMS_LEDGER.md
+  baselines: [RandomAgent, GreedyAgent]
+  elo:
+    comparison_graph: "star topology through RandomAgent and GreedyAgent, plus a direct RandomAgent-vs-GreedyAgent match set -- not a full round-robin between DQN variants (compute cost)"
+
+output:
+  artifact: results/exp05_reward_sensitivity.json
+  figures:
+    - figures/reward_sensitivity.png

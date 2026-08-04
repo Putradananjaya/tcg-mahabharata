@@ -284,3 +284,75 @@ def evaluate_chromosome_multi(params, num_runs=80):
     objectives = (f1_fairness, f2_length, f3_diversity)
     diagnostics = {"rates": rates, "avg_turns": avg_turns, "diversity_per_card": diversity_per_card}
     return objectives, diagnostics
+
+
+def evaluate_chromosome_power_balance(params, num_runs=80):
+    """Fase 7 objectives: f1 = pairwise balance deviation (same 3-matchup
+    cycle/formula as evaluate_chromosome's loss), f2 = power creep penalty
+    (src.metrics.power_creep -- a pure function of params, no simulation
+    needed), f3 = -Faction Identity Index (negated mean pairwise
+    Jensen-Shannon divergence between factions' ATTACK-RANK-choice
+    distributions, src.metrics.diversity.faction_identity_index) -- negated
+    so all three objectives are MINIMIZED, matching src.optim.nsga2's
+    dominates() convention (more distinct factions = more negative f3 = better).
+
+    Uses attack RANK (0 = a character's first listed attack, 1 = second),
+    NOT raw attack name, as the category key -- same reason already
+    documented in configs/exp03_balance_matrix.yaml ("action_axis:
+    attack_rank -- NOT raw attack name"): every card's attacks have
+    faction-unique NAMES by data construction (no two factions ever share
+    an attack name), so a name-keyed cross-faction JSD is measuring
+    "do these factions use differently-named moves" -- which is trivially
+    yes, always, for EVERY Theta (max JSD every time, structurally
+    constant, not sensitive to Theta at all). Rank is the shared
+    vocabulary that lets the comparison actually respond to Theta: e.g.
+    Arjuna and Duryodana (2 attacks each) can shift how often their rank-0
+    vs rank-1 attack gets used as prana costs/damage change.
+    See src.optim.nsga2.run_nsga2_power_balance and rules_spec.md section 14.2.
+    """
+    from src.metrics.diversity import faction_identity_index
+    from src.metrics.power_creep import power_creep_penalty
+
+    satwika, rajasika, tamasika = build_faction_decks(params)
+    matchups = [
+        ("SATWIKA_vs_TAMASIKA", satwika, tamasika, "SATWIKA", "TAMASIKA"),
+        ("TAMASIKA_vs_RAJASIKA", tamasika, rajasika, "TAMASIKA", "RAJASIKA"),
+        ("RAJASIKA_vs_SATWIKA", rajasika, satwika, "RAJASIKA", "SATWIKA"),
+    ]
+
+    attack_name_to_rank = {}
+    for faction_data in (satwika, rajasika, tamasika):
+        for card in faction_data["cards"]:
+            for rank, attack in enumerate(card.get("attacks", [])):
+                attack_name_to_rank[attack["name"]] = rank
+
+    rates = {}
+    action_counts_by_faction = {"SATWIKA": {}, "TAMASIKA": {}, "RAJASIKA": {}}
+
+    original_stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    try:
+        for label, deck1, deck2, name1, name2 in matchups:
+            wins = 0
+            for _ in range(num_runs):
+                winner, turns, log1, log2 = run_simulation_multi(deck1, deck2, name1, name2)
+                if winner == name1:
+                    wins += 1
+                for attack_name in log1:
+                    rank = attack_name_to_rank[attack_name]
+                    action_counts_by_faction[name1][rank] = action_counts_by_faction[name1].get(rank, 0) + 1
+                for attack_name in log2:
+                    rank = attack_name_to_rank[attack_name]
+                    action_counts_by_faction[name2][rank] = action_counts_by_faction[name2].get(rank, 0) + 1
+            rates[label] = (wins / num_runs) * 100
+    finally:
+        sys.stdout = original_stdout
+
+    f1_balance = sum((wr - 50) ** 2 for wr in rates.values())
+    f2_power_creep = power_creep_penalty(params)
+    identity = faction_identity_index(action_counts_by_faction)
+    f3_neg_identity = -identity["mean_pairwise_jsd"]
+
+    objectives = (f1_balance, f2_power_creep, f3_neg_identity)
+    diagnostics = {"rates": rates, "mean_pairwise_jsd": identity["mean_pairwise_jsd"]}
+    return objectives, diagnostics

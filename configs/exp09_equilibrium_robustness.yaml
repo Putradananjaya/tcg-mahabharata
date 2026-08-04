@@ -1,0 +1,29 @@
+# Experiment 09b (Fase 9): is the "golden equilibrium" (data/ga_balanced_params.json)
+# unique or stable? Part A perturbs it with Gaussian noise at increasing
+# magnitude (basin of attraction); Part B runs >=20 independent multi-start
+# optimizations to check whether search converges to the same point.
+
+extends: base.yaml
+
+experiment:
+  id: exp09_equilibrium_robustness
+  runner: experiments/exp09_equilibrium_robustness.py
+
+part_a_basin_of_attraction:
+  theta_star_source: data/ga_balanced_params.json
+  noise_fractions: [0.0, 0.02, 0.05, 0.08, 0.12, 0.16, 0.20, 0.30, 0.40, 0.50]
+  samples_per_noise_level: 25
+  num_runs: 100
+  parity_band_pp: 10.0   # a matchup counts as "still balanced" within 50% +/- this many points
+
+part_b_multistart:
+  num_starts: 24   # >= 20 required by Fase 9 acceptance criteria
+  budget: 300
+  num_runs: 60
+  cluster_distance_threshold: 0.12   # normalized RMS distance; see module docstring
+
+output:
+  artifact: results/exp09_equilibrium_robustness.json
+  figures:
+    - figures/exp09_basin_of_attraction.png
+    - figures/exp09_multistart_clustering.png

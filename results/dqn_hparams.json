@@ -1,0 +1,66 @@
+{
+  "_purpose": "Appendix B hyperparameter table (Aturan Main Fase 5). Every field is either a fixed design fact (verified against source, see 'source' key) or an empirically measured number pulled directly from results/exp05_learning_curve.json (10 independent training seeds) -- none are invented. See rules_spec.md section 12 for the full write-up.",
+  "agent": "TabularQLearningAgent (src/agents/dqn_agent.py) -- tabular Q-learning, NOT a neural DQN. See rules_spec.md 12.1: no function approximation, no experience replay, no target network anywhere in this codebase.",
+  "architecture": {
+    "type": "N/A -- tabular (dict-based Q-table {(features, action): value}), no neural network",
+    "optimizer": "N/A -- no gradient-based optimizer; each update is the closed-form tabular Q-learning rule (rules_spec.md Eq. 2)",
+    "batch_size": "N/A -- online, one (s,a,r,s') transition updated per call, not minibatched",
+    "replay_buffer_size": "N/A -- no replay buffer; on-policy self-play transitions are consumed once via learn_from_episode() at the end of each game, then discarded",
+    "target_network": "N/A -- no target network; max_a' Q(s',a') is read from the single live table being updated"
+  },
+  "update_rule": {
+    "equation": "Q(s,a) <- Q(s,a) + alpha * [ R + gamma * max_a' Q(s',a') - Q(s,a) ]",
+    "source": "src/agents/dqn_agent.py TabularQLearningAgent.learn_from_episode (also rules_spec.md section 12.1)"
+  },
+  "learning_rate_alpha": 0.1,
+  "discount_gamma": 0.9,
+  "epsilon": {
+    "value": 0.2,
+    "schedule": "constant -- no decay over training. This is a known simplification, not fabricated as a schedule that doesn't exist; the older, deprecated QLearningAgent (rules_spec.md 12.2) did decay epsilon (0.9x every 500 games, floor 0.05) but the canonical TabularQLearningAgent does not."
+  },
+  "reward_weights_default": {
+    "w1_step_cost": -0.01,
+    "w2_hp_potential": 0.0,
+    "w3_aggression_bias": 0.0,
+    "w_ko": 1.0,
+    "note": "default reproduces Fase 4 exactly (results/exp04_policy_dependence.json); see results/exp05_reward_sensitivity.json for the swept values and rules_spec.md 12.4/12.6 for the potential-based-shaping discussion"
+  },
+  "state_discretization": {
+    "num_fields": 10,
+    "source": "src/simulator/agent_env.py AgentGameEnv.observation() -- see rules_spec.md section 12.3 for the full per-field bin table",
+    "fields": [
+      {"index": 0, "name": "hp_bucket", "num_bins": 3, "rule": "hp<=35 -> 0, hp<=80 -> 1, hp>80 -> 2 (raw HP, not fraction of own max HP)"},
+      {"index": 1, "name": "prana_bucket", "num_bins": 2, "rule": "own total prana <2 -> 0, else 1"},
+      {"index": 2, "name": "opp_prana_bucket", "num_bins": 2, "rule": "opponent total prana <2 -> 0, else 1"},
+      {"index": 3, "name": "deck_size_bucket", "num_bins": 2, "rule": "own remaining deck <10 -> 0, else 1"},
+      {"index": 4, "name": "own_hand_bucket", "num_bins": 4, "rule": "min(len(hand), 3)"},
+      {"index": 5, "name": "opp_hand_bucket", "num_bins": 4, "rule": "min(len(opp_hand), 3)"},
+      {"index": 6, "name": "is_panic", "num_bins": 2, "rule": "hp <= 0.4 * max_hp"},
+      {"index": 7, "name": "sasmita_bucket", "num_bins": 4, "rule": "raw prize count, starts at 3, only decreases"},
+      {"index": 8, "name": "num_attacks_affordable", "num_bins": 3, "rule": "count of currently-affordable attacks, 0-2 (max attacks/character is 2)"},
+      {"index": 9, "name": "turn_parity", "num_bins": 2, "rule": "1 if this side has initiative this turn"}
+    ],
+    "theoretical_max_unique_feature_tuples": 18432,
+    "theoretical_max_note": "3*2*2*2*4*4*2*4*3*2 = 18432 (before multiplying by the per-state action dimension); an upper bound assuming every combination is reachable, which it is not -- see empirical table size below and the Balarama hp_bucket=2-unreachable caveat in rules_spec.md 12.3",
+    "known_unreachable_case": "hp_bucket=2 (hp>80) is structurally unreachable for Balarama (max HP 70, one of Rajasika's two cards) -- verified against data/rajasika.json"
+  },
+  "empirical_q_table_size": {
+    "source": "results/exp05_learning_curve.json final_table_size, 10 independent training seeds, 3000 self-play games each (SATWIKA vs TAMASIKA, ga_balanced_params.json)",
+    "unit": "number of distinct (features, action) keys actually populated in the Q-table after training",
+    "min": 1199,
+    "max": 1254,
+    "mean": 1222.8,
+    "pct_of_theoretical_max_feature_tuples": "6.6% (1222.8 / 18432 unique STATE tuples-equivalent, not directly comparable since this counts (state,action) pairs, but illustrates that only a small fraction of the theoretical state space is ever visited under self-play with this deck pool)"
+  },
+  "training_regime": {
+    "total_games_per_seed": 3000,
+    "checkpoint_schedule_cumulative_games": [0, 500, 1000, 1500, 2000, 2500, 3000],
+    "num_seeds": 10,
+    "source": "results/exp05_learning_curve.json",
+    "total_env_steps_per_seed": {"min": 231743, "max": 240834, "mean": 236254.1},
+    "total_env_steps_note": "one env step = one agent decision (ATTACK or SWITCH); counted directly by train_tabular_agent, not estimated",
+    "max_turns_per_game": 60,
+    "train_matchup": ["SATWIKA", "TAMASIKA"],
+    "params": "data/ga_balanced_params.json"
+  }
+}

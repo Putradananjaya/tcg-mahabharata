@@ -1,0 +1,27 @@
+# Experiment 09a (Fase 9): global sensitivity analysis (Sobol + Morris)
+# over the full 25-dimensional parameter space, replacing the single
+# 1D Karna-HP sweep with a real answer to "which parameters control balance".
+
+extends: base.yaml
+
+experiment:
+  id: exp09_sensitivity_indices
+  runner: experiments/exp09_sensitivity_indices.py
+
+quantity_of_interest:
+  source: src.simulator.fitness.evaluate_chromosome
+  description: pairwise 3-matchup squared-deviation-from-50% loss
+  num_runs_per_eval: 100   # far below N_MATCH=20000; see module docstring caveat
+
+morris:
+  num_trajectories: 30
+  num_levels: 4
+
+sobol:
+  num_samples: 150   # -> 150*(25+2) = 4050 model evaluations
+  bootstrap_ci_reps: 400
+
+output:
+  artifact: results/exp09_sensitivity_indices.json
+  figures:
+    - figures/exp09_sobol_morris_indices.png

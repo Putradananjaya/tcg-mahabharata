@@ -1,0 +1,1226 @@
+{
+  "agent": "TabularQLearningAgent",
+  "num_seeds": 10,
+  "checkpoints_games": [
+    0,
+    500,
+    1000,
+    1500,
+    2000,
+    2500,
+    3000
+  ],
+  "n_eval_per_checkpoint": 200,
+  "train_matchup": [
+    "SATWIKA",
+    "TAMASIKA"
+  ],
+  "eval_opponent": "RandomAgent",
+  "params": "data/ga_balanced_params.json",
+  "reward_weights": {
+    "w1_step_cost": -0.01,
+    "w2_hp_potential": 0.0,
+    "w3_aggression_bias": 0.0,
+    "w_ko": 1.0
+  },
+  "hyperparameters": {
+    "epsilon": 0.2,
+    "epsilon_schedule": "constant (no decay)",
+    "alpha": 0.1,
+    "gamma": 0.9
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 191,
+            "n": 200,
+            "win_rate": 0.955,
+            "wilson_ci_95": {
+              "lower": 0.9167032959981803,
+              "upper": 0.976147456998507
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 39897,
+          "table_size": 905,
+          "eval_vs_random": {
+            "wins": 188,
+            "n": 200,
+            "win_rate": 0.94,
+            "wilson_ci_95": {
+              "lower": 0.8980683070423372,
+              "upper": 0.9653478057456681
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 79061,
+          "table_size": 1092,
+          "eval_vs_random": {
+            "wins": 173,
+            "n": 200,
+            "win_rate": 0.865,
+            "wilson_ci_95": {
+              "lower": 0.8107086162924745,
+              "upper": 0.9055342954521209
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 117804,
+          "table_size": 1141,
+          "eval_vs_random": {
+            "wins": 199,
+            "n": 200,
+            "win_rate": 0.995,
+            "wilson_ci_95": {
+              "lower": 0.9722262956021069,
+              "upper": 0.9991168312843989
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 157204,
+          "table_size": 1177,
+          "eval_vs_random": {
+            "wins": 194,
+            "n": 200,
+            "win_rate": 0.97,
+            "wilson_ci_95": {
+              "lower": 0.9361057075454807,
+              "upper": 0.9861796856598887
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 196210,
+          "table_size": 1202,
+          "eval_vs_random": {
+            "wins": 197,
+            "n": 200,
+            "win_rate": 0.985,
+            "wilson_ci_95": {
+              "lower": 0.9568342712073097,
+              "upper": 0.9948857622067417
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 235057,
+          "table_size": 1218,
+          "eval_vs_random": {
+            "wins": 188,
+            "n": 200,
+            "win_rate": 0.94,
+            "wilson_ci_95": {
+              "lower": 0.8980683070423372,
+              "upper": 0.9653478057456681
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 1,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 191,
+            "n": 200,
+            "win_rate": 0.955,
+            "wilson_ci_95": {
+              "lower": 0.9167032959981803,
+              "upper": 0.976147456998507
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 38759,
+          "table_size": 1032,
+          "eval_vs_random": {
+            "wins": 191,
+            "n": 200,
+            "win_rate": 0.955,
+            "wilson_ci_95": {
+              "lower": 0.9167032959981803,
+              "upper": 0.976147456998507
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 76701,
+          "table_size": 1123,
+          "eval_vs_random": {
+            "wins": 195,
+            "n": 200,
+            "win_rate": 0.975,
+            "wilson_ci_95": {
+              "lower": 0.942821659593358,
+              "upper": 0.9892752803482386
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 114624,
+          "table_size": 1182,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 153750,
+          "table_size": 1200,
+          "eval_vs_random": {
+            "wins": 163,
+            "n": 200,
+            "win_rate": 0.815,
+            "wilson_ci_95": {
+              "lower": 0.7554293723884824,
+              "upper": 0.8626980719938395
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 192610,
+          "table_size": 1230,
+          "eval_vs_random": {
+            "wins": 199,
+            "n": 200,
+            "win_rate": 0.995,
+            "wilson_ci_95": {
+              "lower": 0.9722262956021069,
+              "upper": 0.9991168312843989
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 231743,
+          "table_size": 1238,
+          "eval_vs_random": {
+            "wins": 154,
+            "n": 200,
+            "win_rate": 0.77,
+            "wilson_ci_95": {
+              "lower": 0.7069169563469642,
+              "upper": 0.8229065674093119
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 190,
+            "n": 200,
+            "win_rate": 0.95,
+            "wilson_ci_95": {
+              "lower": 0.9104218518612239,
+              "upper": 0.972617354399236
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 42021,
+          "table_size": 917,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 81122,
+          "table_size": 1121,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 119524,
+          "table_size": 1157,
+          "eval_vs_random": {
+            "wins": 182,
+            "n": 200,
+            "win_rate": 0.91,
+            "wilson_ci_95": {
+              "lower": 0.8622342812328346,
+              "upper": 0.9423125511378069
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 160336,
+          "table_size": 1191,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 200494,
+          "table_size": 1218,
+          "eval_vs_random": {
+            "wins": 165,
+            "n": 200,
+            "win_rate": 0.825,
+            "wilson_ci_95": {
+              "lower": 0.7663556885175099,
+              "upper": 0.8713948493372666
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 240834,
+          "table_size": 1228,
+          "eval_vs_random": {
+            "wins": 185,
+            "n": 200,
+            "win_rate": 0.925,
+            "wilson_ci_95": {
+              "lower": 0.8799563897637055,
+              "upper": 0.954025082815618
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 183,
+            "n": 200,
+            "win_rate": 0.915,
+            "wilson_ci_95": {
+              "lower": 0.8681041292843443,
+              "upper": 0.9462542498225244
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 39591,
+          "table_size": 986,
+          "eval_vs_random": {
+            "wins": 168,
+            "n": 200,
+            "win_rate": 0.84,
+            "wilson_ci_95": {
+              "lower": 0.7828592983793289,
+              "upper": 0.8843258796841297
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 78985,
+          "table_size": 1093,
+          "eval_vs_random": {
+            "wins": 197,
+            "n": 200,
+            "win_rate": 0.985,
+            "wilson_ci_95": {
+              "lower": 0.9568342712073097,
+              "upper": 0.9948857622067417
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 118686,
+          "table_size": 1127,
+          "eval_vs_random": {
+            "wins": 176,
+            "n": 200,
+            "win_rate": 0.88,
+            "wilson_ci_95": {
+              "lower": 0.8276574790170326,
+              "upper": 0.9180200729362449
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 158070,
+          "table_size": 1155,
+          "eval_vs_random": {
+            "wins": 178,
+            "n": 200,
+            "win_rate": 0.89,
+            "wilson_ci_95": {
+              "lower": 0.8390730900269852,
+              "upper": 0.9262275553987469
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 197322,
+          "table_size": 1175,
+          "eval_vs_random": {
+            "wins": 173,
+            "n": 200,
+            "win_rate": 0.865,
+            "wilson_ci_95": {
+              "lower": 0.8107086162924745,
+              "upper": 0.9055342954521209
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 236682,
+          "table_size": 1199,
+          "eval_vs_random": {
+            "wins": 190,
+            "n": 200,
+            "win_rate": 0.95,
+            "wilson_ci_95": {
+              "lower": 0.9104218518612239,
+              "upper": 0.972617354399236
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 4,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 191,
+            "n": 200,
+            "win_rate": 0.955,
+            "wilson_ci_95": {
+              "lower": 0.9167032959981803,
+              "upper": 0.976147456998507
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 39591,
+          "table_size": 1018,
+          "eval_vs_random": {
+            "wins": 156,
+            "n": 200,
+            "win_rate": 0.78,
+            "wilson_ci_95": {
+              "lower": 0.7176120008170633,
+              "upper": 0.8318346164116673
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 77760,
+          "table_size": 1107,
+          "eval_vs_random": {
+            "wins": 168,
+            "n": 200,
+            "win_rate": 0.84,
+            "wilson_ci_95": {
+              "lower": 0.7828592983793289,
+              "upper": 0.8843258796841297
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 116117,
+          "table_size": 1149,
+          "eval_vs_random": {
+            "wins": 175,
+            "n": 200,
+            "win_rate": 0.875,
+            "wilson_ci_95": {
+              "lower": 0.8219857499741765,
+              "upper": 0.9138802552428735
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 155436,
+          "table_size": 1183,
+          "eval_vs_random": {
+            "wins": 189,
+            "n": 200,
+            "win_rate": 0.945,
+            "wilson_ci_95": {
+              "lower": 0.9042130012276914,
+              "upper": 0.9690146582965411
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 195676,
+          "table_size": 1221,
+          "eval_vs_random": {
+            "wins": 189,
+            "n": 200,
+            "win_rate": 0.945,
+            "wilson_ci_95": {
+              "lower": 0.9042130012276914,
+              "upper": 0.9690146582965411
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 235078,
+          "table_size": 1239,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 5,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 190,
+            "n": 200,
+            "win_rate": 0.95,
+            "wilson_ci_95": {
+              "lower": 0.9104218518612239,
+              "upper": 0.972617354399236
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 40669,
+          "table_size": 973,
+          "eval_vs_random": {
+            "wins": 196,
+            "n": 200,
+            "win_rate": 0.98,
+            "wilson_ci_95": {
+              "lower": 0.9497129130941735,
+              "upper": 0.9921955735836505
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 79280,
+          "table_size": 1108,
+          "eval_vs_random": {
+            "wins": 185,
+            "n": 200,
+            "win_rate": 0.925,
+            "wilson_ci_95": {
+              "lower": 0.8799563897637055,
+              "upper": 0.954025082815618
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 117674,
+          "table_size": 1166,
+          "eval_vs_random": {
+            "wins": 196,
+            "n": 200,
+            "win_rate": 0.98,
+            "wilson_ci_95": {
+              "lower": 0.9497129130941735,
+              "upper": 0.9921955735836505
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 156979,
+          "table_size": 1208,
+          "eval_vs_random": {
+            "wins": 199,
+            "n": 200,
+            "win_rate": 0.995,
+            "wilson_ci_95": {
+              "lower": 0.9722262956021069,
+              "upper": 0.9991168312843989
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 196933,
+          "table_size": 1245,
+          "eval_vs_random": {
+            "wins": 187,
+            "n": 200,
+            "win_rate": 0.935,
+            "wilson_ci_95": {
+              "lower": 0.8919809207009312,
+              "upper": 0.961623645350847
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 235896,
+          "table_size": 1254,
+          "eval_vs_random": {
+            "wins": 179,
+            "n": 200,
+            "win_rate": 0.895,
+            "wilson_ci_95": {
+              "lower": 0.8448196800887696,
+              "upper": 0.9302925120731899
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 6,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 192,
+            "n": 200,
+            "win_rate": 0.96,
+            "wilson_ci_95": {
+              "lower": 0.923067931799067,
+              "upper": 0.9795943679338476
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 41177,
+          "table_size": 965,
+          "eval_vs_random": {
+            "wins": 186,
+            "n": 200,
+            "win_rate": 0.93,
+            "wilson_ci_95": {
+              "lower": 0.8859451911438936,
+              "upper": 0.9578478281716571
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 80495,
+          "table_size": 1096,
+          "eval_vs_random": {
+            "wins": 146,
+            "n": 200,
+            "win_rate": 0.73,
+            "wilson_ci_95": {
+              "lower": 0.6645656480133159,
+              "upper": 0.7867655018531415
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 119473,
+          "table_size": 1155,
+          "eval_vs_random": {
+            "wins": 176,
+            "n": 200,
+            "win_rate": 0.88,
+            "wilson_ci_95": {
+              "lower": 0.8276574790170326,
+              "upper": 0.9180200729362449
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 158961,
+          "table_size": 1179,
+          "eval_vs_random": {
+            "wins": 179,
+            "n": 200,
+            "win_rate": 0.895,
+            "wilson_ci_95": {
+              "lower": 0.8448196800887696,
+              "upper": 0.9302925120731899
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 198443,
+          "table_size": 1202,
+          "eval_vs_random": {
+            "wins": 156,
+            "n": 200,
+            "win_rate": 0.78,
+            "wilson_ci_95": {
+              "lower": 0.7176120008170633,
+              "upper": 0.8318346164116673
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 237559,
+          "table_size": 1226,
+          "eval_vs_random": {
+            "wins": 131,
+            "n": 200,
+            "win_rate": 0.655,
+            "wilson_ci_95": {
+              "lower": 0.5867558925905368,
+              "upper": 0.7174020562325106
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 191,
+            "n": 200,
+            "win_rate": 0.955,
+            "wilson_ci_95": {
+              "lower": 0.9167032959981803,
+              "upper": 0.976147456998507
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 40359,
+          "table_size": 949,
+          "eval_vs_random": {
+            "wins": 153,
+            "n": 200,
+            "win_rate": 0.765,
+            "wilson_ci_95": {
+              "lower": 0.7015863111723746,
+              "upper": 0.8184256658476741
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 79950,
+          "table_size": 1061,
+          "eval_vs_random": {
+            "wins": 169,
+            "n": 200,
+            "win_rate": 0.845,
+            "wilson_ci_95": {
+              "lower": 0.7883930940765792,
+              "upper": 0.8886036307231068
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 119435,
+          "table_size": 1114,
+          "eval_vs_random": {
+            "wins": 180,
+            "n": 200,
+            "win_rate": 0.9,
+            "wilson_ci_95": {
+              "lower": 0.8505941875672827,
+              "upper": 0.934329551330904
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 158105,
+          "table_size": 1155,
+          "eval_vs_random": {
+            "wins": 180,
+            "n": 200,
+            "win_rate": 0.9,
+            "wilson_ci_95": {
+              "lower": 0.8505941875672827,
+              "upper": 0.934329551330904
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 197208,
+          "table_size": 1174,
+          "eval_vs_random": {
+            "wins": 170,
+            "n": 200,
+            "win_rate": 0.85,
+            "wilson_ci_95": {
+              "lower": 0.7939442071583334,
+              "upper": 0.89286406437758
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 236379,
+          "table_size": 1210,
+          "eval_vs_random": {
+            "wins": 199,
+            "n": 200,
+            "win_rate": 0.995,
+            "wilson_ci_95": {
+              "lower": 0.9722262956021069,
+              "upper": 0.9991168312843989
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 8,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 192,
+            "n": 200,
+            "win_rate": 0.96,
+            "wilson_ci_95": {
+              "lower": 0.923067931799067,
+              "upper": 0.9795943679338476
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 40785,
+          "table_size": 986,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 79749,
+          "table_size": 1092,
+          "eval_vs_random": {
+            "wins": 178,
+            "n": 200,
+            "win_rate": 0.89,
+            "wilson_ci_95": {
+              "lower": 0.8390730900269852,
+              "upper": 0.9262275553987469
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 117564,
+          "table_size": 1139,
+          "eval_vs_random": {
+            "wins": 164,
+            "n": 200,
+            "win_rate": 0.82,
+            "wilson_ci_95": {
+              "lower": 0.7608852497127512,
+              "upper": 0.8670537414057982
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 157250,
+          "table_size": 1179,
+          "eval_vs_random": {
+            "wins": 162,
+            "n": 200,
+            "win_rate": 0.81,
+            "wilson_ci_95": {
+              "lower": 0.7499876129240015,
+              "upper": 0.8583282847220932
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 197268,
+          "table_size": 1211,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 236828,
+          "table_size": 1217,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        }
+      ]
+    },
+    {
+      "seed": 9,
+      "checkpoints": [
+        {
+          "games_trained": 0,
+          "total_steps_so_far": 0,
+          "table_size": 0,
+          "eval_vs_random": {
+            "wins": 190,
+            "n": 200,
+            "win_rate": 0.95,
+            "wilson_ci_95": {
+              "lower": 0.9104218518612239,
+              "upper": 0.972617354399236
+            }
+          }
+        },
+        {
+          "games_trained": 500,
+          "total_steps_so_far": 38725,
+          "table_size": 962,
+          "eval_vs_random": {
+            "wins": 181,
+            "n": 200,
+            "win_rate": 0.905,
+            "wilson_ci_95": {
+              "lower": 0.8563983883518006,
+              "upper": 0.9383368972826135
+            }
+          }
+        },
+        {
+          "games_trained": 1000,
+          "total_steps_so_far": 77767,
+          "table_size": 1075,
+          "eval_vs_random": {
+            "wins": 182,
+            "n": 200,
+            "win_rate": 0.91,
+            "wilson_ci_95": {
+              "lower": 0.8622342812328346,
+              "upper": 0.9423125511378069
+            }
+          }
+        },
+        {
+          "games_trained": 1500,
+          "total_steps_so_far": 117735,
+          "table_size": 1127,
+          "eval_vs_random": {
+            "wins": 187,
+            "n": 200,
+            "win_rate": 0.935,
+            "wilson_ci_95": {
+              "lower": 0.8919809207009312,
+              "upper": 0.961623645350847
+            }
+          }
+        },
+        {
+          "games_trained": 2000,
+          "total_steps_so_far": 157869,
+          "table_size": 1160,
+          "eval_vs_random": {
+            "wins": 172,
+            "n": 200,
+            "win_rate": 0.86,
+            "wilson_ci_95": {
+              "lower": 0.8051011913429243,
+              "upper": 0.9013301736654437
+            }
+          }
+        },
+        {
+          "games_trained": 2500,
+          "total_steps_so_far": 197513,
+          "table_size": 1186,
+          "eval_vs_random": {
+            "wins": 193,
+            "n": 200,
+            "win_rate": 0.965,
+            "wilson_ci_95": {
+              "lower": 0.9295293884777093,
+              "upper": 0.9829444579914327
+            }
+          }
+        },
+        {
+          "games_trained": 3000,
+          "total_steps_so_far": 236485,
+          "table_size": 1199,
+          "eval_vs_random": {
+            "wins": 198,
+            "n": 200,
+            "win_rate": 0.99,
+            "wilson_ci_95": {
+              "lower": 0.9642782382838231,
+              "upper": 0.9972533418664555
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "band_across_seeds": [
+    {
+      "games_trained": 0,
+      "mean_win_rate": 0.9504999999999999,
+      "ci95_lower": 0.9424385443828879,
+      "ci95_upper": 0.9585614556171119,
+      "per_seed_win_rates": [
+        0.955,
+        0.955,
+        0.95,
+        0.915,
+        0.955,
+        0.95,
+        0.96,
+        0.955,
+        0.96,
+        0.95
+      ]
+    },
+    {
+      "games_trained": 500,
+      "mean_win_rate": 0.9075,
+      "ci95_lower": 0.8553099519916765,
+      "ci95_upper": 0.9596900480083235,
+      "per_seed_win_rates": [
+        0.94,
+        0.955,
+        0.99,
+        0.84,
+        0.78,
+        0.98,
+        0.93,
+        0.765,
+        0.99,
+        0.905
+      ]
+    },
+    {
+      "games_trained": 1000,
+      "mean_win_rate": 0.8955,
+      "ci95_lower": 0.8456054761410522,
+      "ci95_upper": 0.9453945238589477,
+      "per_seed_win_rates": [
+        0.865,
+        0.975,
+        0.99,
+        0.985,
+        0.84,
+        0.925,
+        0.73,
+        0.845,
+        0.89,
+        0.91
+      ]
+    },
+    {
+      "games_trained": 1500,
+      "mean_win_rate": 0.9165000000000001,
+      "ci95_lower": 0.8807438002267828,
+      "ci95_upper": 0.9522561997732174,
+      "per_seed_win_rates": [
+        0.995,
+        0.99,
+        0.91,
+        0.88,
+        0.875,
+        0.98,
+        0.88,
+        0.9,
+        0.82,
+        0.935
+      ]
+    },
+    {
+      "games_trained": 2000,
+      "mean_win_rate": 0.907,
+      "ci95_lower": 0.8653656957679261,
+      "ci95_upper": 0.948634304232074,
+      "per_seed_win_rates": [
+        0.97,
+        0.815,
+        0.99,
+        0.89,
+        0.945,
+        0.995,
+        0.895,
+        0.9,
+        0.81,
+        0.86
+      ]
+    },
+    {
+      "games_trained": 2500,
+      "mean_win_rate": 0.9135,
+      "ci95_lower": 0.8656001503133882,
+      "ci95_upper": 0.9613998496866117,
+      "per_seed_win_rates": [
+        0.985,
+        0.995,
+        0.825,
+        0.865,
+        0.945,
+        0.935,
+        0.78,
+        0.85,
+        0.99,
+        0.965
+      ]
+    },
+    {
+      "games_trained": 3000,
+      "mean_win_rate": 0.9099999999999999,
+      "ci95_lower": 0.8402430887533954,
+      "ci95_upper": 0.9797569112466045,
+      "per_seed_win_rates": [
+        0.94,
+        0.77,
+        0.925,
+        0.95,
+        0.99,
+        0.895,
+        0.655,
+        0.995,
+        0.99,
+        0.99
+      ]
+    }
+  ],
+  "final_table_size": {
+    "min": 1199,
+    "max": 1254,
+    "mean": 1222.8,
+    "per_seed": [
+      1218,
+      1238,
+      1228,
+      1199,
+      1239,
+      1254,
+      1226,
+      1210,
+      1217,
+      1199
+    ]
+  },
+  "final_total_env_steps": {
+    "min": 231743,
+    "max": 240834,
+    "mean": 236254.1,
+    "per_seed": [
+      235057,
+      231743,
+      240834,
+      236682,
+      235078,
+      235896,
+      237559,
+      236379,
+      236828,
+      236485
+    ]
+  }
+}

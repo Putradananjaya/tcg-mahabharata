@@ -5,11 +5,19 @@ import numpy as np
 from src.simulator.fitness import BOUNDS, SMART_START, evaluate_chromosome
 
 class MLPSurrogate:
-    def __init__(self, input_dim=25, hidden_dim=16, output_dim=3):
-        np.random.seed(42)
-        self.w1 = np.random.randn(input_dim, hidden_dim) * 0.1
+    def __init__(self, input_dim=25, hidden_dim=16, output_dim=3, seed=None):
+        # NOTE (Fase 6 review): this used to call the GLOBAL np.random.seed(42)
+        # here, which (a) reset the process-wide numpy RNG as a side effect of
+        # constructing an object, and (b) gave every MLPSurrogate instance
+        # IDENTICAL initial weights -- fatal for a deep ensemble (Fase 6 task
+        # 2), which needs diverse initialization across members to produce a
+        # meaningful disagreement-based uncertainty estimate. Now uses a
+        # private np.random.Generator seeded per-instance; `seed=None` (the
+        # default) draws fresh entropy instead of a fixed constant.
+        rng = np.random.default_rng(seed)
+        self.w1 = rng.standard_normal((input_dim, hidden_dim)) * 0.1
         self.b1 = np.zeros((1, hidden_dim))
-        self.w2 = np.random.randn(hidden_dim, output_dim) * 0.1
+        self.w2 = rng.standard_normal((hidden_dim, output_dim)) * 0.1
         self.b2 = np.zeros((1, output_dim))
 
     def _sigmoid(self, x):
@@ -65,7 +73,7 @@ def array_to_dict(arr):
     return {keys[i]: int(round(arr[i])) for i in range(len(keys))}
 
 def run_surrogate_training(num_samples=150):
-    print("=== TAHAP 1: MENGUMPULKAN DATASET SIMULATOR (150 MANIFOLD SAMPLES) ===")
+    print(f"=== TAHAP 1: MENGUMPULKAN DATASET SIMULATOR ({num_samples} MANIFOLD SAMPLES) ===")
     X_list, y_list = [], []
     for i in range(num_samples):
         pos = generate_perturbed_position()

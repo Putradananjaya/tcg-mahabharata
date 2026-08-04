@@ -1,0 +1,41 @@
+# Experiment 06b (Fase 6): surrogate-assisted EA with proper model
+# management (Jin, Swarm and Evolutionary Computation, 2011), contrasted
+# against the old frozen-surrogate GA pipeline (src.surrogate.mlp.
+# run_surrogate_training) the Fase 6 review flagged as exploitable.
+
+extends: base.yaml
+
+experiment:
+  id: exp06_surrogate_assisted_ea
+  runner: experiments/exp06_surrogate_assisted_ea.py
+
+managed_loop:
+  pop_size: 30
+  generations: 60
+  validate_every: 3        # K: real-simulator re-validation cadence
+  top_m: 5                 # M: elites re-validated each checkpoint
+  num_seed_points: 50
+  num_runs_seed: 150       # games/matchup for the initial real-simulator seed dataset
+  num_runs_real: 150       # games/matchup for each in-loop elite re-validation
+  acquisition: ei          # expected_improvement -- see src/surrogate/model_management.py
+  xi: 1.0                  # EI exploration margin, loss units
+  ensemble:
+    num_models: 5
+    epochs: 1200
+    learning_rate: 0.03
+
+naive_baseline:
+  # src.surrogate.mlp.run_surrogate_training -- ONE surrogate fit, 100 GA
+  # generations against its FROZEN predictions, ONE real-simulator check at
+  # the very end. Run under a comparable real-evaluation budget (num_samples
+  # matches managed_loop.num_seed_points) for a fair contrast.
+  num_samples: 50
+
+final_verification:
+  num_runs: 20000   # N_MATCH -- see CLAIMS_LEDGER.md "Win-rate reporting standard"
+  note: "Applied to BOTH pipelines' best candidate, real simulator only -- never a surrogate prediction (Fase 6 acceptance criteria)"
+
+output:
+  artifact: results/exp06_surrogate_assisted_ea.json
+  figures:
+    - figures/surrogate_error_vs_generation.png

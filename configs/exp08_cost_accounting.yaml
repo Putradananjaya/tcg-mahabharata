@@ -1,0 +1,37 @@
+# Experiment 08a (Fase 8): honest cost accounting for the frozen-surrogate
+# pipeline. Separates t_data_generation / t_surrogate_training /
+# t_optimization / t_elite_verification, then reports BOTH a per-evaluation
+# speedup (marginal cost only) AND an amortized speedup with an explicit
+# break-even point (number of re-balancing runs before the surrogate
+# pipeline's cumulative cost drops below pure Monte Carlo's) -- replacing
+# an unqualified "94.2% speedup" claim.
+
+extends: base.yaml
+
+experiment:
+  id: exp08_cost_accounting
+  runner: experiments/exp08_cost_accounting.py
+
+parameters:
+  # Explicitly reported (Fase 8 task 3) so any total-wall-clock claim can be audited.
+  population_size: 12
+  n_generations: 30
+  n_match_per_eval: 60
+  dataset_size: 200          # real-simulator design points used to train the surrogate
+  ensemble_epochs: 2000
+  final_verification_n_match: 2000
+  n_repetitions: 5            # independent repetitions for stable timing estimates
+
+phases_timed:
+  - t_data_generation    # real-simulator evaluations to build the surrogate's training set
+  - t_surrogate_training  # fitting the MLP ensemble
+  - t_optimization         # GA search against the FROZEN surrogate
+  - t_elite_verification   # final real-simulator check of the GA's best candidate
+
+comparison:
+  baseline: pure_monte_carlo   # src.optim.ga.run_ga_ablation, real simulator every evaluation, same budget
+
+output:
+  artifact: results/exp08_cost_accounting.json
+  figures:
+    - figures/exp08_breakeven_analysis.png

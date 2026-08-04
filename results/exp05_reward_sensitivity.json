@@ -1,0 +1,378 @@
+{
+  "params": "data/ga_balanced_params.json",
+  "base_seed": 20260801,
+  "n_per_cell": 783,
+  "train_schedule_games": [
+    750,
+    750,
+    1500
+  ],
+  "pairs": [
+    "SATWIKA_vs_TAMASIKA",
+    "TAMASIKA_vs_RAJASIKA",
+    "RAJASIKA_vs_SATWIKA"
+  ],
+  "settings": {
+    "baseline_w2_0_w3_0": {
+      "weights": {
+        "w1_step_cost": -0.01,
+        "w2_hp_potential": 0.0,
+        "w3_aggression_bias": 0.0,
+        "w_ko": 1.0
+      },
+      "n_per_cell": 783,
+      "self_play": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 607,
+          "n": 783,
+          "win_rate": 0.7752234993614304,
+          "wilson_ci_95": {
+            "lower": 0.7446817803045327,
+            "upper": 0.8030778670404055
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 731,
+          "n": 783,
+          "win_rate": 0.933588761174968,
+          "wilson_ci_95": {
+            "lower": 0.9139454716908967,
+            "upper": 0.9489983810868595
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 20,
+          "n": 783,
+          "win_rate": 0.02554278416347382,
+          "wilson_ci_95": {
+            "lower": 0.01659489340803555,
+            "upper": 0.03912339434767452
+          }
+        }
+      },
+      "vs_random_agent": {
+        "wins": 740,
+        "n": 783,
+        "win_rate": 0.9450830140485313,
+        "wilson_ci_95": {
+          "lower": 0.9268442775862556,
+          "upper": 0.9589758481664633
+        }
+      },
+      "vs_greedy_agent": {
+        "wins": 137,
+        "n": 783,
+        "win_rate": 0.17496807151979565,
+        "wilson_ci_95": {
+          "lower": 0.14996030150166886,
+          "upper": 0.20314953492855517
+        }
+      },
+      "final_table_size": 1218
+    },
+    "w2_0.5": {
+      "weights": {
+        "w1_step_cost": -0.01,
+        "w2_hp_potential": 0.5,
+        "w3_aggression_bias": 0.0,
+        "w_ko": 1.0
+      },
+      "n_per_cell": 783,
+      "self_play": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 550,
+          "n": 783,
+          "win_rate": 0.70242656449553,
+          "wilson_ci_95": {
+            "lower": 0.6694780737023535,
+            "upper": 0.7333985114678213
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 703,
+          "n": 783,
+          "win_rate": 0.8978288633461047,
+          "wilson_ci_95": {
+            "lower": 0.8746352497196275,
+            "upper": 0.9171379760249116
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 174,
+          "n": 783,
+          "win_rate": 0.2222222222222222,
+          "wilson_ci_95": {
+            "lower": 0.19449807750773318,
+            "upper": 0.2526586589306704
+          }
+        }
+      },
+      "vs_random_agent": {
+        "wins": 781,
+        "n": 783,
+        "win_rate": 0.9974457215836526,
+        "wilson_ci_95": {
+          "lower": 0.9907350131662517,
+          "upper": 0.9992992450279635
+        }
+      },
+      "vs_greedy_agent": {
+        "wins": 203,
+        "n": 783,
+        "win_rate": 0.25925925925925924,
+        "wilson_ci_95": {
+          "lower": 0.22979206940964642,
+          "upper": 0.2910771021703033
+        }
+      },
+      "final_table_size": 1264
+    },
+    "w2_1.0": {
+      "weights": {
+        "w1_step_cost": -0.01,
+        "w2_hp_potential": 1.0,
+        "w3_aggression_bias": 0.0,
+        "w_ko": 1.0
+      },
+      "n_per_cell": 783,
+      "self_play": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 750,
+          "n": 783,
+          "win_rate": 0.9578544061302682,
+          "wilson_ci_95": {
+            "lower": 0.941403450789562,
+            "upper": 0.9698347560464485
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 632,
+          "n": 783,
+          "win_rate": 0.8071519795657727,
+          "wilson_ci_95": {
+            "lower": 0.7780446559041264,
+            "upper": 0.8332601941490411
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 71,
+          "n": 783,
+          "win_rate": 0.09067688378033206,
+          "wilson_ci_95": {
+            "lower": 0.07251223705256626,
+            "upper": 0.11283826422793192
+          }
+        }
+      },
+      "vs_random_agent": {
+        "wins": 744,
+        "n": 783,
+        "win_rate": 0.9501915708812261,
+        "wilson_ci_95": {
+          "lower": 0.9326349757351864,
+          "upper": 0.9633523824508492
+        }
+      },
+      "vs_greedy_agent": {
+        "wins": 79,
+        "n": 783,
+        "win_rate": 0.10089399744572158,
+        "wilson_ci_95": {
+          "lower": 0.08170777977401213,
+          "upper": 0.12397718637311948
+        }
+      },
+      "final_table_size": 1212
+    },
+    "w2_2.0": {
+      "weights": {
+        "w1_step_cost": -0.01,
+        "w2_hp_potential": 2.0,
+        "w3_aggression_bias": 0.0,
+        "w_ko": 1.0
+      },
+      "n_per_cell": 783,
+      "self_play": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 531,
+          "n": 783,
+          "win_rate": 0.6781609195402298,
+          "wilson_ci_95": {
+            "lower": 0.6446365159014639,
+            "upper": 0.7099457152104566
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 633,
+          "n": 783,
+          "win_rate": 0.8084291187739464,
+          "wilson_ci_95": {
+            "lower": 0.7793848212825795,
+            "upper": 0.8344618368789173
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 153,
+          "n": 783,
+          "win_rate": 0.19540229885057472,
+          "wilson_ci_95": {
+            "lower": 0.16914446681656167,
+            "upper": 0.22463429934692922
+          }
+        }
+      },
+      "vs_random_agent": {
+        "wins": 733,
+        "n": 783,
+        "win_rate": 0.9361430395913155,
+        "wilson_ci_95": {
+          "lower": 0.9167979353143693,
+          "upper": 0.9512295336800455
+        }
+      },
+      "vs_greedy_agent": {
+        "wins": 144,
+        "n": 783,
+        "win_rate": 0.1839080459770115,
+        "wilson_ci_95": {
+          "lower": 0.1583381581152685,
+          "upper": 0.21256433507325975
+        }
+      },
+      "final_table_size": 1204
+    },
+    "w3_0.1": {
+      "weights": {
+        "w1_step_cost": -0.01,
+        "w2_hp_potential": 0.0,
+        "w3_aggression_bias": 0.1,
+        "w_ko": 1.0
+      },
+      "n_per_cell": 783,
+      "self_play": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 640,
+          "n": 783,
+          "win_rate": 0.8173690932311622,
+          "wilson_ci_95": {
+            "lower": 0.7887791485381803,
+            "upper": 0.8428601663816206
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 579,
+          "n": 783,
+          "win_rate": 0.7394636015325671,
+          "wilson_ci_95": {
+            "lower": 0.7076034146990038,
+            "upper": 0.7689856056127173
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 184,
+          "n": 783,
+          "win_rate": 0.23499361430395913,
+          "wilson_ci_95": {
+            "lower": 0.2066337157610764,
+            "upper": 0.265941101760619
+          }
+        }
+      },
+      "vs_random_agent": {
+        "wins": 777,
+        "n": 783,
+        "win_rate": 0.9923371647509579,
+        "wilson_ci_95": {
+          "lower": 0.9833835668790182,
+          "upper": 0.9964834588818804
+        }
+      },
+      "vs_greedy_agent": {
+        "wins": 104,
+        "n": 783,
+        "win_rate": 0.13282247765006386,
+        "wilson_ci_95": {
+          "lower": 0.11083400116413301,
+          "upper": 0.1583961676912281
+        }
+      },
+      "final_table_size": 1263
+    },
+    "w3_0.5": {
+      "weights": {
+        "w1_step_cost": -0.01,
+        "w2_hp_potential": 0.0,
+        "w3_aggression_bias": 0.5,
+        "w_ko": 1.0
+      },
+      "n_per_cell": 783,
+      "self_play": {
+        "SATWIKA_vs_TAMASIKA": {
+          "wins": 722,
+          "n": 783,
+          "win_rate": 0.9220945083014048,
+          "wilson_ci_95": {
+            "lower": 0.9011934067363256,
+            "upper": 0.938874173066468
+          }
+        },
+        "TAMASIKA_vs_RAJASIKA": {
+          "wins": 365,
+          "n": 783,
+          "win_rate": 0.4661558109833972,
+          "wilson_ci_95": {
+            "lower": 0.4314646719863636,
+            "upper": 0.5011774131429132
+          }
+        },
+        "RAJASIKA_vs_SATWIKA": {
+          "wins": 342,
+          "n": 783,
+          "win_rate": 0.4367816091954023,
+          "wilson_ci_95": {
+            "lower": 0.4024331443609203,
+            "upper": 0.4717473542767853
+          }
+        }
+      },
+      "vs_random_agent": {
+        "wins": 774,
+        "n": 783,
+        "win_rate": 0.9885057471264368,
+        "wilson_ci_95": {
+          "lower": 0.9783003570271368,
+          "upper": 0.9939412444087742
+        }
+      },
+      "vs_greedy_agent": {
+        "wins": 100,
+        "n": 783,
+        "win_rate": 0.1277139208173691,
+        "wilson_ci_95": {
+          "lower": 0.10613943360737824,
+          "upper": 0.15292350281466618
+        }
+      },
+      "final_table_size": 1201
+    }
+  },
+  "elo_ratings": {
+    "baseline_w2_0_w3_0": 1439.1735460714344,
+    "RandomAgent": 932.2796580734912,
+    "GreedyAgent": 1768.0513822993935,
+    "w2_0.5": 1722.850124061737,
+    "w2_1.0": 1554.1235516359932,
+    "w2_2.0": 1501.5721786511472,
+    "w3_0.1": 1507.0621908683938,
+    "w3_0.5": 1574.8873683384095
+  },
+  "elo_comparison_graph": "star topology: every variant played RandomAgent and GreedyAgent; RandomAgent and GreedyAgent also played each other directly. No full round-robin between variants (compute cost) -- see module docstring.",
+  "rajasika_vs_satwika_direction_flip_vs_baseline": {
+    "baseline_w2_0_w3_0": false,
+    "w2_0.5": false,
+    "w2_1.0": false,
+    "w2_2.0": false,
+    "w3_0.1": false,
+    "w3_0.5": false
+  }
+}

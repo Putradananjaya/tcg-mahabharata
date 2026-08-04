@@ -3,8 +3,13 @@
 # surrogate on N simulator samples, then validates its predictions against
 # fresh real-simulator runs at held-out parameter points.
 #
-# Status: config only. Runner script not implemented yet
-# (see CLAIMS_LEDGER.md — no claim may cite this experiment until it has one).
+# Status: SUPERSEDED, never implemented under this id. Fase 6's review
+# ("MAE 0.024 tanpa baseline & tanpa protokol") asked for exactly this
+# validation, done properly (point-level split, mandatory baselines,
+# calibration, OOD) -- see configs/exp06_surrogate_validation.yaml /
+# experiments/exp06_surrogate_validation.py and rules_spec.md section 13.
+# This file is kept for history, not implemented, and no claim may cite it
+# (CLAIMS_LEDGER.md "no row, no claim").
 
 extends: base.yaml
 

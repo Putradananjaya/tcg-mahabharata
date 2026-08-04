@@ -1,0 +1,48 @@
+# Experiment 07a (Fase 7): does "hybrid GA+PSO" actually beat GA-only?
+# Six optimizers, identical evaluation BUDGET (not wall-clock time), all
+# minimizing src.optim.objective.scalarized_objective (Pers. 4, formally
+# defined this phase). Acceptance criteria: if hybrid_ga_pso does not beat
+# ga_only by a Wilcoxon-signed-rank-significant margin, the "hybrid" claim
+# must be dropped from the paper's title/abstract.
+
+extends: base.yaml
+
+experiment:
+  id: exp07_optimizer_ablation
+  runner: experiments/exp07_optimizer_ablation.py
+
+objective:
+  formula: "BalanceDeviation(Theta) + lambda * PowerCreepPenalty(Theta)"
+  lambda: 8000.0
+  source: src/optim/objective.py
+
+methods:
+  - {label: ga_only, module: src.optim.ga, fn: run_ga_ablation, pop_size: 10}
+  - {label: pso_only, module: src.optim.pso, fn: run_pso_ablation, pop_size: 10}
+  - {label: hybrid_ga_pso, module: src.optim.hybrid, fn: run_hybrid_ablation, pop_size: 10, elite_k: 3}
+  - {label: random_search, module: src.optim.baselines, fn: run_random_search}
+  - {label: cma_es, module: src.optim.baselines, fn: run_cma_es}
+  - {label: bayesian_optimization, module: src.optim.baselines, fn: run_bayesian_optimization}
+
+evaluation:
+  budget: 300          # evaluation-count budget, identical across all methods (not wall-clock time)
+  num_runs: 60          # games/matchup per evaluation
+  num_seeds: 20          # >= 15 required by Fase 7 acceptance criteria
+  base_seed: 20260801
+
+statistics:
+  pairwise_test: wilcoxon_signed_rank   # src/metrics/nonparametric.py, no scipy in this venv
+  effect_size: rank_biserial_r
+  significance_alpha: 0.05
+  headline_comparison: hybrid_ga_pso_vs_ga_only
+
+constraint_handling:
+  pso_hybrid: round_then_clip (raw units) -- src.optim.pso._round_clip
+  cma_es_bo: round_then_clip (normalized [0,1]^25 space) -- src.optim.baselines._normalize/_denormalize
+  see: rules_spec.md section 14.3
+
+output:
+  artifact: results/exp07_optimizer_ablation.json
+  figures:
+    - figures/exp07_convergence_curves.png
+    - figures/exp07_final_value_comparison.png

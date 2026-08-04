@@ -1,0 +1,36 @@
+# Experiment 05b (Fase 5): RL agent learning curve across >=10 independent
+# training seeds, mean +/- 95% CI band (Aturan Main's blanket >=10-seed
+# standard for run-to-run training variance -- distinct from the
+# Wilson-CI-over-N_MATCH standard used for the win-rate *within* one seed's
+# evaluation games). Also the source of the real, measured hyperparameter
+# numbers (Q-table size, total env steps, num_seeds) in results/dqn_hparams.json.
+
+extends: base.yaml
+
+experiment:
+  id: exp05_learning_curve
+  runner: experiments/exp05_learning_curve.py
+
+parameter_set:
+  label: ga_balanced
+  source: data/ga_balanced_params.json
+
+num_seeds: 10
+checkpoints_cumulative_games: [0, 500, 1000, 1500, 2000, 2500, 3000]
+n_eval_per_checkpoint_per_seed: 200   # curve-tracking precision, not a final win-rate claim -- see rules_spec.md 12.7
+eval_opponent: RandomAgent
+train_matchup: [SATWIKA, TAMASIKA]
+
+training:
+  reward_weights: {w1_step_cost: -0.01, w2_hp_potential: 0.0, w3_aggression_bias: 0.0, w_ko: 1.0}   # Fase 4-equivalent
+  epsilon: 0.2
+  epsilon_schedule: constant (no decay)
+  alpha: 0.1
+  gamma: 0.9
+  max_turns: 60
+
+output:
+  artifact: results/exp05_learning_curve.json
+  figures:
+    - figures/rl_learning_curve.png
+  also_feeds: results/dqn_hparams.json

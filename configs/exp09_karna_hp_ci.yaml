@@ -1,0 +1,27 @@
+# Experiment 09c (Fase 9): replaces "Fig. 2" (the Karna-HP sweep) with a
+# version that has Wilson 95% CI bands, and investigates whether the
+# Satwika and Rajasika curves actually nearly coincide as previously
+# reported.
+
+extends: base.yaml
+
+experiment:
+  id: exp09_karna_hp_ci
+  runner: experiments/exp09_karna_hp_ci.py
+
+sweep:
+  parameter: rjs_karna_hp
+  range: [70, 110]   # actual src.simulator.fitness.BOUNDS range, not beyond it
+  step: 2
+  num_runs: 300        # real Wilson CIs, not diagnostic-grade n
+  baseline_source: data/ga_balanced_params.json
+
+curves_compared:
+  per_matchup: [SATWIKA_vs_TAMASIKA, TAMASIKA_vs_RAJASIKA, RAJASIKA_vs_SATWIKA]
+  per_faction_marginal: [SATWIKA, TAMASIKA, RAJASIKA]
+  control_check: SATWIKA_vs_TAMASIKA must be flat (Karna does not appear in this matchup)
+
+output:
+  artifact: results/exp09_karna_hp_ci.json
+  figures:
+    - figures/exp09_karna_hp_ci.png
