@@ -7,9 +7,9 @@ import json
 import random
 import numpy as np
 
-from src.usecases.battle_simulator import run_logged_simulation
+from src.simulator.engine import run_logged_simulation
 from src.infrastructure.ml.decision_tree_classifier import RandomForestClassifier
-from src.infrastructure.ml.surrogate_mlp import run_surrogate_training
+from src.surrogate.mlp import run_surrogate_training
 
 def run_ml_experiments():
     print("=== MAHAYUDHA TCG MACHINE LEARNING & DEEP LEARNING EXPERIMENTS ===")

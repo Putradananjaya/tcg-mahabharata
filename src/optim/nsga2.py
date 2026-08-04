@@ -4,8 +4,8 @@ import json
 import random
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 -- registers the 3d projection
-from src.usecases.balance_optimizer import BOUNDS, SMART_START, evaluate_chromosome_multi
-from src.infrastructure.optimizers.ga_balancer import generate_random_chromosome, crossover, mutate
+from src.simulator.fitness import BOUNDS, SMART_START, evaluate_chromosome_multi
+from src.optim.ga import generate_random_chromosome, crossover, mutate
 
 
 def dominates(obj_a, obj_b):

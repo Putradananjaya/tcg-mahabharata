@@ -1,0 +1,86 @@
+{
+  "pool": {
+    "matchup": "SATWIKA_vs_TAMASIKA",
+    "params": "SMART_START",
+    "pool_size": 50000,
+    "base_seed": 20260801,
+    "wins": 25591,
+    "p_hat": 0.51182,
+    "wilson_ci_95": {
+      "lower": 0.5074378722332497,
+      "upper": 0.5162003116645496
+    }
+  },
+  "n_values": [
+    100,
+    200,
+    500,
+    1000,
+    2000,
+    5000,
+    10000,
+    20000,
+    35000,
+    50000
+  ],
+  "bootstrap_resamples_per_n": 300,
+  "empirical_se": [
+    0.050933318157672845,
+    0.03437077327819905,
+    0.022588104721653575,
+    0.015643584243457857,
+    0.010735718910958739,
+    0.007104044226363079,
+    0.005013677568888077,
+    0.0033794155887213982,
+    0.0025983445145995347,
+    0.002318651662928741
+  ],
+  "theoretical_se_p_hat": [
+    0.04998602680749891,
+    0.03534545852015503,
+    0.022354430773338874,
+    0.015806969589393153,
+    0.011177215386669437,
+    0.007069091704031007,
+    0.004998602680749892,
+    0.0035345458520155033,
+    0.0026718655205679796,
+    0.0022354430773338873
+  ],
+  "theoretical_se_worst_case_p_0.5": [
+    0.05,
+    0.035355339059327376,
+    0.022360679774997897,
+    0.015811388300841896,
+    0.011180339887498949,
+    0.007071067811865475,
+    0.005,
+    0.0035355339059327377,
+    0.002672612419124244,
+    0.00223606797749979
+  ],
+  "required_n_targets": [
+    {
+      "delta": 0.01,
+      "alpha": 0.05,
+      "power": 0.8,
+      "required_n": 19620
+    },
+    {
+      "delta": 0.02,
+      "alpha": 0.05,
+      "power": 0.8,
+      "required_n": 4904
+    },
+    {
+      "delta": 0.05,
+      "alpha": 0.05,
+      "power": 0.8,
+      "required_n": 783
+    }
+  ],
+  "N_MATCH_raw_required_n": 19620,
+  "N_MATCH_official": 20000,
+  "N_MATCH_rationale": "required_n(delta=0.01, alpha=0.05, power=0.8) = 19620 (rounded up to 20000). This is a genuine power calculation (detects a 1pp shift from 50% with 80% power at alpha=0.05), not a margin-of-error-only estimate -- see src/metrics/winrate.required_n docstring for why this is roughly 2x a naive z_alpha-only rule of thumb."
+}

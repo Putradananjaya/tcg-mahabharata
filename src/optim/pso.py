@@ -1,7 +1,7 @@
 import time
 import random
 import copy
-from src.usecases.balance_optimizer import BOUNDS, SMART_START, evaluate_chromosome
+from src.simulator.fitness import BOUNDS, SMART_START, evaluate_chromosome
 
 def generate_random_position():
     pos = {}

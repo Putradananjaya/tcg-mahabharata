@@ -2,7 +2,7 @@ import os
 import csv
 import random
 import json
-from src.core.models import Player, Card
+from src.domain.models import Player, Card
 
 def export_results(winner_name, turn_count, p1_hp, p2_hp):
     file_exists = os.path.isfile('data/hasil_riset.csv')

@@ -5,15 +5,15 @@ import sys
 import io
 import os
 import matplotlib.pyplot as plt
-from src.core.models import Player, Card
-from src.usecases.balance_optimizer import run_simulation, evaluate_chromosome
+from src.domain.models import Player, Card
+from src.simulator.fitness import run_simulation, evaluate_chromosome
 
 # 1. Sensitivity Analysis
 def run_sensitivity_analysis():
     print("=== MEMULAI ANALISIS SENSITIVITAS (HP KARNA SWEEP) ===")
     hp_karna_range = list(range(60, 145, 5))
-    wr_kurawa_vs_rajasika = []
-    wr_rajasika_vs_pandawa = []
+    wr_tamasika_vs_rajasika = []
+    wr_rajasika_vs_satwika = []
 
     # Target optimal parameters based on smart seed
     base_params = {
@@ -30,18 +30,18 @@ def run_sensitivity_analysis():
         current_params["rjs_karna_hp"] = hp
         loss, rates = evaluate_chromosome(current_params, num_runs=150)
         
-        wr_kurawa = rates["KURAWA_vs_RAJASIKA"]
-        wr_rajasika = rates["RAJASIKA_vs_PANDAWA"]
-        
-        wr_kurawa_vs_rajasika.append(wr_kurawa)
-        wr_rajasika_vs_pandawa.append(wr_rajasika)
-        
-        print(f"  HP Karna: {hp:<3} | Win Rate Kurawa vs Rajasika: {wr_kurawa:.2f}% | Rajasika vs Pandawa: {wr_rajasika:.2f}%")
+        wr_tamasika = rates["TAMASIKA_vs_RAJASIKA"]
+        wr_rajasika = rates["RAJASIKA_vs_SATWIKA"]
+
+        wr_tamasika_vs_rajasika.append(wr_tamasika)
+        wr_rajasika_vs_satwika.append(wr_rajasika)
+
+        print(f"  HP Karna: {hp:<3} | Win Rate Tamasika vs Rajasika: {wr_tamasika:.2f}% | Rajasika vs Satwika: {wr_rajasika:.2f}%")
 
     # Generate Sensitivity plot
     plt.figure(figsize=(10, 6))
-    plt.plot(hp_karna_range, wr_kurawa_vs_rajasika, 'o-', color='#ff7f0e', label='Kurawa vs Rajasika (Target 50%)', linewidth=2)
-    plt.plot(hp_karna_range, wr_rajasika_vs_pandawa, 's-', color='#1f77b4', label='Rajasika vs Pandawa (Target 50%)', linewidth=2)
+    plt.plot(hp_karna_range, wr_tamasika_vs_rajasika, 'o-', color='#ff7f0e', label='Tamasika vs Rajasika (Target 50%)', linewidth=2)
+    plt.plot(hp_karna_range, wr_rajasika_vs_satwika, 's-', color='#1f77b4', label='Rajasika vs Satwika (Target 50%)', linewidth=2)
     
     # Draw stability bounds
     plt.axvspan(85, 115, color='green', alpha=0.15, label='Stability Zone (HP 85-115)')

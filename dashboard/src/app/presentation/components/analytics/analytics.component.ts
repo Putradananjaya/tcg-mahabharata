@@ -51,7 +51,7 @@ Chart.register(...registerables);
         <!-- Power Spike Trend Chart -->
         <div class="chart-card md-card" style="display: flex; flex-direction: column; gap: 12px; min-height: 500px; padding: 24px; background: #fff; border-radius: 12px; border: 1px solid var(--border-color, #e0e0e0);">
           <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #111;">Power Spike Trend Curve</h3>
-          <p class="chart-desc" style="font-size: 13.5px; color: #555; margin: 0; line-height: 1.4;">Illustrates asymmetric faction dominance over match turns (Early Rajasika, Mid Kurawa, Late Pandawa).</p>
+          <p class="chart-desc" style="font-size: 13.5px; color: #555; margin: 0; line-height: 1.4;">Illustrates asymmetric faction dominance over match turns (Early Rajasika, Mid Tamasika, Late Satwika).</p>
           <div class="canvas-container" style="height: 420px; position: relative; width: 100%; background: #fafafa; border-radius: 8px; padding: 16px; border: 1px solid #e5e5e5; box-sizing: border-box;">
             <canvas #powerSpikeCanvas style="width: 100% !important; height: 100% !important;"></canvas>
           </div>
@@ -119,7 +119,7 @@ export class AnalyticsComponent implements AfterViewInit, OnDestroy {
     const datasets: any[] = [
       {
         label: p2Label,
-        data: data.wrKurawa,
+        data: data.wrTamasika,
         borderColor: '#f4511e',
         backgroundColor: 'rgba(244, 81, 30, 0.05)',
         borderWidth: 3,
@@ -130,7 +130,7 @@ export class AnalyticsComponent implements AfterViewInit, OnDestroy {
       },
       {
         label: p1Label,
-        data: data.wrPandawa,
+        data: data.wrSatwika,
         borderColor: '#1e88e5',
         backgroundColor: 'rgba(30, 136, 229, 0.05)',
         borderWidth: 3,
@@ -203,8 +203,8 @@ export class AnalyticsComponent implements AfterViewInit, OnDestroy {
         labels: data.turns,
         datasets: [
           {
-            label: 'Pandawa (Late-game)',
-            data: data.pandawa,
+            label: 'Satwika (Late-game)',
+            data: data.satwika,
             borderColor: '#1e88e5',
             borderWidth: 3,
             pointRadius: 6,
@@ -212,8 +212,8 @@ export class AnalyticsComponent implements AfterViewInit, OnDestroy {
             tension: 0.2
           },
           {
-            label: 'Kurawa (Mid-game)',
-            data: data.kurawa,
+            label: 'Tamasika (Mid-game)',
+            data: data.tamasika,
             borderColor: '#d81b60',
             borderWidth: 3,
             pointRadius: 6,
@@ -231,7 +231,7 @@ export class AnalyticsComponent implements AfterViewInit, OnDestroy {
           }
         ]
       },
-      options: this.getChartOptions('Turn Number', 'Remaining Sasmita (Faction HP)', {
+      options: this.getChartOptions('Turn Number', 'Remaining Sasmita (Prize Cards, 0-3)', {
         y: { min: 0, max: 3.5 }
       })
     }));

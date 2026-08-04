@@ -392,7 +392,7 @@ import { Subscription } from 'rxjs';
             </div>
             <div class="glossary-item">
               <strong>💠 Sasmita (Prize Cards)</strong>
-              <p>Indikator nyawa tim (berjumlah 3). Setiap kali karakter aktif gugur, lawan mengambil 1 Sasmita. Kehabisan Sasmita = Kalah.</p>
+              <p>Hitungan prize card faksi (mulai dari 3, bukan nyawa tim). Setiap kali kamu berhasil membuat karakter aktif lawan gugur, Sasmita milikmu berkurang 1. Sasmita mencapai 0 = Menang.</p>
             </div>
             <div class="glossary-item">
               <strong>🧪 Prana (Energi)</strong>
@@ -420,7 +420,7 @@ import { Subscription } from 'rxjs';
             </div>
             <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
               <strong>4. Fase Eliminasi & Sasmita (Victory Check)</strong>
-              <p style="margin-top: 4px;">Jika HP karakter aktif menyentuh 0, ia gugur. Faksi lawan memperoleh 1 Sasmita. Karakter cadangan dikirim ke arena aktif. Giliran selesai.</p>
+              <p style="margin-top: 4px;">Jika HP karakter aktif menyentuh 0, ia gugur. Faksi lawan (yang menjatuhkannya) meng-klaim 1 prize — Sasmita mereka berkurang 1. Karakter cadangan dikirim ke arena aktif. Giliran selesai.</p>
             </div>
           </div>
         </div>

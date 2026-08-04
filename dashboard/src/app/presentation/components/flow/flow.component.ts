@@ -71,8 +71,8 @@ import { CommonModule } from '@angular/common';
             <div class="node-box end-check">
               <span class="node-icon">⚖️</span>
               <div class="node-details">
-                <strong>Cek Kematian (Sasmita Penalty)</strong>
-                <span>Karakter yang gugur mengurangi Sasmita faksi (-1). Jika Sasmita = 0, faksi lawan menang!</span>
+                <strong>Cek Kematian (Sasmita Claim)</strong>
+                <span>Berhasil membuat karakter aktif lawan gugur mengurangi Sasmita milikmu (-1, klaim prize). Jika Sasmita-mu = 0, kamu menang!</span>
               </div>
             </div>
           </div>

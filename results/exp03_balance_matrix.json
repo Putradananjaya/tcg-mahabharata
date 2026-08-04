@@ -1,0 +1,348 @@
+{
+  "smart_start": {
+    "label": "smart_start",
+    "N_MATCH": 20000,
+    "base_seed": 20260801,
+    "factions": [
+      "SATWIKA",
+      "RAJASIKA",
+      "TAMASIKA"
+    ],
+    "payoff_matrix": {
+      "SATWIKA_vs_SATWIKA": {
+        "wins": 10080,
+        "n": 20000,
+        "win_rate": 0.504,
+        "wilson_ci_95": {
+          "lower": 0.49707059980902174,
+          "upper": 0.5109278639025294
+        }
+      },
+      "SATWIKA_vs_RAJASIKA": {
+        "wins": 19367,
+        "n": 20000,
+        "win_rate": 0.96835,
+        "wilson_ci_95": {
+          "lower": 0.965832373039425,
+          "upper": 0.9706877467868219
+        }
+      },
+      "SATWIKA_vs_TAMASIKA": {
+        "wins": 10291,
+        "n": 20000,
+        "win_rate": 0.51455,
+        "wilson_ci_95": {
+          "lower": 0.5076212859133771,
+          "upper": 0.5214731258373901
+        }
+      },
+      "RAJASIKA_vs_SATWIKA": {
+        "wins": 594,
+        "n": 20000,
+        "win_rate": 0.0297,
+        "wilson_ci_95": {
+          "lower": 0.027436119471638133,
+          "upper": 0.032144509642733875
+        }
+      },
+      "RAJASIKA_vs_RAJASIKA": {
+        "wins": 9991,
+        "n": 20000,
+        "win_rate": 0.49955,
+        "wilson_ci_95": {
+          "lower": 0.492621235490832,
+          "upper": 0.5064789373416184
+        }
+      },
+      "RAJASIKA_vs_TAMASIKA": {
+        "wins": 8715,
+        "n": 20000,
+        "win_rate": 0.43575,
+        "wilson_ci_95": {
+          "lower": 0.4288909171085606,
+          "upper": 0.44263375952464895
+        }
+      },
+      "TAMASIKA_vs_SATWIKA": {
+        "wins": 9677,
+        "n": 20000,
+        "win_rate": 0.48385,
+        "wilson_ci_95": {
+          "lower": 0.4769278623019215,
+          "upper": 0.49077834046269064
+        }
+      },
+      "TAMASIKA_vs_RAJASIKA": {
+        "wins": 11315,
+        "n": 20000,
+        "win_rate": 0.56575,
+        "wilson_ci_95": {
+          "lower": 0.5588686772771203,
+          "upper": 0.5726060699815019
+        }
+      },
+      "TAMASIKA_vs_TAMASIKA": {
+        "wins": 9985,
+        "n": 20000,
+        "win_rate": 0.49925,
+        "wilson_ci_95": {
+          "lower": 0.49232129808946934,
+          "upper": 0.5061789899646149
+        }
+      }
+    },
+    "max_mirror_deviation_pp": 0.40000000000000036,
+    "marginal_win_rates": {
+      "SATWIKA": 0.7414499999999999,
+      "RAJASIKA": 0.23272500000000002,
+      "TAMASIKA": 0.5247999999999999
+    },
+    "nash_averaging": {
+      "mixture": {
+        "SATWIKA": 1.0,
+        "RAJASIKA": 0.0,
+        "TAMASIKA": 0.0
+      },
+      "rating": {
+        "SATWIKA": 0.0,
+        "RAJASIKA": -0.46932500000000005,
+        "TAMASIKA": -0.015349999999999975
+      },
+      "support": [
+        "SATWIKA"
+      ],
+      "entropy": -0.0
+    },
+    "elo_ratings": {
+      "SATWIKA": 1585.7029269273976,
+      "RAJASIKA": 1491.586960433959,
+      "TAMASIKA": 1422.7101126386444
+    },
+    "bradley_terry_ratings": {
+      "RAJASIKA": 0.12256600951808493,
+      "SATWIKA": 0.578639813926505,
+      "TAMASIKA": 0.2987941765554101
+    },
+    "faction_identity_index": {
+      "mean_pairwise_jsd_bits": 0.03080662181985595,
+      "pairwise_jsd_bits": {
+        "SATWIKA_vs_RAJASIKA": 0.04620993272978392,
+        "SATWIKA_vs_TAMASIKA": 0.04620993272978392,
+        "RAJASIKA_vs_TAMASIKA": 0.0
+      },
+      "per_faction_attack_rank_entropy": {
+        "SATWIKA": 0.43446781992726324,
+        "RAJASIKA": 0.0,
+        "TAMASIKA": 0.0
+      },
+      "rank_counts": {
+        "SATWIKA": {
+          "0": 1385070,
+          "1": 135984
+        },
+        "RAJASIKA": {
+          "0": 955998
+        },
+        "TAMASIKA": {
+          "0": 875439
+        }
+      }
+    },
+    "balance_objective": {
+      "total": 0.6522716054810379,
+      "marginal_parity_deviation": 0.13034906812499994,
+      "pairwise_deviation": 0.44945746249999996,
+      "identity_penalty": 0.07246507485603805,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "restricted_play_satwika_heal_vs_tamasika": {
+      "n": 20000,
+      "baseline_win_rate": 0.52105,
+      "restricted_win_rate": 0.52105,
+      "depth": 0.0,
+      "depth_ci_95": [
+        -0.0,
+        -0.0
+      ],
+      "paired_correlation": 1.0
+    }
+  },
+  "ga_balanced": {
+    "label": "ga_balanced",
+    "N_MATCH": 20000,
+    "base_seed": 120260801,
+    "factions": [
+      "SATWIKA",
+      "RAJASIKA",
+      "TAMASIKA"
+    ],
+    "payoff_matrix": {
+      "SATWIKA_vs_SATWIKA": {
+        "wins": 9988,
+        "n": 20000,
+        "win_rate": 0.4994,
+        "wilson_ci_95": {
+          "lower": 0.49247126647841144,
+          "upper": 0.5063289639648559
+        }
+      },
+      "SATWIKA_vs_RAJASIKA": {
+        "wins": 10770,
+        "n": 20000,
+        "win_rate": 0.5385,
+        "wilson_ci_95": {
+          "lower": 0.5315843200482857,
+          "upper": 0.5454008931753942
+        }
+      },
+      "SATWIKA_vs_TAMASIKA": {
+        "wins": 9457,
+        "n": 20000,
+        "win_rate": 0.47285,
+        "wilson_ci_95": {
+          "lower": 0.46593658045203845,
+          "upper": 0.47977384710580806
+        }
+      },
+      "RAJASIKA_vs_SATWIKA": {
+        "wins": 9290,
+        "n": 20000,
+        "win_rate": 0.4645,
+        "wilson_ci_95": {
+          "lower": 0.4575954464274215,
+          "upper": 0.4714181881325619
+        }
+      },
+      "RAJASIKA_vs_RAJASIKA": {
+        "wins": 10062,
+        "n": 20000,
+        "win_rate": 0.5031,
+        "wilson_ci_95": {
+          "lower": 0.49617068410545956,
+          "upper": 0.5100281252709927
+        }
+      },
+      "RAJASIKA_vs_TAMASIKA": {
+        "wins": 10051,
+        "n": 20000,
+        "win_rate": 0.50255,
+        "wilson_ci_95": {
+          "lower": 0.4956207466700404,
+          "upper": 0.5094782739460735
+        }
+      },
+      "TAMASIKA_vs_SATWIKA": {
+        "wins": 10467,
+        "n": 20000,
+        "win_rate": 0.52335,
+        "wilson_ci_95": {
+          "lower": 0.5164242204323818,
+          "upper": 0.5302668114837982
+        }
+      },
+      "TAMASIKA_vs_RAJASIKA": {
+        "wins": 10009,
+        "n": 20000,
+        "win_rate": 0.50045,
+        "wilson_ci_95": {
+          "lower": 0.4935210626583814,
+          "upper": 0.5073787645091679
+        }
+      },
+      "TAMASIKA_vs_TAMASIKA": {
+        "wins": 9904,
+        "n": 20000,
+        "win_rate": 0.4952,
+        "wilson_ci_95": {
+          "lower": 0.4882723872696487,
+          "upper": 0.5021294562764899
+        }
+      }
+    },
+    "max_mirror_deviation_pp": 0.48000000000000265,
+    "marginal_win_rates": {
+      "SATWIKA": 0.505675,
+      "RAJASIKA": 0.48352500000000004,
+      "TAMASIKA": 0.5119
+    },
+    "nash_averaging": {
+      "mixture": {
+        "SATWIKA": 0.016587677725119716,
+        "RAJASIKA": 0.3988941548183255,
+        "TAMASIKA": 0.5845181674565549
+      },
+      "rating": {
+        "SATWIKA": 2.6020852139652106e-17,
+        "RAJASIKA": -1.6696713456276768e-17,
+        "TAMASIKA": 1.0679391398982219e-17
+      },
+      "support": [
+        "SATWIKA",
+        "RAJASIKA",
+        "TAMASIKA"
+      ],
+      "entropy": 0.7484690120541038
+    },
+    "elo_ratings": {
+      "SATWIKA": 1568.0854690186165,
+      "RAJASIKA": 1438.6708285492423,
+      "TAMASIKA": 1493.2437024321407
+    },
+    "bradley_terry_ratings": {
+      "RAJASIKA": 0.31753701562602127,
+      "SATWIKA": 0.33839806640613634,
+      "TAMASIKA": 0.34406491796784233
+    },
+    "faction_identity_index": {
+      "mean_pairwise_jsd_bits": 0.02528038819142961,
+      "pairwise_jsd_bits": {
+        "SATWIKA_vs_RAJASIKA": 0.037920582287144414,
+        "SATWIKA_vs_TAMASIKA": 0.037920582287144414,
+        "RAJASIKA_vs_TAMASIKA": 0.0
+      },
+      "per_faction_attack_rank_entropy": {
+        "SATWIKA": 0.3799506120372247,
+        "RAJASIKA": 0.0,
+        "TAMASIKA": 0.0
+      },
+      "rank_counts": {
+        "SATWIKA": {
+          "0": 1108312,
+          "1": 88312
+        },
+        "RAJASIKA": {
+          "0": 814807
+        },
+        "TAMASIKA": {
+          "0": 990803
+        }
+      }
+    },
+    "balance_objective": {
+      "total": 0.07994765636225162,
+      "marginal_parity_deviation": 0.0004452412499999991,
+      "pairwise_deviation": 0.004031549999999997,
+      "identity_penalty": 0.07547086511225162,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "restricted_play_satwika_heal_vs_tamasika": {
+      "n": 20000,
+      "baseline_win_rate": 0.4851,
+      "restricted_win_rate": 0.4851,
+      "depth": 0.0,
+      "depth_ci_95": [
+        -0.0,
+        -0.0
+      ],
+      "paired_correlation": 1.0
+    }
+  }
+}

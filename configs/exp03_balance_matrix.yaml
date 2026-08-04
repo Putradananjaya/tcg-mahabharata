@@ -1,0 +1,42 @@
+# Experiment 03 (Fase 3): balance metrics beyond marginal win rate. Builds
+# the full 3x3 Satwika x Rajasika x Tamasika payoff matrix (including mirror
+# matches) at N_MATCH games/cell, then runs Nash averaging, Elo/Bradley-Terry,
+# the Faction Identity Index, restricted play, and the composite balance
+# objective against it. Run against two parameter sets so the comparison
+# itself is the result: SMART_START (pre-optimization) vs
+# data/ga_balanced_params.json (a prior GA run's claimed-balanced output).
+
+extends: base.yaml
+
+experiment:
+  id: exp03_balance_matrix
+  runner: experiments/exp03_balance_matrix.py
+
+factions: [SATWIKA, RAJASIKA, TAMASIKA]
+
+parameter_sets:
+  - {label: smart_start, source: "src.simulator.fitness.SMART_START"}
+  - {label: ga_balanced, source: "data/ga_balanced_params.json"}
+
+matrix:
+  n_match: 20000   # see CLAIMS_LEDGER.md "Win-rate reporting standard"
+  include_mirror_matches: true
+
+restricted_play:
+  faction: SATWIKA
+  mechanic: heal_bench_card   # Sabda Rahayu
+  opponent: TAMASIKA
+  n: 20000   # paired (common random numbers), not 2x independent N_MATCH runs
+
+diversity:
+  action_axis: attack_rank   # NOT raw attack name -- see exp03 module docstring for why
+
+balance_objective:
+  identity_target: 0.3   # bits, mean pairwise Jensen-Shannon divergence
+  weights: [1.0, 1.0, 1.0]   # (marginal, pairwise, identity) -- uncalibrated, see balance_objective.py docstring
+
+output:
+  artifact: results/exp03_balance_matrix.json
+  figures:
+    - figures/payoff_matrix_3x3_smart_start.png
+    - figures/payoff_matrix_3x3_ga_balanced.png

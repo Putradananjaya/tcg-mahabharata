@@ -2,7 +2,7 @@ import sys
 import io
 import random
 import math
-from src.core.models import Player, Card
+from src.domain.models import Player, Card
 
 # Baseline card stats bounds for parameter clipping
 BOUNDS = {
@@ -170,14 +170,14 @@ def evaluate_chromosome(params, num_runs=150):
     original_stdout = sys.stdout
     sys.stdout = io.StringIO()
     try:
-        p_v_k = sum(1 for _ in range(num_runs) if run_simulation(satwika, tamasika, "PANDAWA", "KURAWA") == "PANDAWA")
-        k_v_r = sum(1 for _ in range(num_runs) if run_simulation(tamasika, rajasika, "KURAWA", "RAJASIKA") == "KURAWA")
-        r_v_p = sum(1 for _ in range(num_runs) if run_simulation(rajasika, satwika, "RAJASIKA", "PANDAWA") == "RAJASIKA")
+        p_v_k = sum(1 for _ in range(num_runs) if run_simulation(satwika, tamasika, "SATWIKA", "TAMASIKA") == "SATWIKA")
+        k_v_r = sum(1 for _ in range(num_runs) if run_simulation(tamasika, rajasika, "TAMASIKA", "RAJASIKA") == "TAMASIKA")
+        r_v_p = sum(1 for _ in range(num_runs) if run_simulation(rajasika, satwika, "RAJASIKA", "SATWIKA") == "RAJASIKA")
     finally:
         sys.stdout = original_stdout
 
-    rates = {"PANDAWA_vs_KURAWA": (p_v_k / num_runs)*100, "KURAWA_vs_RAJASIKA": (k_v_r / num_runs)*100, "RAJASIKA_vs_PANDAWA": (r_v_p / num_runs)*100}
-    loss = (rates["PANDAWA_vs_KURAWA"] - 50)**2 + (rates["KURAWA_vs_RAJASIKA"] - 50)**2 + (rates["RAJASIKA_vs_PANDAWA"] - 50)**2
+    rates = {"SATWIKA_vs_TAMASIKA": (p_v_k / num_runs)*100, "TAMASIKA_vs_RAJASIKA": (k_v_r / num_runs)*100, "RAJASIKA_vs_SATWIKA": (r_v_p / num_runs)*100}
+    loss = (rates["SATWIKA_vs_TAMASIKA"] - 50)**2 + (rates["TAMASIKA_vs_RAJASIKA"] - 50)**2 + (rates["RAJASIKA_vs_SATWIKA"] - 50)**2
     return loss, rates
 
 
@@ -241,9 +241,9 @@ def _length_penalty(avg_turns):
 def evaluate_chromosome_multi(params, num_runs=80):
     satwika, rajasika, tamasika = build_faction_decks(params)
     matchups = [
-        ("PANDAWA_vs_KURAWA", satwika, tamasika, "PANDAWA", "KURAWA"),
-        ("KURAWA_vs_RAJASIKA", tamasika, rajasika, "KURAWA", "RAJASIKA"),
-        ("RAJASIKA_vs_PANDAWA", rajasika, satwika, "RAJASIKA", "PANDAWA"),
+        ("SATWIKA_vs_TAMASIKA", satwika, tamasika, "SATWIKA", "TAMASIKA"),
+        ("TAMASIKA_vs_RAJASIKA", tamasika, rajasika, "TAMASIKA", "RAJASIKA"),
+        ("RAJASIKA_vs_SATWIKA", rajasika, satwika, "RAJASIKA", "SATWIKA"),
     ]
     # Multi-attack cards worth tracking for strategic diversity
     diversity_cards = ["Panah Kendali", "Panah Pasupati", "Gada Kelana", "Angkara 100 Kurawa"]

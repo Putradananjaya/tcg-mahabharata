@@ -3,8 +3,11 @@ import io
 import random
 import numpy as np
 
-from src.core.models import Player, Card
+from src.domain.models import Player, Card
 
+# NOTE: tabular Q-learning, not a neural DQN. Kept as QLearningAgent pending
+# the refactor to a true function-approximation agent + the shared Agent
+# interface in base.py.
 class QLearningAgent:
     def __init__(self, epsilon=0.2, alpha=0.1, gamma=0.9):
         self.epsilon = epsilon
@@ -12,10 +15,36 @@ class QLearningAgent:
         self.gamma = gamma
         self.q_table = {}
 
-    def get_state(self, player):
+    # Equation 1 (observation vector, not full state -- see rules_spec.md section 6:
+    # the engine is a POMDP because neither agent can see the opponent's hand
+    # contents, deck order, or the private RNG draws used to resolve effects like
+    # heal_bench_card's target selection). Fields, in order:
+    #   0 hp_bucket            own active character's HP bucket (0/1/2)
+    #   1 prana_bucket         own total prana, P_faction^(i)   (0/1)
+    #   2 opp_prana_bucket     opponent total prana, P_faction^(3-i) (0/1)
+    #   3 bench_wounded        own bench has a damaged card (0/1)
+    #   4 deck_size_bucket     own remaining deck size (0/1)
+    #   5 own_hand_bucket      |Hand^(i)|, capped bucket (0-3)
+    #   6 opp_hand_bucket      |Hand^(3-i)|, capped bucket (0-3) -- hand *count* is
+    #                          public info in a physical card game even though hand
+    #                          *contents* are not, so this does not break the POMDP
+    #   7 is_panic             own active character at/below the 40%-HP panic
+    #                          threshold that Player.attack() itself branches on --
+    #                          the only persistent status-like flag this engine
+    #                          currently has (no multi-turn buffs/debuffs exist)
+    #   8 sasmita_bucket       own remaining Sasmita (prize count), 0-3
+    #   9 turn_parity          1 if this player has initiative this turn (acts
+    #                          first), 0 otherwise -- see rules_spec.md section 1.2
+    #                          for why first-mover status matters every turn, not
+    #                          just turn 1
+    def get_state(self, player, opponent=None, is_first_mover=True):
         if not player.active_character:
-            return (0, 0, 0)
-            
+            # No reachable state under the current 2-unique-card decks (see
+            # rules_spec.md section 2 "mulligan"), kept only as a defensive
+            # fallback. Same arity as the normal return so q_table keys stay
+            # consistent in shape.
+            return (0, 0, 0, 0, 0, 0, 0, 0, player.sasmita, int(is_first_mover))
+
         hp = player.active_character.current_hp
         if hp <= 35:
             hp_bucket = 0
@@ -23,21 +52,32 @@ class QLearningAgent:
             hp_bucket = 1
         else:
             hp_bucket = 2
-            
+
         prana_total = sum(player.prana_pool.values())
         prana_bucket = 0 if prana_total < 2 else 1
-        
+
+        opp_prana_bucket = 0
+        if opponent is not None:
+            opp_prana_total = sum(opponent.prana_pool.values())
+            opp_prana_bucket = 0 if opp_prana_total < 2 else 1
+
         bench_wounded = 0
         for b_card in player.bench:
             if b_card.current_hp < b_card.hp:
                 bench_wounded = 1
                 break
-                
-        # Expanded state representation for DQN
+
         deck_size_bucket = 0 if len(player.deck) < 10 else 1
+        own_hand_bucket = min(len(player.hand), 3)
+        opp_hand_bucket = min(len(opponent.hand), 3) if opponent is not None else 0
+
+        is_panic = 1 if player.active_character.current_hp <= (player.active_character.hp * 0.4) else 0
         sasmita_bucket = player.sasmita
-                
-        return (hp_bucket, prana_bucket, bench_wounded, deck_size_bucket, sasmita_bucket)
+
+        return (
+            hp_bucket, prana_bucket, opp_prana_bucket, bench_wounded, deck_size_bucket,
+            own_hand_bucket, opp_hand_bucket, is_panic, sasmita_bucket, int(is_first_mover),
+        )
 
     def get_q_values(self, state):
         if state not in self.q_table:
@@ -87,8 +127,9 @@ def play_rl_game(agent1, agent2, train=True):
         for active_p, passive_p in [(first_player, second_player), (second_player, first_player)]:
             agent = agents[active_p.name]
             active_p.attach_prana()
-            
-            state = agent.get_state(active_p)
+
+            is_first_mover = active_p is first_player
+            state = agent.get_state(active_p, passive_p, is_first_mover)
             action = agent.choose_action(state, train)
             
             reward = -1
@@ -125,7 +166,7 @@ def play_rl_game(agent1, agent2, train=True):
                     acted = True
                     
             if acted:
-                next_state = agent.get_state(active_p)
+                next_state = agent.get_state(active_p, passive_p, is_first_mover)
                 history[active_p.name].append((state, action, reward, next_state))
                 
                 if res in ["GAME_OVER", "GAME_OVER_SUICIDE"]:
@@ -176,11 +217,12 @@ def run_rl_self_play(num_train_games=2500, num_eval_games=500):
     print("Pelatihan RL Selesai!")
     
     print("\nVisualisasi Q-Table Yudhistira (Pandawa) untuk Beberapa Keadaan:")
-    print("Format State: (HP Karakter Aktif, Jumlah Prana, Bench Butuh Heal, Ukuran Deck, Sasmita)")
+    print("Format State: (HP Aktif, Prana Sendiri, Prana Lawan, Bench Terluka, Ukuran Deck, "
+          "Hand Sendiri, Hand Lawan, Panic, Sasmita, Giliran Pertama)")
     sample_states = [
-        ((2, 1, 1, 1, 3), "HP Tinggi, Prana >= 2, Bench Terluka, Deck Aman, Sasmita 3"),
-        ((0, 1, 1, 1, 1), "HP Sekarat (<=35), Prana >= 2, Bench Terluka, Sasmita Kritis"),
-        ((2, 0, 0, 1, 3), "HP Tinggi, Prana Rendah, Bench Sehat")
+        ((2, 1, 1, 1, 1, 2, 2, 0, 3, 1), "HP Tinggi, Prana Cukup Kedua Sisi, Bench Terluka, Sasmita 3, Gerak Pertama"),
+        ((0, 1, 0, 1, 1, 1, 3, 1, 1, 0), "HP Sekarat & Panic, Prana Lawan Rendah, Sasmita Kritis, Gerak Kedua"),
+        ((2, 0, 1, 0, 1, 3, 1, 0, 3, 1), "HP Tinggi, Prana Sendiri Rendah, Bench Sehat"),
     ]
     for state, desc in sample_states:
         q_vals = agent_p.get_q_values(state)

@@ -70,7 +70,7 @@ import { CommonModule } from '@angular/common';
               <span class="timeline-step">6</span>
               <div class="timeline-body">
                 <strong>Victory Check (Sasmita Drop)</strong>
-                <p>Ketika HP karakter aktif habis, ia dinyatakan gugur dan Sasmita faksi berkurang 1. Faksi yang Sasmita-nya mencapai 0 kalah!</p>
+                <p>Ketika kamu berhasil membuat karakter aktif lawan gugur (HP habis), Sasmita milikmu berkurang 1 (kamu mengklaim satu prize). Faksi yang Sasmita-nya lebih dulu mencapai 0 menang!</p>
               </div>
             </div>
           </div>
@@ -84,7 +84,7 @@ import { CommonModule } from '@angular/common';
           <div class="glossary-list">
             <div class="glossary-item">
               <span class="glossary-term md-badge primary">🛡️ Sasmita</span>
-              <p class="glossary-def">Poin esensi kehidupan faksi (semacam "Prize Cards" atau "Life Total" sebanyak 3 poin). Kehilangan seluruh Sasmita berarti kekalahan mutlak faksi.</p>
+              <p class="glossary-def">Hitungan prize card faksi (mulai dari 3, bukan life total). Setiap kali kamu berhasil mengalahkan karakter aktif lawan, Sasmita milikmu berkurang 1. Faksi yang lebih dulu mencapai Sasmita 0 menang.</p>
             </div>
 
             <div class="glossary-item">

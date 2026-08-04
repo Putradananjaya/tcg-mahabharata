@@ -2,8 +2,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.infrastructure.optimizers.ga_balancer import run_ga_balancing
-from src.infrastructure.optimizers.pso_balancer import run_pso_balancing
+from src.optim.ga import run_ga_balancing
+from src.optim.pso import run_pso_balancing
 
 def main():
     print("=== MAHAYUDHA TCG BALANCING ENGINE ===")

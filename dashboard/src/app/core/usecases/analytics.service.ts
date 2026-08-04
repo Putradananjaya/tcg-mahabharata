@@ -6,17 +6,17 @@ export interface ChartDataPoint {
 }
 
 export interface AnalyticsData {
-  sensitivity: { 
-    hpValues: number[], 
-    wrKurawa: number[], 
-    wrPandawa: number[],
+  sensitivity: {
+    hpValues: number[],
+    wrTamasika: number[],
+    wrSatwika: number[],
     wrRajasika?: number[],
     p1Name?: string,
     p2Name?: string,
     p3Name?: string
   };
   complexity: { variables: number[], times: number[] };
-  powerSpike: { turns: number[], pandawa: number[], kurawa: number[], rajasika: number[] };
+  powerSpike: { turns: number[], satwika: number[], tamasika: number[], rajasika: number[] };
   clustering: { x: number, y: number, cluster: number }[];
 }
 

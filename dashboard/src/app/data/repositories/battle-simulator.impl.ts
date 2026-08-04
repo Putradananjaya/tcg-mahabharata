@@ -206,6 +206,9 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
     let draws = 0;
     let totalTurns = 0;
 
+    const p1Name = this.getFactionName(p1Deck);
+    const p2Name = this.getFactionName(p2Deck);
+
     for (let i = 0; i < matchCount; i++) {
       let turn = 1;
       let p1Sasmita = 3;
@@ -275,9 +278,9 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
         }
 
         if (p1Active.currentHp <= 0) {
-          p1Sasmita--;
-          if (p1Sasmita <= 0 || p1Bench.length === 0) {
-            winner = 'KURAWA';
+          p2Sasmita--;
+          if (p2Sasmita <= 0 || p1Bench.length === 0) {
+            winner = p2Name;
           } else {
             const next = p1Bench.shift()!;
             p1Active.name = next.name;
@@ -287,9 +290,9 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
         }
 
         if (p2Active.currentHp <= 0 && !winner) {
-          p2Sasmita--;
-          if (p2Sasmita <= 0 || p2Bench.length === 0) {
-            winner = 'PANDAWA';
+          p1Sasmita--;
+          if (p1Sasmita <= 0 || p2Bench.length === 0) {
+            winner = p1Name;
           } else {
             const next = p2Bench.shift()!;
             p2Active.name = next.name;
@@ -303,9 +306,9 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
       }
 
       totalTurns += turn;
-      if (winner === 'PANDAWA') {
+      if (winner === p1Name) {
         p1Wins++;
-      } else if (winner === 'KURAWA') {
+      } else if (winner === p2Name) {
         p2Wins++;
       } else {
         const hp1 = p1Active.currentHp;
@@ -409,14 +412,19 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
     }
   }
 
+  // Sasmita = prize-card count (canonical definition, see src/simulator/rules_spec.md
+  // section 5.1). Whoever's active character is knocked out — by direct damage or by
+  // their own recoil — hands the OTHER player a prize: the other player's Sasmita
+  // decrements, and that other player wins when their own Sasmita reaches 0 (or when
+  // the knocked-out side has no bench character left to send out).
   private checkKnockouts() {
     const p1Name = this.getFactionName(this.p1Deck);
     const p2Name = this.getFactionName(this.p2Deck);
 
     if (this.p1Active && this.p1Active.currentHp <= 0) {
-      this.p1Sasmita--;
-      this.addLog(`  * GUGUR: Karakter aktif ${p1Name} (${this.p1Active.name}) kalah! Sasmita ${p1Name} tersisa: ${this.p1Sasmita}`, 'knockout');
-      if (this.p1Sasmita <= 0 || this.p1Bench.length === 0) {
+      this.p2Sasmita--;
+      this.addLog(`  * GUGUR: Karakter aktif ${p1Name} (${this.p1Active.name}) kalah! Sasmita ${p2Name} tersisa: ${this.p2Sasmita}`, 'knockout');
+      if (this.p2Sasmita <= 0 || this.p1Bench.length === 0) {
         this.winner$.next(p2Name);
         this.isRunning$.next(false);
         this.addLog(`=== GAME OVER: ${p2Name} MEMENANGKAN DUEL! ===`, 'info');
@@ -428,9 +436,9 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
     }
 
     if (this.p2Active && this.p2Active.currentHp <= 0) {
-      this.p2Sasmita--;
-      this.addLog(`  * GUGUR: Karakter aktif ${p2Name} (${this.p2Active.name}) kalah! Sasmita ${p2Name} tersisa: ${this.p2Sasmita}`, 'knockout');
-      if (this.p2Sasmita <= 0 || this.p2Bench.length === 0) {
+      this.p1Sasmita--;
+      this.addLog(`  * GUGUR: Karakter aktif ${p2Name} (${this.p2Active.name}) kalah! Sasmita ${p1Name} tersisa: ${this.p1Sasmita}`, 'knockout');
+      if (this.p1Sasmita <= 0 || this.p2Bench.length === 0) {
         this.winner$.next(p1Name);
         this.isRunning$.next(false);
         this.addLog(`=== GAME OVER: ${p1Name} MEMENANGKAN DUEL! ===`, 'info');

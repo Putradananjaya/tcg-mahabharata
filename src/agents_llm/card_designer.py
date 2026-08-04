@@ -1,6 +1,10 @@
+# TODO(REFACTOR): design_card() fabricates stats via random.randint and
+# validate_balance() fabricates a win rate via random.uniform instead of
+# calling self.mlp_evaluator.forward(). Also no actual LLM call yet ("Simulated
+# LLM output"). Needs a real evaluation harness before any output is trustworthy.
 import json
 import random
-from src.infrastructure.ml.surrogate_mlp import MLPSurrogate
+from src.surrogate.mlp import MLPSurrogate
 
 class LLMCardDesignerAgent:
     """

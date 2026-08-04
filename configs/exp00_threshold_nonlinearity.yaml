@@ -1,0 +1,18 @@
+# Phase 1 diagnostic (Aturan Main Fase 1, item 5): checks whether win-rate vs
+# a swept HP parameter is suspiciously linear (would suggest the combat model
+# is too abstract) or shows discrete "survive N hits" threshold effects.
+# Not a paper headline claim -- a simulator-fidelity QA check.
+
+extends: base.yaml
+
+experiment:
+  id: exp00_threshold_nonlinearity
+  runner: experiments/exp00_threshold_nonlinearity.py
+
+sweep:
+  param: rjs_karna_hp
+  range: [60, 145, 5]   # start, stop (exclusive), step
+  num_runs_per_point: 150
+
+output:
+  artifact: results/exp00_threshold_nonlinearity.json

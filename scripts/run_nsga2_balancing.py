@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.infrastructure.optimizers.nsga2_balancer import run_nsga2_balancing
+from src.optim.nsga2 import run_nsga2_balancing
 
 def main():
     print("=== MAHAYUDHA TCG MULTI-OBJECTIVE BALANCING (NSGA-II) ===")

@@ -2,7 +2,7 @@ import time
 import copy
 import random
 import numpy as np
-from src.usecases.balance_optimizer import BOUNDS, SMART_START, evaluate_chromosome
+from src.simulator.fitness import BOUNDS, SMART_START, evaluate_chromosome
 
 class MLPSurrogate:
     def __init__(self, input_dim=25, hidden_dim=16, output_dim=3):
@@ -72,7 +72,7 @@ def run_surrogate_training(num_samples=150):
         loss, rates = evaluate_chromosome(pos, num_runs=60)
         
         x_vec = dict_to_array(pos)
-        y_vec = np.array([rates["PANDAWA_vs_KURAWA"], rates["KURAWA_vs_RAJASIKA"], rates["RAJASIKA_vs_PANDAWA"]])
+        y_vec = np.array([rates["SATWIKA_vs_TAMASIKA"], rates["TAMASIKA_vs_RAJASIKA"], rates["RAJASIKA_vs_SATWIKA"]])
         
         X_list.append(x_vec)
         y_list.append(y_vec)

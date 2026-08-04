@@ -1,0 +1,36 @@
+# Experiment 01: how many games are needed per matchup for a stable win-rate
+# estimate? Generates one large real-simulator match pool, bootstrap-resamples
+# it to get an empirical SE(n) curve (n = 100..50,000), overlays the
+# theoretical SE = sqrt(p(1-p)/n) curve, and uses src/metrics/winrate.py's
+# required_n() to set the official N_MATCH for the whole paper.
+#
+# This is a methodology check, not a matchup-balance claim -- it deliberately
+# runs only one representative matchup at one fixed parameter set (SMART_START)
+# so the large pool (50,000 games) stays cheap. Do not cite the win rate this
+# produces as a balance result; cite N_MATCH.
+
+extends: base.yaml
+
+experiment:
+  id: exp01_sample_size
+  runner: experiments/exp01_sample_size.py
+
+pool:
+  matchup: [satwika, tamasika]   # SATWIKA_vs_TAMASIKA under SMART_START params
+  pool_size: 50000
+  base_seed: 20260801
+
+sweep:
+  n_values: [100, 200, 500, 1000, 2000, 5000, 10000, 20000, 35000, 50000]
+  bootstrap_resamples_per_n: 300
+
+required_n_targets:
+  # delta = 0.01 matches the "can we tell HP=95 from HP=94 apart" scenario
+  # from Aturan Main Fase 2's reference numbers.
+  - {delta: 0.01, alpha: 0.05, power: 0.8}
+  - {delta: 0.02, alpha: 0.05, power: 0.8}
+  - {delta: 0.05, alpha: 0.05, power: 0.8}
+
+output:
+  artifact: results/exp01_sample_size.json
+  figure: figures/sample_size_justification.png

@@ -1,3 +1,7 @@
+# TODO(REFACTOR): monitor_meta() currently decides "anomaly" via random.random() < 0.3
+# and prints a hardcoded fake win rate instead of computing one from match_results.
+# This violates the zero-fabricated-numbers rule and needs real anomaly detection
+# (e.g. src/metrics/winrate.py CIs) + FDR correction before any output is trustworthy.
 import time
 import random
 

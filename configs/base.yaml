@@ -1,0 +1,30 @@
+# Shared defaults inherited by every experiment config.
+# Per-experiment configs should override only what differs from this file.
+
+determinism:
+  base_seed: 20260801
+  num_seeds: 10          # minimum per Aturan Main §0: >=10 seeds, mean +/- 95% CI
+
+simulator:
+  max_turns: 100
+  rules_spec: src/simulator/rules_spec.md
+
+statistics:
+  # Official sample size for every win rate reported in the paper. Derived in
+  # experiments/exp01_sample_size.py from src/metrics/winrate.required_n(delta=0.01,
+  # alpha=0.05, power=0.8) = 19620, rounded up. Any figure/table reporting a
+  # win rate as a paper result (not an internal GA/PSO search evaluation) must
+  # use this n and state it in the caption, along with the Wilson 95% CI
+  # (src/metrics/winrate.wilson_ci) -- see CLAIMS_LEDGER.md.
+  n_match: 20000
+  ci_method: wilson
+  alpha: 0.05
+
+decks:
+  satwika: data/satwika.json
+  tamasika: data/tamasika.json
+  rajasika: data/rajasika.json
+
+output:
+  results_dir: results/
+  format: json            # one artifact file per experiment run, see CLAIMS_LEDGER.md

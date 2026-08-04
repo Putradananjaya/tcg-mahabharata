@@ -1,0 +1,24 @@
+# Experiment 02: does the MLP surrogate (src/surrogate/mlp.py) predict win
+# rate accurately enough to trust for GA-MLP proxy optimization? Trains the
+# surrogate on N simulator samples, then validates its predictions against
+# fresh real-simulator runs at held-out parameter points.
+#
+# Status: config only. Runner script not implemented yet
+# (see CLAIMS_LEDGER.md — no claim may cite this experiment until it has one).
+
+extends: base.yaml
+
+experiment:
+  id: exp02_surrogate_validation
+  runner: experiments/exp02_surrogate_validation.py   # TODO: does not exist yet
+
+surrogate:
+  train_samples: 150
+  validation_samples: 50
+  num_runs_per_sample: 60   # games per matchup used to label each training point
+
+acceptance_criteria:
+  max_mae_winrate_pct: 5.0   # surrogate must be off by <=5 pct points on held-out points
+
+output:
+  artifact: results/exp02_surrogate_validation.json

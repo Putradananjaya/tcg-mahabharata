@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-from src.core.models import Player
-from src.usecases.battle_simulator import run_logged_simulation
-from src.infrastructure.ml.rl_agent import QLearningAgent
-from src.usecases.balance_optimizer import BOUNDS, evaluate_chromosome
+from src.domain.models import Player
+from src.simulator.engine import run_logged_simulation
+from src.agents.dqn_agent import QLearningAgent
+from src.simulator.fitness import BOUNDS, evaluate_chromosome
 
 app = FastAPI(title="Mahabharata TCG API")
 

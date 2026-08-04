@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.infrastructure.ml.rl_agent import run_rl_self_play
+from src.agents.dqn_agent import run_rl_self_play
 
 def main():
     print("=== RUNNING REINFORCEMENT LEARNING COMBAT STRATEGY ===")
