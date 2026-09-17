@@ -339,3 +339,229 @@ def run_nsga2_power_balance(pop_size=24, generations=30, num_runs=80, validation
     return {"pareto_front": pareto_front, "history": history, "elapsed_seconds": elapsed,
             "pop_size": pop_size, "generations": generations, "num_runs": num_runs,
             "validation_num_runs": validation_num_runs}
+
+
+# --- Fase E9: lore-constrained arm (docs/FASE_E9_SPEC.md) ------------------
+#
+# `run_nsga2_power_balance` above is the UNCONSTRAINED arm and is left
+# completely untouched -- it is the comparison baseline this phase measures
+# against. Everything below is new and additive: constraint-domination
+# (Deb, K. (2000), "An efficient constraint handling method for genetic
+# algorithms") plugged into the same generic
+# fast_non_dominated_sort/crowding_distance/tournament_select machinery
+# already used above, rather than a penalty term (see FASE_E9_SPEC.md
+# section 2.2 for why: no new lambda hyperparameter to calibrate, and this
+# is the constraint-handling method already in the NSGA-II literature this
+# paper cites).
+
+from src.constraints.lore import is_feasible, total_violation as lore_total_violation
+
+
+def constrained_dominates(obj_a, violation_a, obj_b, violation_b):
+    """Deb (2000) constraint-domination: True if solution a dominates b.
+
+    1. A feasible solution always dominates an infeasible one.
+    2. Between two infeasible solutions, lower total_violation dominates
+       (objectives are not compared at all in this case).
+    3. Between two feasible solutions, ordinary Pareto dominance (reuses
+       `dominates()` above, unchanged).
+    """
+    a_feasible = violation_a <= 0.0
+    b_feasible = violation_b <= 0.0
+
+    if a_feasible and not b_feasible:
+        return True
+    if b_feasible and not a_feasible:
+        return False
+    if not a_feasible and not b_feasible:
+        return violation_a < violation_b
+    return dominates(obj_a, obj_b)
+
+
+def fast_non_dominated_sort_constrained(objs, violations):
+    """Same structure as fast_non_dominated_sort, but ranks by
+    constrained_dominates instead of plain Pareto dominance."""
+    n = len(objs)
+    domination_counts = [0] * n
+    dominated_by = [[] for _ in range(n)]
+    fronts = [[]]
+
+    for p in range(n):
+        for q in range(n):
+            if p == q:
+                continue
+            if constrained_dominates(objs[p], violations[p], objs[q], violations[q]):
+                dominated_by[p].append(q)
+            elif constrained_dominates(objs[q], violations[q], objs[p], violations[p]):
+                domination_counts[p] += 1
+        if domination_counts[p] == 0:
+            fronts[0].append(p)
+
+    i = 0
+    while fronts[i]:
+        next_front = []
+        for p in fronts[i]:
+            for q in dominated_by[p]:
+                domination_counts[q] -= 1
+                if domination_counts[q] == 0:
+                    next_front.append(q)
+        i += 1
+        fronts.append(next_front)
+
+    fronts.pop()
+    return fronts
+
+
+def _seed_feasible_population(pop_size, max_attempts_per_individual=100_000):
+    """Rejection sampling: draw random chromosomes until each is feasible
+    under src.constraints.lore. Returns (population, attempts_per_individual)
+    -- the attempt counts are the FASE_E9_SPEC.md section 2.2 requirement
+    to "record how many attempts were needed", not estimated."""
+    population = []
+    attempts_per_individual = []
+    for _ in range(pop_size):
+        attempts = 0
+        while True:
+            attempts += 1
+            candidate = generate_random_chromosome()
+            if is_feasible(candidate):
+                population.append(candidate)
+                attempts_per_individual.append(attempts)
+                break
+            if attempts >= max_attempts_per_individual:
+                raise RuntimeError(
+                    f"Rejection sampling failed to find a feasible individual "
+                    f"after {max_attempts_per_individual} attempts -- feasible "
+                    f"region may be smaller than expected; stopping rather than "
+                    f"looping forever."
+                )
+    return population, attempts_per_individual
+
+
+def run_nsga2_lore_constrained(pop_size=40, generations=40, num_runs=60, validation_num_runs=500, seed=None):
+    """Constrained arm of Fase E9: identical objectives/config to
+    run_nsga2_power_balance (f1=pairwise balance deviation, f2=power creep,
+    f3=-faction identity index), but every solution is additionally
+    required to satisfy src.constraints.lore's 18 narrative-fidelity
+    constraints, enforced via Deb (2000) constraint-domination rather than
+    a penalty term. See docs/FASE_E9_SPEC.md section 2.2-2.3.
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    print("=== Fase E9: NSGA-II lore-constrained (balance vs. power creep vs. identity) ===")
+
+    smart_start_feasible = is_feasible(SMART_START)
+    print(f"SMART_START feasible under lore constraints: {smart_start_feasible}")
+
+    if smart_start_feasible:
+        population = [generate_random_chromosome() for _ in range(pop_size)]
+        population[0] = SMART_START.copy()
+        seeding_attempts = None
+    else:
+        population, seeding_attempts = _seed_feasible_population(pop_size)
+        print(f"SMART_START infeasible -- seeded population via rejection sampling "
+              f"(mean {sum(seeding_attempts) / len(seeding_attempts):.1f} attempts/individual, "
+              f"max {max(seeding_attempts)}, total {sum(seeding_attempts)} draws for {pop_size} individuals).")
+
+    objs, _ = _evaluate_population_power_balance(population, num_runs)
+    violations = [lore_total_violation(chromo) for chromo in population]
+
+    start_time = time.time()
+    history = []
+
+    for gen in range(generations):
+        fronts = fast_non_dominated_sort_constrained(objs, violations)
+        ranks, crowding = {}, {}
+        for rank_idx, front in enumerate(fronts):
+            cd = crowding_distance(front, objs)
+            for idx in front:
+                ranks[idx] = rank_idx
+                crowding[idx] = cd[idx]
+
+        offspring = []
+        while len(offspring) < pop_size:
+            i1 = tournament_select(len(population), ranks, crowding)
+            i2 = tournament_select(len(population), ranks, crowding)
+            c1, c2 = crossover(population[i1], population[i2])
+            offspring.append(mutate(c1))
+            if len(offspring) < pop_size:
+                offspring.append(mutate(c2))
+
+        offspring_objs, _ = _evaluate_population_power_balance(offspring, num_runs)
+        offspring_violations = [lore_total_violation(chromo) for chromo in offspring]
+
+        combined_pop = population + offspring
+        combined_objs = objs + offspring_objs
+        combined_violations = violations + offspring_violations
+        combined_fronts = fast_non_dominated_sort_constrained(combined_objs, combined_violations)
+
+        new_population, new_objs, new_violations = [], [], []
+        for front in combined_fronts:
+            if len(new_population) + len(front) <= pop_size:
+                for idx in front:
+                    new_population.append(combined_pop[idx])
+                    new_objs.append(combined_objs[idx])
+                    new_violations.append(combined_violations[idx])
+            else:
+                remaining = pop_size - len(new_population)
+                cd = crowding_distance(front, combined_objs)
+                sorted_front = sorted(front, key=lambda idx: cd[idx], reverse=True)
+                for idx in sorted_front[:remaining]:
+                    new_population.append(combined_pop[idx])
+                    new_objs.append(combined_objs[idx])
+                    new_violations.append(combined_violations[idx])
+                break
+
+        population, objs, violations = new_population, new_objs, new_violations
+
+        feasible_front0 = fast_non_dominated_sort_constrained(objs, violations)[0]
+        n_feasible = sum(1 for i in range(len(population)) if violations[i] <= 0.0)
+        if any(violations[i] <= 0.0 for i in feasible_front0):
+            feasible_idxs = [i for i in feasible_front0 if violations[i] <= 0.0]
+            best_f1 = min(objs[i][0] for i in feasible_idxs)
+            best_f2 = min(objs[i][1] for i in feasible_idxs)
+            best_f3 = min(objs[i][2] for i in feasible_idxs)
+        else:
+            best_f1 = best_f2 = best_f3 = None
+        history.append({
+            "gen": gen, "front0_size": len(feasible_front0), "n_feasible_in_population": n_feasible,
+            "best_f1": best_f1, "best_f2": best_f2, "best_f3": best_f3,
+        })
+        print(f"  Gen {gen:<3} | Front-0: {len(feasible_front0):<3} | feasible in pop: {n_feasible}/{pop_size} | "
+              f"best feasible F1={best_f1}")
+
+    elapsed = time.time() - start_time
+    final_front0 = fast_non_dominated_sort_constrained(objs, violations)[0]
+    final_front0_feasible = [i for i in final_front0 if violations[i] <= 0.0]
+
+    print(f"\nNSGA-II lore-constrained selesai in {elapsed:.1f}s. "
+          f"Front-0 size: {len(final_front0)} ({len(final_front0_feasible)} feasible). "
+          f"Re-validating feasible members at num_runs={validation_num_runs}...")
+
+    pareto_front = []
+    for idx in final_front0_feasible:
+        chromo = population[idx]
+        val_obj, val_diag = evaluate_chromosome_power_balance(chromo, num_runs=validation_num_runs)
+        pareto_front.append({
+            "params": chromo,
+            "f1_balance": val_obj[0], "f2_power_creep": val_obj[1], "f3_neg_identity": val_obj[2],
+            "rates": val_diag["rates"], "mean_pairwise_jsd": val_diag["mean_pairwise_jsd"],
+            "is_feasible": is_feasible(chromo), "total_violation": lore_total_violation(chromo),
+        })
+
+    validated_objs = [(p["f1_balance"], p["f2_power_creep"], p["f3_neg_identity"]) for p in pareto_front]
+    validated_front0 = fast_non_dominated_sort(validated_objs)[0] if pareto_front else []
+    dropped = len(pareto_front) - len(validated_front0)
+    pareto_front = [pareto_front[i] for i in validated_front0]
+    if dropped > 0:
+        print(f"{dropped} solusi dibuang (didominasi setelah validasi n={validation_num_runs}) "
+              f"-> front final: {len(pareto_front)} solusi.")
+
+    return {
+        "pareto_front": pareto_front, "history": history, "elapsed_seconds": elapsed,
+        "pop_size": pop_size, "generations": generations, "num_runs": num_runs,
+        "validation_num_runs": validation_num_runs,
+        "smart_start_feasible": smart_start_feasible,
+        "seeding_attempts": seeding_attempts,
+    }

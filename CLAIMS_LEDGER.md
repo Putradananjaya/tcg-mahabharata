@@ -304,6 +304,51 @@ rules_spec.md 16.5 for the full replacement sentence.
 | Multi-start optimization (24 independent GA runs, random initial populations, budget=300): 21 distinct equilibria found (Union-Find clustering, threshold=0.12 normalized RMS distance), final losses comparable across clusters (2.78-338.61) — the "golden equilibrium" is not unique; mean normalized distance from these runs' final points to `ga_balanced_params.json` = 0.54 | `configs/exp09_equilibrium_robustness.yaml` | `experiments/exp09_equilibrium_robustness.py` | `results/exp09_equilibrium_robustness.json` (`part_b_multistart`) | 24 independent starts, budget=300, n_runs=60/eval | verified |
 | Karna HP sweep (rjs_karna_hp in [70,110], n=300/point, Wilson 95% CI, baseline=ga_balanced_params.json): control check (SATWIKA_vs_TAMASIKA, unaffected by Karna) ranges 8.0pp from noise alone; closest-overlapping per-faction marginal pair is SATWIKA/TAMASIKA (4.14pp), NOT Satwika/Rajasika (14.15pp, the largest gap) — the originally-reported near-overlap could not be reproduced under this baseline | `configs/exp09_karna_hp_ci.yaml` | `experiments/exp09_karna_hp_ci.py` | `results/exp09_karna_hp_ci.json` (`matchup_win_rates`, `faction_marginal_win_rates`, `marginal_pairs_mean_abs_diff_pp`) | 1 stream, n=300/point, Wilson CI standard | verified |
 
+## Constrained balancing under narrative-fidelity constraints standard (Fase E9)
+
+Answers RQ3 (docs/FASE_E9_SPEC.md): does a balanced equilibrium still exist once
+the parameter space is restricted to Theta_lore (18 narrative-fidelity
+constraints, `src.constraints.lore`), and what is the "cost" of that
+restriction? Two arms, identical NSGA-II config copied verbatim from Fase 7
+(seed=20260801, pop_size=40, generations=40, num_runs=60,
+validation_num_runs=500): Arm A is `run_nsga2_power_balance`, UNCHANGED from
+Fase 7; Arm B is the new `run_nsga2_lore_constrained`, using Deb (2000)
+constraint-domination (feasible always beats infeasible; infeasible-vs-infeasible
+ranks by `total_violation`; feasible-vs-feasible uses ordinary Pareto
+dominance) rather than a penalty term.
+
+**Feasibility-rate reproduction has a documented, human-confirmed deviation
+from the pre-computed estimate — not silently forced to match.**
+docs/FASE_E9_SPEC.md section 1 pre-computed ~4.2% (external to this repo).
+Reproducing that check in-repo (400,000 uniform-random samples over BOUNDS,
+seed=20260801) gives **3.7858%** (15,143/400,000 feasible), outside the
+stated +-0.3% tolerance. Per-constraint breakdown: 15 of 18 constraints'
+violation rates match the spec's documented buckets exactly or within noise
+(L4=57.93% vs 58.1%, L5=50.20% vs 50.1%, L1=23.70% vs 23.8%; L2/L6/L9/L16 all
+<4% as documented; L3/L7/L10/L11/L13/L15/L18 all exactly 0.00%, "never
+violated" as documented). The one real discrepancy is **L17** (mean Rajasika
+damage > mean Satwika damage): 40.37% measured vs. 37.5% documented. The L17
+field definition (`{stw_yudhistira_dmg, stw_arjuna_pasupati_dmg}` vs.
+`{rjs_balarama_dmg, rjs_karna_dmg}`) was confirmed correct by human review
+(2026-09-17, the only fields that could plausibly be "damage" for those two
+factions) rather than adjusted to close the gap — see Aturan Main's explicit
+prohibition on tuning a formula to match a desired number.
+
+**`ga_balanced_params.json` and `SMART_START` both satisfy exactly 17/18
+lore constraints, violating only L4** (`stw_arjuna_pasupati_dmg` < max other
+damage) — confirms docs/FASE_E9_SPEC.md section 1's own claim byte-for-byte.
+
+| Claim (paper text) | Config | Runner script | Artifact (results/) | Seeds | Status |
+|---|---|---|---|---|---|
+| Arm A (`run_nsga2_power_balance`, unmodified) reproduces `results/exp07_nsga2_power_balance.json`'s 13-solution front exactly (byte-for-byte on params + all 3 objectives) — the unconstrained arm is a verified, not merely assumed, baseline | n/a (reuses Fase 7 config) | `experiments/exp09_lore_constrained.py` | `results/exp09_lore_constrained.json` (`arm_a_unconstrained.reproduces_fase7_exactly`) | 1 stream, seed=20260801 | verified |
+| Zero of the 13 unconstrained Fase-7 front solutions satisfy Theta_lore (0/13 feasible); the modal violations are L4 (13/13), L2 (11/13), L8 (8/13), L17 (6/13), L16 (5/13) — a genuinely balanced unconstrained solution is not automatically lore-compliant | n/a | `experiments/exp09_lore_constrained.py` | `results/exp09_lore_constrained.json` (`comparison.unconstrained_front_feasibility_under_theta_lore`) | 1 stream | verified |
+| The lore-constrained arm finds a smaller Pareto front (7 solutions vs. 13) with lower hypervolume (0.3137 vs. 0.3664 at shared reference point (5687.04, 0.000404, -0.2620)) — restricting to Theta_lore measurably shrinks the trade-off surface, as expected | n/a | `experiments/exp09_lore_constrained.py` | `results/exp09_lore_constrained.json` (`comparison.hypervolume`) | 1 stream | verified |
+| **Cost of Lore Fidelity = -67.89 (95% bootstrap CI [-88.0, -47.9], n_boot=3000), verified at N_MATCH=20000/matchup** — the constrained arm's best-balance solution (f1_balance=42.80) is actually MORE balanced than the unconstrained arm's own best-balance solution (f1_balance=250.60), not less. This is the headline RQ3 finding: narrative fidelity was not merely "nearly free" here, it cost nothing measurable and the constrained search happened to land on a better-balanced point — reported as found, not re-run for a "more interesting" result (Aturan Main: no seed-shopping) | n/a | `experiments/exp09_lore_constrained.py` | `results/exp09_lore_constrained.json` (`comparison.cost_of_lore_fidelity`, `comparison.best_balance_unconstrained`, `comparison.best_balance_constrained`) | Point estimate at n=20000/matchup (3 matchups), bootstrap CI from same games | verified |
+| SMART_START is infeasible under Theta_lore (violates only L4, matching `ga_balanced_params.json`); rejection-sampling the initial constrained population took a mean of 22.0 draws/individual (879 total draws for 40 individuals) — consistent with the ~26x expected from the measured 3.7858% acceptance rate, "cheap" as docs/FASE_E9_SPEC.md section 2.2 anticipated | n/a | `experiments/exp09_lore_constrained.py` | `results/exp09_lore_constrained.json` (`arm_b_constrained.smart_start_feasible`, `arm_b_constrained.seeding_attempts`) | 1 stream | verified |
+| Of the 18 lore constraints, only 3 are ever binding (tight, g_k=0) on the constrained front: L5 (arjuna_pasupati_cost>=3, tight for all 7/7 front solutions), L13 (sengkuni_mill>=1, tight for 3/7), L12 (sengkuni_dmg<duryodana_angkara_dmg, tight for 1/7) — the other 15, including the two "most binding on random samples" constraints L4 and L17, are satisfied with slack everywhere on the actual optimized front, not just on random samples | n/a | `experiments/exp09_lore_constrained.py` | `results/exp09_lore_constrained.json` (`comparison.constraint_binding_status`) | 1 stream | verified |
+| A latent engine bug was found and fixed during this phase's verification (not a Fase E9 result, a simulator correctness fix): `src.simulator.fitness.run_simulation`/`run_simulation_multi` unconditionally returned `name1` on the 100-turn cap, instead of the HP-based tie-break `engine.py`'s `run_logged_simulation` already implements (rules_spec.md 1.6) — a documentation-vs-code mismatch, not merely an undocumented gap. Audited directly: this branch was never exercised by SMART_START, `ga_balanced_params.json`, or any of the 13 Fase-7 front solutions (0 timeouts across thousands of games each) before the fix, and Arm A still reproduces `results/exp07_nsga2_power_balance.json` exactly after the fix — no previously-published claim changes | n/a | n/a (fix in `src/simulator/fitness.py`) | Verified via direct audit script (not a committed artifact — see session record) | n/a | verified (as a bug-fix safety claim, not a paper result) |
+| The constrained best-balance solution's SATWIKA-mirror matchup is a genuine, complete damage stalemate (200/200 sampled games reach the 100-turn cap at an EXACT HP tie, i.e. zero damage traded), because that solution has `stw_yudhistira_dmg`=20 < `stw_yudhistira_dr`=27 — Yudhistira's attack can never get through his own damage reduction in the mirror. The resulting ~99.6% "win rate" for one label is an artifact of `engine.py`'s documented "exact tie favors name1" convention applied to a true tie, not a meaningful balance number, and must not be quoted as a payoff-matrix balance result | n/a | `experiments/exp09_lore_constrained.py` | `results/exp09_lore_constrained.json` (`comparison.payoff_matrix_best_balance_constrained.SATWIKA_vs_SATWIKA`) — **flagged unreliable, do not cite as a balance finding, see note above** | 200-game direct audit sample + n=20000 in the main artifact | verified (as a stalemate finding, retracted as a balance claim) |
+
 ## Status legend
 
 - `planned` — config exists, runner does not yet.

@@ -81,9 +81,32 @@ def run_simulation(data1, data2, name1, name2):
         res = second_player.attack(opponent=first_player)
         if res in ["GAME_OVER", "GAME_OVER_SUICIDE"]:
             return second_player.name if res == "GAME_OVER" else first_player.name
-            
+
         turn += 1
-    return name1
+
+    # Turn-cap tie-break: same HP-based rule as engine.py's
+    # run_logged_simulation (rules_spec.md section 1.6), including its
+    # documented "exact tie favors name1" convention. Previously this
+    # unconditionally returned name1 regardless of game state -- a bug
+    # discovered during Fase E9 (docs/FASE_E9_SPEC.md) when a lore-constrained
+    # solution's SATWIKA-mirror match stalled to the turn cap ~99% of the
+    # time. Fixing this did NOT change that solution's reported ~99.6%
+    # figure, though -- direct audit showed 200/200 sampled timeout games
+    # were an EXACT HP tie (both sides at full starting HP, i.e. genuinely
+    # zero damage dealt in 100 turns: that theta has stw_yudhistira_dmg=20
+    # < stw_yudhistira_dr=27, so Yudhistira's attack can never get through
+    # his own damage reduction in the mirror). So the ~99.6% is a real
+    # reflection of engine.py's "ties favor name1" convention applied to a
+    # genuine damage deadlock in that specific solution, not a name1-default
+    # artifact -- report it as "this mirror matchup is a complete stalemate,
+    # not a meaningful balance number," not as noise. Confirmed via direct
+    # audit that this branch was never exercised by any previously-published
+    # result (SMART_START, data/ga_balanced_params.json, and all 13
+    # results/exp07_nsga2_power_balance.json front solutions: 0 timeouts
+    # across thousands of games each) before being changed here.
+    hp1 = p1.active_character.current_hp if p1.active_character else 0
+    hp2 = p2.active_character.current_hp if p2.active_character else 0
+    return name1 if hp1 >= hp2 else name2
 
 def build_faction_decks(params):
     satwika = {
@@ -220,7 +243,12 @@ def run_simulation_multi(data1, data2, name1, name2):
             return winner, turn, p1.attack_log, p2.attack_log
 
         turn += 1
-    return name1, turn, p1.attack_log, p2.attack_log
+
+    # See run_simulation's matching comment above -- same fix, same audit.
+    hp1 = p1.active_character.current_hp if p1.active_character else 0
+    hp2 = p2.active_character.current_hp if p2.active_character else 0
+    winner = name1 if hp1 >= hp2 else name2
+    return winner, turn, p1.attack_log, p2.attack_log
 
 def _normalized_entropy(counts):
     counts = [c for c in counts if c > 0]

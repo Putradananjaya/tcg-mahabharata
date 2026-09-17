@@ -67,26 +67,30 @@ import { FirebaseService } from '../../../core/services/firebase.service';
 
         <!-- 3. Balancer Actions (GA/PSO Run) -->
         <div class="action-panel md-card">
-          <h3>Optimasikan Faksi Secara Real-Time</h3>
-          <p class="section-desc">Jalankan algoritma optimasi untuk mencari parameter keseimbangan ideal otomatis:</p>
+          <h3>Demo Animasi Optimasi (Bukan Komputasi Nyata)</h3>
+          <p class="section-desc" style="color: #b00020; font-weight: 600;">
+            Tombol di bawah hanya memutar animasi interpolasi menuju parameter target yang sudah di-hardcode di kode dashboard —
+            bukan menjalankan GA/PSO sungguhan. Hasil optimasi GA/PSO/hybrid yang sah ada di
+            <code>results/exp07_optimizer_ablation.json</code> dan <code>results/exp07_nsga2_power_balance.json</code>.
+          </p>
           <div class="controls-row" style="align-items: flex-start; flex-wrap: wrap;">
             <div class="algo-btn-group">
               <button
                 [disabled]="isOptimizing"
                 (click)="runGeneticAlgorithm()"
                 class="md-btn md-btn-primary">
-                🧬 Run GA Balancer
+                🧬 Play GA Demo Animation
               </button>
-              <p class="algo-btn-caption">Algoritma Genetika — meniru seleksi alam, mencoba banyak kombinasi lalu menyilangkan yang paling seimbang.</p>
+              <p class="algo-btn-caption">Animasi ilustrasi seleksi-genetika — bukan GA yang benar-benar dieksekusi di browser.</p>
             </div>
             <div class="algo-btn-group">
               <button
                 [disabled]="isOptimizing"
                 (click)="runParticleSwarm()"
                 class="md-btn md-btn-secondary">
-                🛰️ Run PSO Balancer
+                🛰️ Play PSO Demo Animation
               </button>
-              <p class="algo-btn-caption">Particle Swarm — meniru kawanan burung mencari makanan, saling berbagi arah pencarian terbaik.</p>
+              <p class="algo-btn-caption">Animasi ilustrasi particle swarm — bukan PSO yang benar-benar dieksekusi di browser.</p>
             </div>
           </div>
 
@@ -94,7 +98,7 @@ import { FirebaseService } from '../../../core/services/firebase.service';
           <div class="progress-bar-container" *ngIf="isOptimizing">
             <div class="spinner"></div>
             <div class="progress-text">
-              Mengoptimasi menggunakan <strong>{{ activeAlgo }}</strong>... Langkah {{ optStep }}
+              Memutar animasi demo <strong>{{ activeAlgo }}</strong>... Langkah {{ optStep }}
             </div>
           </div>
         </div>
@@ -556,9 +560,9 @@ export class OptimizerComponent implements OnInit, OnDestroy {
 
   runGeneticAlgorithm() {
     this.isOptimizing = true;
-    this.activeAlgo = 'Genetic Algorithm (GA)';
+    this.activeAlgo = 'Genetic Algorithm (GA) — Demo Animation';
     this.optStep = 0;
-    this.selectedPresetName = 'Optimizing...';
+    this.selectedPresetName = 'Playing demo animation...';
 
     const op$ = this.optimizer.runGAOptimization().subscribe({
       next: (res: any) => {
@@ -567,7 +571,7 @@ export class OptimizerComponent implements OnInit, OnDestroy {
       complete: () => {
         this.isOptimizing = false;
         this.activeAlgo = null;
-        this.selectedPresetName = 'Custom (GA Optimized)';
+        this.selectedPresetName = 'Custom (GA Demo Animation — not a real run)';
         op$.unsubscribe();
         setTimeout(() => this.loadHistory(), 1000);
       }
@@ -576,9 +580,9 @@ export class OptimizerComponent implements OnInit, OnDestroy {
 
   runParticleSwarm() {
     this.isOptimizing = true;
-    this.activeAlgo = 'Particle Swarm Optimization (PSO)';
+    this.activeAlgo = 'Particle Swarm Optimization (PSO) — Demo Animation';
     this.optStep = 0;
-    this.selectedPresetName = 'Optimizing...';
+    this.selectedPresetName = 'Playing demo animation...';
 
     const op$ = this.optimizer.runPSOOptimization().subscribe({
       next: (res: any) => {
@@ -587,7 +591,7 @@ export class OptimizerComponent implements OnInit, OnDestroy {
       complete: () => {
         this.isOptimizing = false;
         this.activeAlgo = null;
-        this.selectedPresetName = 'Custom (PSO Optimized)';
+        this.selectedPresetName = 'Custom (PSO Demo Animation — not a real run)';
         op$.unsubscribe();
         setTimeout(() => this.loadHistory(), 1000);
       }

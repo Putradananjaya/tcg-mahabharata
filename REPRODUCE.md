@@ -1,40 +1,124 @@
 # Reproducing this research suite
 
-Status: scaffold stage. There is currently no single reproduction command
-because no experiment runner under `experiments/` exists yet — only configs
-and stub modules (see CLAIMS_LEDGER.md, all rows empty). This file describes
-the intended workflow and will gain a real top-level command once the first
-runner (`experiments/exp01_sample_size.py`) lands.
+Status: 15 experiment phases (E0, E1, E3-E9, some split into sub-scripts) have
+runners, configs, results, and figures committed. This file was last verified
+against the actual repo state on 2026-09-17 — see "Verification method" below.
+There is currently **no single `run_all` command**; each experiment is its own
+standalone script, run individually.
 
 ## Environment
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt   # TODO: does not exist yet, dependencies are currently unpinned
+source venv/bin/activate      # or venv/bin/python / venv/bin/pytest directly, as below
+pip install -r requirements.txt
+python -m pytest tests/       # 141/141 should pass
 ```
 
-Known runtime dependencies observed in the existing code: `fastapi`, `numpy`,
-`matplotlib`. This list is not yet verified complete or pinned — do not treat
-it as authoritative until `requirements.txt` exists.
+`requirements.txt` is pinned exactly from a verified venv (Python 3.9). It
+intentionally excludes scipy/scikit-learn/SALib — several modules
+(`src/sensitivity/sobol.py`, `src/metrics/nonparametric.py`,
+`src/metrics/nash_averaging.py`, `src/optim/baselines.py`,
+`src/surrogate/baselines.py`) implement their own from-scratch versions of
+what those libraries would otherwise provide, specifically because this
+venv doesn't have them. Do not add those libraries without revisiting those
+implementations.
 
-## Intended reproduction command (once runners exist)
+## Running an experiment
+
+Every script under `experiments/` is runnable directly and is
+self-documenting — its module docstring states its own `Run:` command,
+inputs, and output artifacts. General pattern:
 
 ```bash
-python -m experiments.run_all --config configs/base.yaml
+venv/bin/python experiments/exp01_sample_size.py
 ```
 
-This should, for every experiment listed in `CLAIMS_LEDGER.md`:
-1. Load its config from `configs/`.
-2. Run it across `determinism.num_seeds` seeds (>=10, see `src/simulator/determinism.py`).
-3. Write a single JSON/CSV artifact to `results/`.
-4. Regenerate any figure in `figures/` that depends on that artifact.
+This writes its artifact to `results/<name>.json` and (for most experiments)
+a figure to `figures/<name>.png`. See each script's docstring for the exact
+files it produces before running it, and see `CLAIMS_LEDGER.md` for which
+paper claim each artifact backs.
+
+| Script | Result | Figure(s) |
+|---|---|---|
+| `exp00_threshold_nonlinearity.py` | `exp00_threshold_nonlinearity.json` | — (diagnostic only, see CLAIMS_LEDGER.md "Diagnostics") |
+| `exp01_sample_size.py` | `exp01_sample_size.json` | `sample_size_justification.png` |
+| `exp03_balance_matrix.py` | `exp03_balance_matrix.json` | `payoff_matrix_3x3_ga_balanced.png`, `payoff_matrix_3x3_smart_start.png` |
+| `exp04_policy_dependence.py` | `exp04_policy_dependence.json` | `policy_dependence_heatmap.png` |
+| `exp05_learning_curve.py` | `exp05_learning_curve.json` | `rl_learning_curve.png` |
+| `exp05_reward_sensitivity.py` | `exp05_reward_sensitivity.json` | `reward_sensitivity.png` |
+| `exp06_surrogate_validation.py` | `exp06_surrogate_validation.json` | `surrogate_baseline_comparison.png`, `surrogate_calibration.png` |
+| `exp06_surrogate_assisted_ea.py` | `exp06_surrogate_assisted_ea.json` | `surrogate_error_vs_generation.png` |
+| `exp07_nsga2_power_balance.py` | `exp07_nsga2_power_balance.json` | `nsga2_power_balance_pareto_front.png` |
+| `exp07_optimizer_ablation.py` | `exp07_optimizer_ablation.json` | `exp07_convergence_curves.png`, `exp07_final_value_comparison.png` |
+| `exp08_cost_accounting.py` | `exp08_cost_accounting.json` | `exp08_breakeven_analysis.png` |
+| `exp08_dimension_scaling.py` | `exp08_dimension_scaling.json` | `exp08_dimension_scaling.png` |
+| `exp09_equilibrium_robustness.py` | `exp09_equilibrium_robustness.json` | `exp09_basin_of_attraction.png`, `exp09_multistart_clustering.png` |
+| `exp09_karna_hp_ci.py` | `exp09_karna_hp_ci.json` | `exp09_karna_hp_ci.png` |
+| `exp09_sensitivity_indices.py` | `exp09_sensitivity_indices.json` | `exp09_sobol_morris_indices.png` |
+
+Note: every script also works as `python -m experiments.<name>` (verified —
+`experiments/` has no `__init__.py` but resolves as a PEP 420 implicit
+namespace package under this Python version); the docstring form above is
+what each script's author actually documented, so it is what's shown here.
+
+## `configs/*.yaml`: documentation, not runtime input
+
+**Important caveat, verified by reading the code, not assumed:** none of the
+`experiments/*.py` scripts actually load their corresponding `configs/*.yaml`
+file (no `yaml.safe_load` / argparse config-path anywhere in `experiments/`).
+Each script hardcodes its own seed/pop_size/n_runs/etc. as Python constants,
+and the matching `configs/*.yaml` is a hand-maintained record of those same
+values for readability and for the paper's methods section — not a wired-in
+config. This means the two *can* drift silently; `docs/STATUS_REPORT.md`
+manually cross-checked the yaml against the script constants for exp07 and
+found them consistent, but this is not automatically enforced for every
+experiment. If you change a script's constants, update the matching yaml by
+hand in the same commit, and don't assume the yaml is authoritative over the
+code.
+
+## Known gaps (verified by reading the code, not assumed)
+
+- `configs/exp02_surrogate_validation.yaml` has no corresponding
+  `experiments/exp02_*.py` runner or `results/exp02_*.json` artifact — the
+  experiment numbering skips from exp01 to exp03 in code. Not assumed to be
+  superseded by exp06's similarly-named files without explicit evidence.
+- `results/dqn_hparams.json` is described in `exp05_learning_curve.py`'s
+  docstring as generated by `experiments/exp05_hparams_report.py`, but that
+  file does not exist in this repo. The artifact itself is present and its
+  numbers trace back to `exp05_learning_curve.py`'s own training runs, but
+  the exact aggregation script that produced `dqn_hparams.json` is missing.
+- `src/metrics/` has unit tests against independently-derived reference
+  values (Aturan 7): `test_winrate.py`, `test_nonparametric.py`,
+  `test_elo.py`, `test_nash_averaging.py`, `test_diversity.py`,
+  `test_power_creep.py`, `test_payoff_matrix.py`,
+  `test_balance_objective.py`, `test_restricted_play.py`,
+  `test_hypervolume.py`. `src/constraints/lore.py` (Fase E9) has
+  `test_lore_constraints.py`. 141 tests total incl. `test_imports.py`. Not
+  yet covered: `src/sensitivity/` (Sobol, Morris), `src/optim/`,
+  `src/surrogate/` — these still lack reference-value unit tests.
 
 ## Pre-existing legacy scripts
 
 `scripts/run_balancing.py`, `scripts/run_nsga2_balancing.py`,
 `scripts/run_rl_self_play.py`, `scripts/run_ml_experiments.py`, and
-`scripts/run_academic_plots.py` predate this reorg. They still work
-(imports were updated to the new `src/` layout) but are not yet wired to
-`configs/`, do not write to `results/`, and are not cited in
-CLAIMS_LEDGER.md — treat their output as exploratory, not paper evidence.
+`scripts/run_academic_plots.py`, plus `experiments/visualize.py` and
+`experiments/advanced_visualize.py`, predate the `configs/`/`results/`
+reorg. They are not wired to `configs/`, do not write to `results/`, and are
+not cited in `CLAIMS_LEDGER.md` — treat their output as exploratory, not
+paper evidence.
+
+The Angular dashboard under `dashboard/` is a separate interactive demo, not
+part of this reproduction pipeline — see `dashboard/README.md` for why its
+numbers are illustrative, not paper results.
+
+## Verification method
+
+This file was rewritten by auditing the actual repo state rather than
+carrying forward the previous "scaffold stage" description (which predated
+all 15 phases currently in `results/`). Verified directly: `venv/bin/python
+-m pytest tests/` passes 110/110 (after adding `src/metrics/` reference-value
+unit tests in the same pass as this rewrite); every `experiments/exp*.py` file's own
+docstring `Run:` line and output paths; presence/absence of
+`yaml.safe_load`/argparse config-loading via `grep` across `experiments/`;
+existence of `experiments/exp05_hparams_report.py` (not found).

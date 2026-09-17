@@ -1,0 +1,16 @@
+{
+  "params": "data/ga_balanced_params.json",
+  "matchups": [
+    "SATWIKA_vs_TAMASIKA",
+    "TAMASIKA_vs_RAJASIKA"
+  ],
+  "n_match_per_matchup": 20000,
+  "base_seed": 20260801,
+  "target_attack": "Angkara 100 Kurawa",
+  "n_uses_total": 171767,
+  "n_uses_with_bonus_active": 138523,
+  "pct_uses_with_bonus_active": 80.64587493523203,
+  "total_base_damage": 6698913,
+  "total_bonus_damage": 2522550,
+  "pct_total_damage_from_discard_scaling_bonus": 27.355203832623953
+}

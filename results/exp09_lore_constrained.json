@@ -1,0 +1,1860 @@
+{
+  "config": {
+    "seeds": [
+      20260801,
+      20260802,
+      20260803,
+      20260804,
+      20260805,
+      20260806,
+      20260807,
+      20260808,
+      20260809,
+      20260810
+    ],
+    "pop_size": 40,
+    "generations": 40,
+    "num_runs": 60,
+    "validation_num_runs": 500,
+    "n_match_payoff_matrix": 20000
+  },
+  "feasibility_sampling_check": {
+    "n_samples": 400000,
+    "seed": 20260801,
+    "feasible_count": 60636,
+    "feasibility_rate_pct": 15.159,
+    "human_target_estimate_pct": 15.1,
+    "human_target_tolerance_pct": 0.5,
+    "per_constraint_violation_rate_pct": {
+      "L1": 23.695,
+      "L2": 3.1147500000000004,
+      "L3": 0.0,
+      "L4": 10.0025,
+      "L5": 50.19975,
+      "L6": 0.21775000000000003,
+      "L7": 0.0,
+      "L8": 9.1345,
+      "L9": 0.06125,
+      "L10": 0.0,
+      "L11": 0.0,
+      "L12": 14.87675,
+      "L13": 0.0,
+      "L14": 6.444500000000001,
+      "L15": 0.0,
+      "L16": 1.973,
+      "L17": 37.6495,
+      "L18": 0.0
+    }
+  },
+  "hypervolume_reference_point": [
+    8118.616,
+    0.012950611691609982,
+    -0.14419756098850034
+  ],
+  "hypervolume_reference_point_note": "Derived from max(f1/f2/f3) across ALL 10 seeds x both arms' fronts, *1.1 margin (or +0.05 for f3, which is negative). This is why hypervolume values here (~30) are on a different scale from the earlier single-seed run's (~0.3): that run's reference point was computed from only 2 fronts (one seed, both arms), which never reached this run's worst-case f2_power_creep value -- verified directly by recomputing the OLD seed=20260801 unconstrained front's hypervolume under this NEW reference point: 30.82, matching this run's own per-seed value for that seed exactly. Not a normalization change.",
+  "per_seed": [
+    {
+      "seed": 20260801,
+      "arm_a_elapsed_seconds": 25.563854217529297,
+      "arm_b_elapsed_seconds": 27.641067028045654,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 250.60000000000005,
+      "min_f1_constrained": 74.48000000000005,
+      "front_size_unconstrained": 13,
+      "front_size_constrained": 13,
+      "hypervolume_unconstrained": 30.82404476431859,
+      "hypervolume_constrained": 26.759481834561882
+    },
+    {
+      "seed": 20260802,
+      "arm_a_elapsed_seconds": 26.29005217552185,
+      "arm_b_elapsed_seconds": 26.608236074447632,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 44.600000000000016,
+      "min_f1_constrained": 33.52000000000006,
+      "front_size_unconstrained": 11,
+      "front_size_constrained": 17,
+      "hypervolume_unconstrained": 30.502782792664476,
+      "hypervolume_constrained": 29.723207642538952
+    },
+    {
+      "seed": 20260803,
+      "arm_a_elapsed_seconds": 26.14165496826172,
+      "arm_b_elapsed_seconds": 27.742461919784546,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 10.040000000000028,
+      "min_f1_constrained": 4.919999999999992,
+      "front_size_unconstrained": 10,
+      "front_size_constrained": 22,
+      "hypervolume_unconstrained": 30.12155393623112,
+      "hypervolume_constrained": 25.341049203247817
+    },
+    {
+      "seed": 20260804,
+      "arm_a_elapsed_seconds": 25.59086585044861,
+      "arm_b_elapsed_seconds": 25.281080961227417,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 9.200000000000015,
+      "min_f1_constrained": 34.0,
+      "front_size_unconstrained": 6,
+      "front_size_constrained": 17,
+      "hypervolume_unconstrained": 30.486651865517505,
+      "hypervolume_constrained": 30.984946128065033
+    },
+    {
+      "seed": 20260805,
+      "arm_a_elapsed_seconds": 25.985867977142334,
+      "arm_b_elapsed_seconds": 28.76948571205139,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 77.24000000000004,
+      "min_f1_constrained": 91.95999999999995,
+      "front_size_unconstrained": 20,
+      "front_size_constrained": 13,
+      "hypervolume_unconstrained": 31.64554988960642,
+      "hypervolume_constrained": 22.93705182286255
+    },
+    {
+      "seed": 20260806,
+      "arm_a_elapsed_seconds": 26.154550075531006,
+      "arm_b_elapsed_seconds": 28.171905040740967,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 23.359999999999975,
+      "min_f1_constrained": 26.16000000000002,
+      "front_size_unconstrained": 10,
+      "front_size_constrained": 6,
+      "hypervolume_unconstrained": 32.80778356738578,
+      "hypervolume_constrained": 29.698327117707375
+    },
+    {
+      "seed": 20260807,
+      "arm_a_elapsed_seconds": 27.6340651512146,
+      "arm_b_elapsed_seconds": 28.461547136306763,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 248.36000000000007,
+      "min_f1_constrained": 62.79999999999994,
+      "front_size_unconstrained": 12,
+      "front_size_constrained": 7,
+      "hypervolume_unconstrained": 28.81712953067431,
+      "hypervolume_constrained": 26.88255084799598
+    },
+    {
+      "seed": 20260808,
+      "arm_a_elapsed_seconds": 26.71717095375061,
+      "arm_b_elapsed_seconds": 33.41341590881348,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 191.40000000000006,
+      "min_f1_constrained": 141.95999999999992,
+      "front_size_unconstrained": 11,
+      "front_size_constrained": 7,
+      "hypervolume_unconstrained": 31.0466578414848,
+      "hypervolume_constrained": 26.420445932166988
+    },
+    {
+      "seed": 20260809,
+      "arm_a_elapsed_seconds": 29.171041011810303,
+      "arm_b_elapsed_seconds": 37.36887001991272,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 132.08000000000004,
+      "min_f1_constrained": 77.24000000000007,
+      "front_size_unconstrained": 11,
+      "front_size_constrained": 6,
+      "hypervolume_unconstrained": 30.623245198475992,
+      "hypervolume_constrained": 27.948177736867652
+    },
+    {
+      "seed": 20260810,
+      "arm_a_elapsed_seconds": 26.934967041015625,
+      "arm_b_elapsed_seconds": 26.85206389427185,
+      "arm_b_smart_start_feasible": true,
+      "arm_b_seeding_attempts": null,
+      "min_f1_unconstrained": 21.839999999999993,
+      "min_f1_constrained": 108.67999999999991,
+      "front_size_unconstrained": 13,
+      "front_size_constrained": 11,
+      "hypervolume_unconstrained": 29.93123999233631,
+      "hypervolume_constrained": 28.579319777177012
+    }
+  ],
+  "summary_across_seeds": {
+    "min_f1_unconstrained": {
+      "mean": 100.87200000000003,
+      "std": 97.73764574387681,
+      "sem": 30.90735736933127,
+      "ci95_lower": 40.29357955611074,
+      "ci95_upper": 161.4504204438893,
+      "n_seeds": 10,
+      "per_seed": [
+        250.60000000000005,
+        44.600000000000016,
+        10.040000000000028,
+        9.200000000000015,
+        77.24000000000004,
+        23.359999999999975,
+        248.36000000000007,
+        191.40000000000006,
+        132.08000000000004,
+        21.839999999999993
+      ]
+    },
+    "min_f1_constrained": {
+      "mean": 65.57199999999999,
+      "std": 41.990771684581645,
+      "sem": 13.278647923138347,
+      "ci95_lower": 39.545850070648825,
+      "ci95_upper": 91.59814992935115,
+      "n_seeds": 10,
+      "per_seed": [
+        74.48000000000005,
+        33.52000000000006,
+        4.919999999999992,
+        34.0,
+        91.95999999999995,
+        26.16000000000002,
+        62.79999999999994,
+        141.95999999999992,
+        77.24000000000007,
+        108.67999999999991
+      ]
+    },
+    "hypervolume_unconstrained": {
+      "mean": 30.680663937869532,
+      "std": 1.0556584277939622,
+      "sem": 0.3338285062981321,
+      "ci95_lower": 30.026360065525193,
+      "ci95_upper": 31.334967810213872,
+      "n_seeds": 10,
+      "per_seed": [
+        30.82404476431859,
+        30.502782792664476,
+        30.12155393623112,
+        30.486651865517505,
+        31.64554988960642,
+        32.80778356738578,
+        28.81712953067431,
+        31.0466578414848,
+        30.623245198475992,
+        29.93123999233631
+      ]
+    },
+    "hypervolume_constrained": {
+      "mean": 27.527455804319125,
+      "std": 2.377090011645794,
+      "sem": 0.7517018640036887,
+      "ci95_lower": 26.054120150871896,
+      "ci95_upper": 29.000791457766354,
+      "n_seeds": 10,
+      "per_seed": [
+        26.759481834561882,
+        29.723207642538952,
+        25.341049203247817,
+        30.984946128065033,
+        22.93705182286255,
+        29.698327117707375,
+        26.88255084799598,
+        26.420445932166988,
+        27.948177736867652,
+        28.579319777177012
+      ]
+    },
+    "front_size_unconstrained": {
+      "mean": 11.7,
+      "std": 3.529242915351047,
+      "sem": 1.1160446028522137,
+      "ci95_lower": 9.512552578409661,
+      "ci95_upper": 13.887447421590338,
+      "n_seeds": 10,
+      "per_seed": [
+        13.0,
+        11.0,
+        10.0,
+        6.0,
+        20.0,
+        10.0,
+        12.0,
+        11.0,
+        11.0,
+        13.0
+      ]
+    },
+    "front_size_constrained": {
+      "mean": 11.9,
+      "std": 5.526702854726717,
+      "sem": 1.7476968971891105,
+      "ci95_lower": 8.474514081509344,
+      "ci95_upper": 15.325485918490656,
+      "n_seeds": 10,
+      "per_seed": [
+        13.0,
+        17.0,
+        22.0,
+        17.0,
+        13.0,
+        6.0,
+        7.0,
+        7.0,
+        6.0,
+        11.0
+      ]
+    },
+    "empirical_cost_at_budget": {
+      "mean_diff_constrained_minus_unconstrained": -35.30000000000004,
+      "diff_ci95_lower": -88.76619586359638,
+      "diff_ci95_upper": 18.166195863596293,
+      "diff_std": 86.26273303757026,
+      "diff_per_seed": [
+        -176.12,
+        -11.079999999999956,
+        -5.120000000000036,
+        24.799999999999983,
+        14.719999999999914,
+        2.800000000000047,
+        -185.56000000000012,
+        -49.44000000000014,
+        -54.839999999999975,
+        86.83999999999992
+      ],
+      "wilcoxon_n_pairs": 10,
+      "wilcoxon_w_statistic": 18.0,
+      "wilcoxon_z": 0.917364944587726,
+      "wilcoxon_p_value": 0.35895143585262623,
+      "rank_biserial_r": 0.34545454545454546
+    },
+    "hypervolume_paired_diff": {
+      "mean_diff_constrained_minus_unconstrained": -3.1532081335504065,
+      "diff_ci95_lower": -4.759365118354863,
+      "diff_ci95_upper": -1.5470511487459508,
+      "diff_std": 2.591384873352313,
+      "diff_per_seed": [
+        -4.064562929756708,
+        -0.7795751501255239,
+        -4.780504732983303,
+        0.4982942625475282,
+        -8.708498066743871,
+        -3.109456449678408,
+        -1.9345786826783318,
+        -4.626211909317814,
+        -2.6750674616083394,
+        -1.3519202151592964
+      ],
+      "wilcoxon_n_pairs": 10,
+      "wilcoxon_w_statistic": 1.0,
+      "wilcoxon_z": 2.650165395475653,
+      "wilcoxon_p_value": 0.008045237486561607,
+      "rank_biserial_r": 0.9636363636363636
+    }
+  },
+  "interpretation_note": "Theta_lore is a strict subset of Theta_full, so the THEORETICAL cost of lore fidelity (min f1 over Theta_lore minus min f1 over Theta_full, at the true optima) can never be negative. `empirical_cost_at_budget` above is the empirical, PAIRED-BY-SEED difference between two FINITE-BUDGET heuristic searches (NSGA-II, pop_size=40, generations=40) and CAN be negative -- a negative value means the unconstrained search failed to find its own true optimum within this budget (e.g. because constraint-domination acts as an implicit search-space regularizer for the constrained arm), not that satisfying the narrative constraints reduced the true achievable balance deviation. Report the mean paired difference, its 95% CI, AND the Wilcoxon signed-rank p-value/effect size together; do not describe a negative empirical value as lore fidelity being 'free' or 'a saving' without this caveat, and do not claim significance if the Wilcoxon test does not support it.",
+  "base_seed_detail": {
+    "seed": 20260801,
+    "reproduces_fase7_exactly": true,
+    "arm_a_front": [
+      {
+        "params": {
+          "stw_yudhistira_hp": 125,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 25,
+          "stw_yudhistira_heal": 19,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 41,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 66,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 81,
+          "rjs_karna_dmg": 52,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 82,
+          "tms_sengkuni_dmg": 21,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 146,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 5170.039999999999,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.47497109648606123,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.8,
+          "TAMASIKA_vs_RAJASIKA": 34.2,
+          "RAJASIKA_vs_SATWIKA": 0.6
+        },
+        "mean_pairwise_jsd": 0.47497109648606123
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 135,
+          "stw_yudhistira_dmg": 42,
+          "stw_yudhistira_dr": 25,
+          "stw_yudhistira_heal": 35,
+          "stw_yudhistira_cost_satwika": 2,
+          "stw_yudhistira_cost_univ": 1,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 50,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 70,
+          "rjs_balarama_dmg": 27,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 92,
+          "rjs_karna_dmg": 59,
+          "rjs_karna_recoil": 11,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 84,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 49,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 250.60000000000005,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.3120266412075566,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 54.800000000000004,
+          "TAMASIKA_vs_RAJASIKA": 48.4,
+          "RAJASIKA_vs_SATWIKA": 35.0
+        },
+        "mean_pairwise_jsd": 0.3120266412075566
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 125,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 25,
+          "stw_yudhistira_heal": 35,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 41,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 66,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 81,
+          "rjs_karna_dmg": 59,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 84,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 49,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 4568.76,
+        "f2_power_creep": 0.00022120660115898226,
+        "f3_neg_identity": -0.48242642661832114,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.4,
+          "TAMASIKA_vs_RAJASIKA": 38.2,
+          "RAJASIKA_vs_SATWIKA": 5.4
+        },
+        "mean_pairwise_jsd": 0.48242642661832114
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 92,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 25,
+          "stw_yudhistira_heal": 22,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 41,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 66,
+          "rjs_balarama_dmg": 31,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 105,
+          "rjs_karna_dmg": 52,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 82,
+          "tms_sengkuni_dmg": 29,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 136,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 3846.96,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.4604389571021584,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 100.0,
+          "TAMASIKA_vs_RAJASIKA": 31.0,
+          "RAJASIKA_vs_SATWIKA": 18.6
+        },
+        "mean_pairwise_jsd": 0.4604389571021584
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 135,
+          "stw_yudhistira_dmg": 42,
+          "stw_yudhistira_dr": 10,
+          "stw_yudhistira_heal": 35,
+          "stw_yudhistira_cost_satwika": 2,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 50,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 63,
+          "rjs_balarama_dmg": 27,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 86,
+          "rjs_karna_dmg": 59,
+          "rjs_karna_recoil": 11,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 84,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 39,
+          "tms_duryodana_scale_value": 3,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 845.88,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.33774739336284115,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 74.2,
+          "TAMASIKA_vs_RAJASIKA": 39.0,
+          "RAJASIKA_vs_SATWIKA": 38.2
+        },
+        "mean_pairwise_jsd": 0.33774739336284115
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 92,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 28,
+          "stw_yudhistira_heal": 22,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 40,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 66,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 110,
+          "rjs_karna_dmg": 59,
+          "rjs_karna_recoil": 8,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 3345.0,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.4451609907182843,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 100.0,
+          "TAMASIKA_vs_RAJASIKA": 34.2,
+          "RAJASIKA_vs_SATWIKA": 25.6
+        },
+        "mean_pairwise_jsd": 0.4451609907182843
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 92,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 12,
+          "stw_yudhistira_heal": 27,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 86,
+          "stw_arjuna_pasupati_dmg": 41,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 64,
+          "rjs_balarama_dmg": 33,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 110,
+          "rjs_karna_dmg": 57,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 84,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 147,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 973.96,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.40459370700087666,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 72.0,
+          "TAMASIKA_vs_RAJASIKA": 31.4,
+          "RAJASIKA_vs_SATWIKA": 38.0
+        },
+        "mean_pairwise_jsd": 0.40459370700087666
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 125,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 24,
+          "stw_yudhistira_heal": 29,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 41,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 78,
+          "rjs_balarama_dmg": 43,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 81,
+          "rjs_karna_dmg": 59,
+          "rjs_karna_recoil": 12,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 136,
+          "tms_duryodana_angkara_dmg": 46,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 4407.759999999999,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.46600056342495605,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.6,
+          "TAMASIKA_vs_RAJASIKA": 44.6,
+          "RAJASIKA_vs_SATWIKA": 6.2
+        },
+        "mean_pairwise_jsd": 0.46600056342495605
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 92,
+          "stw_yudhistira_dmg": 42,
+          "stw_yudhistira_dr": 28,
+          "stw_yudhistira_heal": 22,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 87,
+          "stw_arjuna_pasupati_dmg": 40,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 64,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 110,
+          "rjs_karna_dmg": 59,
+          "rjs_karna_recoil": 8,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 84,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 49,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 2976.3999999999996,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.43746953266016214,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.8,
+          "TAMASIKA_vs_RAJASIKA": 33.0,
+          "RAJASIKA_vs_SATWIKA": 35.6
+        },
+        "mean_pairwise_jsd": 0.43746953266016214
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 96,
+          "stw_yudhistira_dmg": 45,
+          "stw_yudhistira_dr": 28,
+          "stw_yudhistira_heal": 22,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 42,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 75,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 110,
+          "rjs_karna_dmg": 57,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 82,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 3568.7999999999993,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.4548831000005144,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.6,
+          "TAMASIKA_vs_RAJASIKA": 34.0,
+          "RAJASIKA_vs_SATWIKA": 20.8
+        },
+        "mean_pairwise_jsd": 0.4548831000005144
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 92,
+          "stw_yudhistira_dmg": 45,
+          "stw_yudhistira_dr": 28,
+          "stw_yudhistira_heal": 29,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 40,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 78,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 110,
+          "rjs_karna_dmg": 57,
+          "rjs_karna_recoil": 7,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 32,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 149,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 3649.1599999999994,
+        "f2_power_creep": 0.00011209095490047857,
+        "f3_neg_identity": -0.46863349044662445,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.6,
+          "TAMASIKA_vs_RAJASIKA": 36.199999999999996,
+          "RAJASIKA_vs_SATWIKA": 18.4
+        },
+        "mean_pairwise_jsd": 0.46863349044662445
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 92,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 10,
+          "stw_yudhistira_heal": 27,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 41,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 66,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 110,
+          "rjs_karna_dmg": 58,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 80,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 1020.3599999999997,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.41974496346374596,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 75.6,
+          "TAMASIKA_vs_RAJASIKA": 33.6,
+          "RAJASIKA_vs_SATWIKA": 59.8
+        },
+        "mean_pairwise_jsd": 0.41974496346374596
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 96,
+          "stw_yudhistira_dmg": 44,
+          "stw_yudhistira_dr": 25,
+          "stw_yudhistira_heal": 28,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 82,
+          "stw_arjuna_pasupati_dmg": 42,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 77,
+          "rjs_balarama_dmg": 30,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 110,
+          "rjs_karna_dmg": 57,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 47,
+          "tms_duryodana_scale_value": 5,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 3048.0,
+        "f2_power_creep": 5.443160493827165e-05,
+        "f3_neg_identity": -0.45142594222313837,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 100.0,
+          "TAMASIKA_vs_RAJASIKA": 30.4,
+          "RAJASIKA_vs_SATWIKA": 37.2
+        },
+        "mean_pairwise_jsd": 0.45142594222313837
+      }
+    ],
+    "arm_b_front": [
+      {
+        "params": {
+          "stw_yudhistira_hp": 120,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 19,
+          "stw_yudhistira_heal": 20,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 93,
+          "stw_arjuna_pasupati_dmg": 51,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 68,
+          "rjs_balarama_dmg": 34,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 98,
+          "rjs_karna_dmg": 56,
+          "rjs_karna_recoil": 8,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 26,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 50,
+          "tms_duryodana_scale_value": 3,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 2634.6400000000003,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.3938412549312707,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 88.2,
+          "TAMASIKA_vs_RAJASIKA": 31.4,
+          "RAJASIKA_vs_SATWIKA": 21.2
+        },
+        "mean_pairwise_jsd": 0.3938412549312707,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 111,
+          "stw_yudhistira_dmg": 32,
+          "stw_yudhistira_dr": 20,
+          "stw_yudhistira_heal": 19,
+          "stw_yudhistira_cost_satwika": 2,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 56,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 67,
+          "rjs_balarama_dmg": 45,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 78,
+          "rjs_karna_dmg": 62,
+          "rjs_karna_recoil": 13,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 79,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 149,
+          "tms_duryodana_angkara_dmg": 48,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 74.48000000000005,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.30616530429834704,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 43.0,
+          "TAMASIKA_vs_RAJASIKA": 54.2,
+          "RAJASIKA_vs_SATWIKA": 52.800000000000004
+        },
+        "mean_pairwise_jsd": 0.30616530429834704,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 120,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 21,
+          "stw_yudhistira_heal": 19,
+          "stw_yudhistira_cost_satwika": 2,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 93,
+          "stw_arjuna_pasupati_dmg": 51,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 68,
+          "rjs_balarama_dmg": 34,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 99,
+          "rjs_karna_dmg": 56,
+          "rjs_karna_recoil": 13,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 79,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 50,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 179.71999999999997,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.3092092286197576,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 50.0,
+          "TAMASIKA_vs_RAJASIKA": 36.6,
+          "RAJASIKA_vs_SATWIKA": 49.6
+        },
+        "mean_pairwise_jsd": 0.3092092286197576,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 126,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 19,
+          "stw_yudhistira_heal": 22,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 93,
+          "stw_arjuna_pasupati_dmg": 55,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 89,
+          "rjs_balarama_dmg": 34,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 98,
+          "rjs_karna_dmg": 56,
+          "rjs_karna_recoil": 8,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 87,
+          "tms_sengkuni_dmg": 28,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 42,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 3941.4799999999996,
+        "f2_power_creep": 5.882646510456031e-05,
+        "f3_neg_identity": -0.3963956380377602,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 100.0,
+          "TAMASIKA_vs_RAJASIKA": 27.800000000000004,
+          "RAJASIKA_vs_SATWIKA": 19.2
+        },
+        "mean_pairwise_jsd": 0.3963956380377602,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 126,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 15,
+          "stw_yudhistira_heal": 16,
+          "stw_yudhistira_cost_satwika": 2,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 50,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 61,
+          "rjs_balarama_dmg": 28,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 89,
+          "rjs_karna_dmg": 62,
+          "rjs_karna_recoil": 13,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 79,
+          "tms_sengkuni_dmg": 26,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 50,
+          "tms_duryodana_scale_value": 3,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 306.1600000000003,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.3175167700456509,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 44.2,
+          "TAMASIKA_vs_RAJASIKA": 65.60000000000001,
+          "RAJASIKA_vs_SATWIKA": 55.400000000000006
+        },
+        "mean_pairwise_jsd": 0.3175167700456509,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 125,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 28,
+          "stw_yudhistira_heal": 21,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 93,
+          "stw_arjuna_pasupati_dmg": 56,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 69,
+          "rjs_balarama_dmg": 34,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 93,
+          "rjs_karna_dmg": 62,
+          "rjs_karna_recoil": 7,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 28,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 42,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 4163.5599999999995,
+        "f2_power_creep": 3.69586797682036e-05,
+        "f3_neg_identity": -0.40520814547315914,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.8,
+          "TAMASIKA_vs_RAJASIKA": 29.599999999999998,
+          "RAJASIKA_vs_SATWIKA": 14.399999999999999
+        },
+        "mean_pairwise_jsd": 0.40520814547315914,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 135,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 30,
+          "stw_yudhistira_heal": 20,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 56,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 76,
+          "rjs_balarama_dmg": 31,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 93,
+          "rjs_karna_dmg": 59,
+          "rjs_karna_recoil": 5,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 78,
+          "tms_sengkuni_dmg": 31,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 49,
+          "tms_duryodana_scale_value": 3,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 4331.44,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.41922561736250447,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.8,
+          "TAMASIKA_vs_RAJASIKA": 31.4,
+          "RAJASIKA_vs_SATWIKA": 11.200000000000001
+        },
+        "mean_pairwise_jsd": 0.41922561736250447,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 126,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 30,
+          "stw_yudhistira_heal": 21,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 93,
+          "stw_arjuna_pasupati_dmg": 56,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 60,
+          "rjs_balarama_dmg": 36,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 93,
+          "rjs_karna_dmg": 62,
+          "rjs_karna_recoil": 5,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 28,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 39,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 3890.8,
+        "f2_power_creep": 0.0005661378180901989,
+        "f3_neg_identity": -0.42135891677243276,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.8,
+          "TAMASIKA_vs_RAJASIKA": 31.0,
+          "RAJASIKA_vs_SATWIKA": 17.599999999999998
+        },
+        "mean_pairwise_jsd": 0.42135891677243276,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 135,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 28,
+          "stw_yudhistira_heal": 16,
+          "stw_yudhistira_cost_satwika": 2,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 91,
+          "stw_arjuna_pasupati_dmg": 50,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 69,
+          "rjs_balarama_dmg": 28,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 89,
+          "rjs_karna_dmg": 62,
+          "rjs_karna_recoil": 5,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 81,
+          "tms_sengkuni_dmg": 28,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 50,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 337.40000000000003,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.3176398268408861,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 43.4,
+          "TAMASIKA_vs_RAJASIKA": 33.0,
+          "RAJASIKA_vs_SATWIKA": 47.8
+        },
+        "mean_pairwise_jsd": 0.3176398268408861,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 125,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 11,
+          "stw_yudhistira_heal": 20,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 56,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 61,
+          "rjs_balarama_dmg": 28,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 98,
+          "rjs_karna_dmg": 60,
+          "rjs_karna_recoil": 13,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 85,
+          "tms_sengkuni_dmg": 28,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 50,
+          "tms_duryodana_scale_value": 3,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 1145.84,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.39092258835901034,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 75.8,
+          "TAMASIKA_vs_RAJASIKA": 40.2,
+          "RAJASIKA_vs_SATWIKA": 30.4
+        },
+        "mean_pairwise_jsd": 0.39092258835901034,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 120,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 30,
+          "stw_yudhistira_heal": 21,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 93,
+          "stw_arjuna_pasupati_dmg": 56,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 60,
+          "rjs_balarama_dmg": 34,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 98,
+          "rjs_karna_dmg": 62,
+          "rjs_karna_recoil": 5,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 28,
+          "tms_sengkuni_mill": 1,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 148,
+          "tms_duryodana_angkara_dmg": 42,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 4113.639999999999,
+        "f2_power_creep": 4.6153691106072046e-05,
+        "f3_neg_identity": -0.4200816183652433,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.8,
+          "TAMASIKA_vs_RAJASIKA": 24.8,
+          "RAJASIKA_vs_SATWIKA": 18.4
+        },
+        "mean_pairwise_jsd": 0.4200816183652433,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 134,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 30,
+          "stw_yudhistira_heal": 20,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 91,
+          "stw_arjuna_pasupati_dmg": 57,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 76,
+          "rjs_balarama_dmg": 36,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 93,
+          "rjs_karna_dmg": 62,
+          "rjs_karna_recoil": 6,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 84,
+          "tms_sengkuni_dmg": 33,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 147,
+          "tms_duryodana_angkara_dmg": 39,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 4381.4800000000005,
+        "f2_power_creep": 0.002798577939027462,
+        "f3_neg_identity": -0.42721263001111814,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 99.4,
+          "TAMASIKA_vs_RAJASIKA": 28.4,
+          "RAJASIKA_vs_SATWIKA": 11.600000000000001
+        },
+        "mean_pairwise_jsd": 0.42721263001111814,
+        "is_feasible": true,
+        "total_violation": 0.0
+      },
+      {
+        "params": {
+          "stw_yudhistira_hp": 120,
+          "stw_yudhistira_dmg": 29,
+          "stw_yudhistira_dr": 11,
+          "stw_yudhistira_heal": 20,
+          "stw_yudhistira_cost_satwika": 1,
+          "stw_yudhistira_cost_univ": 0,
+          "stw_arjuna_hp": 80,
+          "stw_arjuna_pasupati_dmg": 55,
+          "stw_arjuna_pasupati_cost": 3,
+          "rjs_balarama_hp": 60,
+          "rjs_balarama_dmg": 28,
+          "rjs_balarama_cost": 2,
+          "rjs_karna_hp": 98,
+          "rjs_karna_dmg": 64,
+          "rjs_karna_recoil": 13,
+          "rjs_karna_cost": 1,
+          "tms_sengkuni_hp": 83,
+          "tms_sengkuni_dmg": 28,
+          "tms_sengkuni_mill": 2,
+          "tms_sengkuni_cost_tamasika": 2,
+          "tms_sengkuni_cost_univ": 1,
+          "tms_duryodana_hp": 150,
+          "tms_duryodana_angkara_dmg": 50,
+          "tms_duryodana_scale_value": 6,
+          "tms_duryodana_angkara_cost": 2
+        },
+        "f1_balance": 946.2799999999997,
+        "f2_power_creep": 0.0,
+        "f3_neg_identity": -0.38469901332879813,
+        "rates": {
+          "SATWIKA_vs_TAMASIKA": 76.6,
+          "TAMASIKA_vs_RAJASIKA": 44.4,
+          "RAJASIKA_vs_SATWIKA": 35.6
+        },
+        "mean_pairwise_jsd": 0.38469901332879813,
+        "is_feasible": true,
+        "total_violation": 0.0
+      }
+    ],
+    "unconstrained_front_feasibility_under_theta_lore": {
+      "n_feasible": 0,
+      "n_total": 13,
+      "per_solution": [
+        {
+          "params_index": 0,
+          "feasible": false,
+          "n_satisfied": 16,
+          "violated": [
+            "L2",
+            "L17"
+          ],
+          "total_violation": 6.0
+        },
+        {
+          "params_index": 1,
+          "feasible": false,
+          "n_satisfied": 17,
+          "violated": [
+            "L17"
+          ],
+          "total_violation": 3.5
+        },
+        {
+          "params_index": 2,
+          "feasible": false,
+          "n_satisfied": 16,
+          "violated": [
+            "L2",
+            "L4"
+          ],
+          "total_violation": 7.0
+        },
+        {
+          "params_index": 3,
+          "feasible": false,
+          "n_satisfied": 15,
+          "violated": [
+            "L2",
+            "L8",
+            "L17"
+          ],
+          "total_violation": 19.5
+        },
+        {
+          "params_index": 4,
+          "feasible": false,
+          "n_satisfied": 17,
+          "violated": [
+            "L17"
+          ],
+          "total_violation": 3.5
+        },
+        {
+          "params_index": 5,
+          "feasible": false,
+          "n_satisfied": 14,
+          "violated": [
+            "L2",
+            "L4",
+            "L8",
+            "L16"
+          ],
+          "total_violation": 30.5
+        },
+        {
+          "params_index": 6,
+          "feasible": false,
+          "n_satisfied": 15,
+          "violated": [
+            "L2",
+            "L4",
+            "L8"
+          ],
+          "total_violation": 24.0
+        },
+        {
+          "params_index": 7,
+          "feasible": false,
+          "n_satisfied": 16,
+          "violated": [
+            "L2",
+            "L4"
+          ],
+          "total_violation": 7.0
+        },
+        {
+          "params_index": 8,
+          "feasible": false,
+          "n_satisfied": 15,
+          "violated": [
+            "L2",
+            "L4",
+            "L8"
+          ],
+          "total_violation": 26.0
+        },
+        {
+          "params_index": 9,
+          "feasible": false,
+          "n_satisfied": 14,
+          "violated": [
+            "L2",
+            "L8",
+            "L16",
+            "L17"
+          ],
+          "total_violation": 23.5
+        },
+        {
+          "params_index": 10,
+          "feasible": false,
+          "n_satisfied": 14,
+          "violated": [
+            "L2",
+            "L4",
+            "L8",
+            "L16"
+          ],
+          "total_violation": 34.5
+        },
+        {
+          "params_index": 11,
+          "feasible": false,
+          "n_satisfied": 14,
+          "violated": [
+            "L2",
+            "L4",
+            "L8",
+            "L16"
+          ],
+          "total_violation": 26.5
+        },
+        {
+          "params_index": 12,
+          "feasible": false,
+          "n_satisfied": 15,
+          "violated": [
+            "L2",
+            "L8",
+            "L16"
+          ],
+          "total_violation": 23.0
+        }
+      ]
+    },
+    "constraint_binding_status": {
+      "L1": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -54
+      },
+      "L2": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -27
+      },
+      "L3": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -29
+      },
+      "L4": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -14
+      },
+      "L5": {
+        "binding": true,
+        "n_tight_of_front": 13,
+        "front_size": 13,
+        "min_g": 0
+      },
+      "L6": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -35
+      },
+      "L7": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -12
+      },
+      "L8": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -45
+      },
+      "L9": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -70
+      },
+      "L10": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -35
+      },
+      "L11": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -70
+      },
+      "L12": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -23
+      },
+      "L13": {
+        "binding": true,
+        "n_tight_of_front": 7,
+        "front_size": 13,
+        "min_g": -1
+      },
+      "L14": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -70
+      },
+      "L15": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -5
+      },
+      "L16": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -33.5
+      },
+      "L17": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -9.0
+      },
+      "L18": {
+        "binding": false,
+        "n_tight_of_front": 0,
+        "front_size": 13,
+        "min_g": -2
+      }
+    },
+    "best_balance_unconstrained": {
+      "params": {
+        "stw_yudhistira_hp": 135,
+        "stw_yudhistira_dmg": 42,
+        "stw_yudhistira_dr": 25,
+        "stw_yudhistira_heal": 35,
+        "stw_yudhistira_cost_satwika": 2,
+        "stw_yudhistira_cost_univ": 1,
+        "stw_arjuna_hp": 82,
+        "stw_arjuna_pasupati_dmg": 50,
+        "stw_arjuna_pasupati_cost": 3,
+        "rjs_balarama_hp": 70,
+        "rjs_balarama_dmg": 27,
+        "rjs_balarama_cost": 2,
+        "rjs_karna_hp": 92,
+        "rjs_karna_dmg": 59,
+        "rjs_karna_recoil": 11,
+        "rjs_karna_cost": 1,
+        "tms_sengkuni_hp": 84,
+        "tms_sengkuni_dmg": 31,
+        "tms_sengkuni_mill": 1,
+        "tms_sengkuni_cost_tamasika": 2,
+        "tms_sengkuni_cost_univ": 1,
+        "tms_duryodana_hp": 150,
+        "tms_duryodana_angkara_dmg": 49,
+        "tms_duryodana_scale_value": 6,
+        "tms_duryodana_angkara_cost": 2
+      },
+      "f1_balance": 250.60000000000005
+    },
+    "best_balance_constrained": {
+      "params": {
+        "stw_yudhistira_hp": 111,
+        "stw_yudhistira_dmg": 32,
+        "stw_yudhistira_dr": 20,
+        "stw_yudhistira_heal": 19,
+        "stw_yudhistira_cost_satwika": 2,
+        "stw_yudhistira_cost_univ": 0,
+        "stw_arjuna_hp": 80,
+        "stw_arjuna_pasupati_dmg": 56,
+        "stw_arjuna_pasupati_cost": 3,
+        "rjs_balarama_hp": 67,
+        "rjs_balarama_dmg": 45,
+        "rjs_balarama_cost": 2,
+        "rjs_karna_hp": 78,
+        "rjs_karna_dmg": 62,
+        "rjs_karna_recoil": 13,
+        "rjs_karna_cost": 1,
+        "tms_sengkuni_hp": 79,
+        "tms_sengkuni_dmg": 31,
+        "tms_sengkuni_mill": 1,
+        "tms_sengkuni_cost_tamasika": 2,
+        "tms_sengkuni_cost_univ": 1,
+        "tms_duryodana_hp": 149,
+        "tms_duryodana_angkara_dmg": 48,
+        "tms_duryodana_scale_value": 6,
+        "tms_duryodana_angkara_cost": 2
+      },
+      "f1_balance": 74.48000000000005
+    },
+    "payoff_matrix_best_balance_unconstrained": {
+      "SATWIKA_vs_SATWIKA": {
+        "wins": 10112,
+        "n": 20000,
+        "win_rate": 0.5056,
+        "wilson_ci_95": {
+          "lower": 0.4986705053749206,
+          "upper": 0.5125273438212511
+        }
+      },
+      "SATWIKA_vs_RAJASIKA": {
+        "wins": 12365,
+        "n": 20000,
+        "win_rate": 0.61825,
+        "wilson_ci_95": {
+          "lower": 0.6114949609723115,
+          "upper": 0.6249596225004197
+        }
+      },
+      "SATWIKA_vs_TAMASIKA": {
+        "wins": 10441,
+        "n": 20000,
+        "win_rate": 0.52205,
+        "wilson_ci_95": {
+          "lower": 0.5151236515098551,
+          "upper": 0.5289678797000706
+        }
+      },
+      "RAJASIKA_vs_SATWIKA": {
+        "wins": 7706,
+        "n": 20000,
+        "win_rate": 0.3853,
+        "wilson_ci_95": {
+          "lower": 0.37857791387665096,
+          "upper": 0.3920661391946194
+        }
+      },
+      "RAJASIKA_vs_RAJASIKA": {
+        "wins": 10062,
+        "n": 20000,
+        "win_rate": 0.5031,
+        "wilson_ci_95": {
+          "lower": 0.49617068410545956,
+          "upper": 0.5100281252709927
+        }
+      },
+      "RAJASIKA_vs_TAMASIKA": {
+        "wins": 10594,
+        "n": 20000,
+        "win_rate": 0.5297,
+        "wilson_ci_95": {
+          "lower": 0.5227776749932243,
+          "upper": 0.5366109180650431
+        }
+      },
+      "TAMASIKA_vs_SATWIKA": {
+        "wins": 9492,
+        "n": 20000,
+        "win_rate": 0.4746,
+        "wilson_ci_95": {
+          "lower": 0.46768496847969265,
+          "upper": 0.48152478695195755
+        }
+      },
+      "TAMASIKA_vs_RAJASIKA": {
+        "wins": 9521,
+        "n": 20000,
+        "win_rate": 0.47605,
+        "wilson_ci_95": {
+          "lower": 0.46913369738463295,
+          "upper": 0.48297550114245436
+        }
+      },
+      "TAMASIKA_vs_TAMASIKA": {
+        "wins": 9942,
+        "n": 20000,
+        "win_rate": 0.4971,
+        "wilson_ci_95": {
+          "lower": 0.490171819695441,
+          "upper": 0.5040292941136844
+        }
+      }
+    },
+    "payoff_matrix_best_balance_constrained": {
+      "SATWIKA_vs_SATWIKA": {
+        "wins": 10022,
+        "n": 20000,
+        "win_rate": 0.5011,
+        "wilson_ci_95": {
+          "lower": 0.49417095179392384,
+          "upper": 0.5080286257267527
+        }
+      },
+      "SATWIKA_vs_RAJASIKA": {
+        "wins": 9090,
+        "n": 20000,
+        "win_rate": 0.4545,
+        "wilson_ci_95": {
+          "lower": 0.4476086269365591,
+          "upper": 0.46140884834454643
+        }
+      },
+      "SATWIKA_vs_TAMASIKA": {
+        "wins": 8620,
+        "n": 20000,
+        "win_rate": 0.431,
+        "wilson_ci_95": {
+          "lower": 0.4241506776512107,
+          "upper": 0.43787582332453173
+        }
+      },
+      "RAJASIKA_vs_SATWIKA": {
+        "wins": 10902,
+        "n": 20000,
+        "win_rate": 0.5451,
+        "wilson_ci_95": {
+          "lower": 0.5381907242898476,
+          "upper": 0.5519919540578919
+        }
+      },
+      "RAJASIKA_vs_RAJASIKA": {
+        "wins": 10141,
+        "n": 20000,
+        "win_rate": 0.50705,
+        "wilson_ci_95": {
+          "lower": 0.5001204810794251,
+          "upper": 0.5139768112121839
+        }
+      },
+      "RAJASIKA_vs_TAMASIKA": {
+        "wins": 9797,
+        "n": 20000,
+        "win_rate": 0.48985,
+        "wilson_ci_95": {
+          "lower": 0.4829245229634889,
+          "upper": 0.49677937536845
+        }
+      },
+      "TAMASIKA_vs_SATWIKA": {
+        "wins": 11316,
+        "n": 20000,
+        "win_rate": 0.5658,
+        "wilson_ci_95": {
+          "lower": 0.5589187596056476,
+          "upper": 0.572655968449369
+        }
+      },
+      "TAMASIKA_vs_RAJASIKA": {
+        "wins": 10230,
+        "n": 20000,
+        "win_rate": 0.5115,
+        "wilson_ci_95": {
+          "lower": 0.5045707704265282,
+          "upper": 0.5184248127441814
+        }
+      },
+      "TAMASIKA_vs_TAMASIKA": {
+        "wins": 9958,
+        "n": 20000,
+        "win_rate": 0.4979,
+        "wilson_ci_95": {
+          "lower": 0.49097161064570066,
+          "upper": 0.504829195905735
+        }
+      }
+    }
+  }
+}

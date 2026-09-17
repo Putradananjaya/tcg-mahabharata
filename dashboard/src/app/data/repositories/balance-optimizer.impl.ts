@@ -268,6 +268,11 @@ export class BalanceOptimizerImpl implements BalanceOptimizerService {
     this.firebase.saveCustomCard(faction, newCard);
   }
 
+  // NOTE: this is a scripted UI animation, not a real optimizer. It linearly interpolates
+  // the current params toward a hardcoded OPTIMAL_TARGET over a fixed number of steps and
+  // adds Math.random() jitter to the loss curve for visual effect. No GA is executed here —
+  // treat this as UI decoration, not a data source for paper claims (see CLAIMS_LEDGER.md).
+  // Real GA results: results/exp07_optimizer_ablation.json.
   runGAOptimization(): Observable<{ step: number, loss: number, params: ParamUpdate }> {
     let currentStep = 0;
     const maxSteps = 12;
@@ -294,7 +299,7 @@ export class BalanceOptimizerImpl implements BalanceOptimizerService {
 
         const result = { step: currentStep, loss: this.loss$.value, params: nextParams };
         if (currentStep === maxSteps) {
-          this.firebase.saveParameterState(nextParams, this.loss$.value, 'Genetic Algorithm');
+          this.firebase.saveParameterState(nextParams, this.loss$.value, 'Genetic Algorithm (Demo Animation — not a real optimizer run)');
         }
         currentStep++;
         return result;
@@ -302,6 +307,8 @@ export class BalanceOptimizerImpl implements BalanceOptimizerService {
     );
   }
 
+  // NOTE: same caveat as runGAOptimization() above — scripted interpolation + random jitter,
+  // not a real PSO run. Real PSO results: results/exp07_optimizer_ablation.json.
   runPSOOptimization(): Observable<{ step: number, loss: number, params: ParamUpdate }> {
     let currentStep = 0;
     const maxSteps = 10;
@@ -328,7 +335,7 @@ export class BalanceOptimizerImpl implements BalanceOptimizerService {
 
         const result = { step: currentStep, loss: this.loss$.value, params: nextParams };
         if (currentStep === maxSteps) {
-          this.firebase.saveParameterState(nextParams, this.loss$.value, 'Particle Swarm Optimization');
+          this.firebase.saveParameterState(nextParams, this.loss$.value, 'Particle Swarm Optimization (Demo Animation — not a real optimizer run)');
         }
         currentStep++;
         return result;

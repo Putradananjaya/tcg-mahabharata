@@ -1,6 +1,13 @@
 # Mahabharata TCG Research Dashboard (Angular CLI Edition)
 
-Dashboard interaktif ini dibangun menggunakan **Angular 18** dengan prinsip **Clean Architecture (Domain, Data, & Presentation Layer)** untuk memvisualisasikan seluruh pencapaian riset penyeimbangan faksi Mahabharata TCG.
+Dashboard interaktif ini dibangun menggunakan **Angular 18** dengan prinsip **Clean Architecture (Domain, Data, & Presentation Layer)**.
+
+> ⚠️ **Bukan sumber hasil paper.** App ini adalah demo/showcase UI terpisah dari pipeline riset di
+> `src/`/`experiments/`/`results/`. Battle simulator-nya reimplementasi TypeScript sendiri yang
+> mekaniknya berbeda dari engine Python (lihat `src/simulator/rules_spec.md` §4.4), dan panel
+> "GA/PSO Balancer" beserta chart di tab Analytics memakai data ilustratif/hardcoded, bukan hasil
+> komputasi nyata. Untuk klaim yang bisa dikutip di paper, selalu rujuk `CLAIMS_LEDGER.md` dan
+> file di `results/`/`figures/`, bukan angka yang tampil di dashboard ini.
 
 ---
 
@@ -41,7 +48,7 @@ Setelah server aktif, buka peramban Anda dan kunjungi:
 ---
 
 ## 📈 Fitur Utama Dashboard
-1. **Live Battle Simulator:** Simulator TCG interaktif dengan HP bar animasi, log pertempuran detail, dan mode *Auto-Play*.
-2. **Triangular Auto-Balancer Sliders:** Slider parameter yang memungkinkan penyetelan manual statistik kartu, dilengkapi tombol animasi simulasi komputasi GA & PSO.
-3. **Interactive Visual Analytics:** Menampilkan visualisasi kurva sensitivitas, kestabilan konvergen, power spikes faksi, dan hasil clustering arketipe K-Means menggunakan Chart.js.
+1. **Live Battle Simulator:** Simulator TCG interaktif (engine TS terpisah dari Python, lihat catatan di atas) dengan HP bar animasi, log pertempuran detail, dan mode *Auto-Play*.
+2. **Triangular Auto-Balancer Sliders:** Slider parameter untuk penyetelan manual statistik kartu, dilengkapi tombol **animasi demo** (bukan komputasi nyata) yang mengilustrasikan konvergensi GA & PSO.
+3. **Interactive Visual Analytics:** Chart ilustratif (data hardcoded, lihat `analytics.impl.ts`) untuk kurva sensitivitas, waktu komputasi, power spikes faksi, dan clustering arketipe — bukan output nyata dari `results/`.
 4. **Flow & Schema Diagram:** Penjelasan skema JSON/CSV dan alur komputasi data pipeline.

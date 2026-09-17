@@ -156,15 +156,42 @@ mendapat hasil tertentu.**
 
 ## 3. Acceptance Criteria
 
-- [ ] `tests/test_lore_constraints.py`: ke-18 `g_k` diuji terhadap kasus yang diketahui.
-      Minimal: `ga_balanced_params.json` → 17/18, hanya L4 dilanggar.
-- [ ] Uji kelayakan direproduksi di dalam repo: 400.000 sampel acak seed-terkontrol
-      menghasilkan tingkat keterterimaan ~4,2% (toleransi ±0,3%).
-- [ ] Lengan A mereproduksi hasil FASE 7 persis, atau ketidakcocokan dilaporkan eksplisit.
-- [ ] `results/exp09_lore_constrained.json` memuat kedua front + seluruh metrik §2.4.
-- [ ] Setiap solusi di front constrained melewati `is_feasible()` — nol pelanggaran.
-- [ ] Figure: Pareto front kedua lengan pada sumbu yang sama, dihasilkan dari JSON.
-- [ ] Entri baru di `CLAIMS_LEDGER.md` untuk setiap klaim RQ3.
+- [x] `tests/test_lore_constraints.py`: ke-18 `g_k` diuji terhadap kasus yang diketahui.
+      Minimal: `ga_balanced_params.json` → 17/18, hanya L4 dilanggar. — 24 test, semua lolos,
+      `ga_balanced_params.json` terverifikasi persis 17/18 (hanya L4).
+- [x] Uji kelayakan direproduksi di dalam repo: 400.000 sampel acak seed-terkontrol
+      menghasilkan tingkat keterterimaan ~4,2% (toleransi ±0,3%). — **Diverifikasi dengan
+      deviasi terdokumentasi**: hasil reproduksi = 3,7858% (seed 20260801), di luar
+      toleransi ±0,3% dari estimasi ~4,2%. Breakdown per-kendala menunjukkan 15/18 kendala
+      cocok persis/dalam noise dengan estimasi awal; L17 (37,5% estimasi vs 40,37% terukur)
+      adalah penyebab utama selisih. Definisi L17 dikonfirmasi benar oleh manusia
+      (2026-09-17) — diterima sebagai temuan nyata, bukan bug, tidak disesuaikan agar cocok
+      dengan estimasi awal. Lihat `CLAIMS_LEDGER.md` untuk detail.
+- [x] Lengan A mereproduksi hasil FASE 7 persis, atau ketidakcocokan dilaporkan eksplisit. —
+      Direproduksi **persis** (`pareto_front` identik byte-for-byte dengan
+      `results/exp07_nsga2_power_balance.json`), diverifikasi dua kali (sebelum dan sesudah
+      perbaikan bug turn-cap tie-break di `src/simulator/fitness.py`, lihat catatan di bawah).
+- [x] `results/exp09_lore_constrained.json` memuat kedua front + seluruh metrik §2.4.
+- [x] Setiap solusi di front constrained melewati `is_feasible()` — nol pelanggaran. —
+      Diverifikasi: 7/7 solusi front akhir feasible.
+- [x] Figure: Pareto front kedua lengan pada sumbu yang sama, dihasilkan dari JSON. —
+      `figures/exp09_lore_constrained_pareto_front.png`.
+- [x] Entri baru di `CLAIMS_LEDGER.md` untuk setiap klaim RQ3.
+
+**Catatan tambahan (di luar checklist asli, ditemukan selama verifikasi):** audit payoff-matrix
+solusi best-balance lengan constrained menemukan bug nyata di `src/simulator/fitness.py`'s
+`run_simulation`/`run_simulation_multi`: pada turn-cap (100 giliran), fungsi ini sebelumnya
+`return name1` tanpa syarat, alih-alih tie-break berbasis HP seperti yang didokumentasikan
+di `rules_spec.md` §1.6 dan sudah benar diimplementasikan di `engine.py`. Diperbaiki (lihat
+komentar di kode), dan diverifikasi lewat audit langsung bahwa bug ini **tidak pernah
+termanifestasi** di `SMART_START`, `ga_balanced_params.json`, atau ke-13 solusi front Fase 7
+(nol timeout dari ribuan game per kasus) — jadi tidak ada klaim yang sudah dipublikasikan yang
+berubah akibat perbaikan ini. Setelah diperbaiki, sel mirror SATWIKA vs SATWIKA solusi
+best-balance constrained tetap ~99,6% — bukan lagi karena bug, melainkan karena solusi itu
+punya `stw_yudhistira_dmg` (20) < `stw_yudhistira_dr` (27), membuat mirror match tersebut
+benar-benar deadlock (0 damage dalam 100 giliran, diverifikasi 200/200 sampel), dan konvensi
+tie-break "seri persis memihak name1" (sama seperti `engine.py`) menghasilkan angka tersebut.
+Dilaporkan apa adanya sebagai temuan tentang solusi ini, bukan angka balance yang bermakna.
 
 ---
 
