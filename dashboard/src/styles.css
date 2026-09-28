@@ -478,6 +478,23 @@ h3 { font-size: 14px; }
 .satwika-color { border-bottom-color: var(--primary-color); color: var(--primary-color); }
 .rajasika-color { border-bottom-color: var(--warning-color); color: var(--warning-color); }
 .tamasika-color { border-bottom-color: var(--secondary-color); color: var(--secondary-color); }
+.character-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.015);
+}
+.character-name {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary, #555);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
 .sliders-grid {
   display: flex;
   flex-direction: column;
@@ -501,6 +518,12 @@ h3 { font-size: 14px; }
   font-size: 12px;
   font-weight: 700;
   color: var(--primary-color);
+}
+.slider-desc {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted, #888);
+  line-height: 1.35;
 }
 
 /* ==========================================================================
@@ -1080,4 +1103,242 @@ h3 { font-size: 14px; }
   .analytics-grid {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ==========================================================================
+   Research Results page (/balancer): every number here is loaded from
+   results/*.json, see ResearchResultsService.
+   ========================================================================== */
+.research-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.research-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.research-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.research-section-head h3 {
+  margin: 0;
+}
+.research-source {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.research-error {
+  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.research-loading {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.research-caveat,
+.research-verdict {
+  font-size: 13px;
+  line-height: 1.5;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.research-caveat {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.research-verdict {
+  background: rgba(79, 70, 229, 0.05);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+.payoff-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+}
+.payoff-block h4 {
+  margin: 0;
+  font-size: 14px;
+}
+.payoff-caption {
+  margin: 2px 0 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.payoff-table,
+.research-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.payoff-table th,
+.payoff-table td,
+.research-table th,
+.research-table td {
+  border: 1px solid var(--border-color);
+  padding: 6px 8px;
+  text-align: center;
+}
+.payoff-table th,
+.research-table th {
+  background: rgba(15, 23, 42, 0.03);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.payoff-table td strong {
+  display: block;
+  font-size: 13px;
+}
+.ci {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.cell-even { background: rgba(16, 185, 129, 0.10); }
+.cell-mild { background: rgba(245, 158, 11, 0.12); }
+.cell-skewed { background: rgba(239, 68, 68, 0.12); }
+.mirror-cell { outline: 2px dashed rgba(15, 23, 42, 0.25); outline-offset: -3px; }
+.payoff-marginal {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+.payoff-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.legend-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+.research-table td:first-child {
+  text-align: left;
+}
+.best-row td {
+  background: rgba(79, 70, 229, 0.05);
+}
+.bar-col {
+  width: 38%;
+}
+.ci-track {
+  position: relative;
+  height: 10px;
+  background: rgba(15, 23, 42, 0.05);
+  border-radius: 5px;
+}
+.ci-range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: rgba(79, 70, 229, 0.35);
+  border-radius: 5px;
+}
+.ci-mean {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 16px;
+  margin-left: -1.5px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+.paired-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.paired-card {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.paired-card h4 {
+  margin: 0;
+  font-size: 14px;
+}
+.paired-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+.paired-stats {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.chart-title {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+.research-chart {
+  position: relative;
+  height: 360px;
+}
+@media (max-width: 640px) {
+  .research-table,
+  .payoff-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Game Simulator engine provenance note */
+.engine-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: rgba(79, 70, 229, 0.05);
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 16px;
+  line-height: 1.5;
+}
+.engine-note-error {
+  display: block;
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+/* Sandbox controls on Parameter Sliders */
+.sandbox-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.sandbox-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.slider-warning {
+  margin: 0;
+  font-size: 11px;
+  color: var(--warning-color);
+}
+.changed-val {
+  background: rgba(245, 158, 11, 0.15);
+  border-radius: 4px;
+  padding: 0 4px;
 }

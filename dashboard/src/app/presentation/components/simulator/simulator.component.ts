@@ -2,16 +2,20 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BattleSimulatorService } from '../../../core/usecases/battle-simulator.service';
-import { BalanceOptimizerService } from '../../../core/usecases/balance-optimizer.service';
+import { SandboxService } from '../../../core/usecases/sandbox.service';
+import { CardDef } from '../../../core/engine/research-engine';
+import { Faction } from '../../../core/engine/research-params';
 import { PlayerState, GameLog } from '../../../core/domain/match-state.model';
 import { SoundService } from '../../../core/services/sound.service';
 import { Subscription } from 'rxjs';
+import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component';
 
 @Component({
   selector: 'app-simulator',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SimulatorModeSwitchComponent],
   template: `
+    <app-simulator-mode-switch active="research"></app-simulator-mode-switch>
     <div class="arena-vertical-layout">
       <!-- 3D Coin Flip Overlay -->
       <div class="coin-flip-overlay" *ngIf="showCoinFlip">
@@ -69,22 +73,11 @@ import { Subscription } from 'rxjs';
           </div>
         </div>
 
-        <!-- AI Coach Overlay Widget -->
-        <div class="ai-coach-panel" *ngIf="isRunning && !winner" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); border-bottom: 1px solid var(--primary-color); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <div class="ai-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), var(--info-color)); display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 10px var(--primary-color);">🤖</div>
-            <div style="display: flex; flex-direction: column;">
-              <span style="color: #ffffff; font-size: 13px; font-weight: 700;">🎯 Saran Taktik Otomatis</span>
-              <span style="color: #94a3b8; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">AI Tactical Coach (Deep Q-Network)</span>
-              <span style="color: #ffffff; font-size: 12px; font-weight: 500;">
-                <span style="color: var(--success-color);">Rekomendasi Aksi:</span> {{ activePlayerIndex === 0 ? 'Gunakan Sabda Rahayu untuk heal bench' : 'Terus serang target aktif' }}
-              </span>
-            </div>
-          </div>
-          <div class="win-prob" style="display: flex; flex-direction: column; align-items: flex-end;">
-             <span style="color: #94a3b8; font-size: 12px; font-weight: 700;">PROYEKSI WIN-RATE</span>
-             <span style="color: var(--success-color); font-size: 14px; font-weight: 800;">{{ activePlayerIndex === 0 ? '68.5%' : '45.2%' }}</span>
-          </div>
+        <div class="engine-note">
+          Engine: port TypeScript dari engine riset Python (divalidasi terhadap <code>results/exp03_balance_matrix.json</code>,
+          lihat <code>npm run verify:engine</code>). Parameter kartu = parameter sandbox saat ini — ubah di halaman
+          <strong>Parameter Sliders</strong>. Serangan dipilih otomatis oleh engine (tidak ada keputusan pemain).
+          <span *ngIf="loadError" class="engine-note-error">Gagal memuat parameter riset: {{ loadError }}</span>
         </div>
 
         <!-- Material TCG Board Layout -->
@@ -99,6 +92,11 @@ import { Subscription } from 'rxjs';
                 <span class="md-badge" [ngClass]="p.key === 'Satwika' ? 'primary' : p.key === 'Tamasika' ? 'error' : p.key === 'Rajasika' ? 'warning' : 'outlined'" *ngFor="let p of p2State.prana | keyvalue" style="font-size: 12px; font-weight: 700; margin-left: 2px;">
                   {{ p.key }}: {{ p.value }}
                 </span>
+              </div>
+              <div class="prana-row" style="font-size: 11px; color: var(--text-muted);">
+                Sasmita (prize tersisa): <strong>{{ p2State.sasmita }}</strong> ·
+                Deck: <strong>{{ p2State.deckCount }}</strong> ·
+                Discard pile: <strong>{{ p2State.discardCount }}</strong>
               </div>
             </div>
             
@@ -134,13 +132,9 @@ import { Subscription } from 'rxjs';
                           <span style="color: var(--text-light)">🛡️ Pertahanan (DR):</span>
                           <strong>{{ card.damage_reduction || 0 }} HP</strong>
                         </div>
-                        <div style="display: flex; justify-content: space-between;">
-                          <span style="color: var(--text-light)">🏃 Retreat Cost:</span>
-                          <strong>{{ card.retreat_cost }} Prana</strong>
-                        </div>
                         
                         <!-- Attack / Skill details -->
-                        <div *ngIf="card.attacks && card.attacks[0] as atk" style="margin-top: 4px; padding: 4px 6px; background: rgba(0,0,0,0.02); border-radius: 4px; display: flex; flex-direction: column; gap: 2px;">
+                        <div *ngFor="let atk of card.attacks" style="margin-top: 4px; padding: 4px 6px; background: rgba(0,0,0,0.02); border-radius: 4px; display: flex; flex-direction: column; gap: 2px;">
                           <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-color); font-size: 12px;">
                             <span>⚔️ {{ atk.name }}</span>
                             <span>{{ atk.base_damage }} DMG</span>
@@ -149,8 +143,8 @@ import { Subscription } from 'rxjs';
                             <span>Syarat Prana:</span>
                             <strong style="color: var(--secondary-color);">{{ getPranaCostText(atk.prana_cost) }}</strong>
                           </div>
-                          <div *ngIf="getEffectDescription(atk, card.name)" style="font-size: 11px; color: var(--success-color); margin-top: 2px; font-style: italic; line-height: 1.2;">
-                            Efek: {{ getEffectDescription(atk, card.name) }}
+                          <div *ngIf="getEffectDescription(atk)" style="font-size: 11px; color: var(--success-color); margin-top: 2px; font-style: italic; line-height: 1.2;">
+                            Efek: {{ getEffectDescription(atk) }}
                           </div>
                         </div>
                       </div>
@@ -182,11 +176,7 @@ import { Subscription } from 'rxjs';
                               <span style="color: var(--text-light)">🛡️ DR:</span>
                               <strong>{{ card.damage_reduction || 0 }} HP</strong>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
-                              <span style="color: var(--text-light)">🏃 Retreat:</span>
-                              <strong>{{ card.retreat_cost }} Prana</strong>
-                            </div>
-                            <div *ngIf="card.attacks && card.attacks[0] as atk" style="margin-top: 3px; padding: 3px 5px; background: rgba(0,0,0,0.015); border-radius: 4px; display: flex; flex-direction: column; gap: 1px;">
+                            <div *ngFor="let atk of card.attacks" style="margin-top: 3px; padding: 3px 5px; background: rgba(0,0,0,0.015); border-radius: 4px; display: flex; flex-direction: column; gap: 1px;">
                               <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-color); font-size: 11px;">
                                 <span>⚔️ {{ atk.name }}</span>
                                 <span>{{ atk.base_damage }} DMG</span>
@@ -195,8 +185,8 @@ import { Subscription } from 'rxjs';
                                 <span>Prana:</span>
                                 <strong>{{ getPranaCostText(atk.prana_cost) }}</strong>
                               </div>
-                              <div *ngIf="getEffectDescription(atk, card.name)" style="font-size: 11px; color: var(--success-color); font-style: italic; line-height: 1.1;">
-                                {{ getEffectDescription(atk, card.name) }}
+                              <div *ngIf="getEffectDescription(atk)" style="font-size: 11px; color: var(--success-color); font-style: italic; line-height: 1.1;">
+                                {{ getEffectDescription(atk) }}
                               </div>
                             </div>
                           </div>
@@ -219,6 +209,11 @@ import { Subscription } from 'rxjs';
                 <span class="md-badge" [ngClass]="p.key === 'Satwika' ? 'primary' : p.key === 'Tamasika' ? 'error' : p.key === 'Rajasika' ? 'warning' : 'outlined'" *ngFor="let p of p1State.prana | keyvalue" style="font-size: 12px; font-weight: 700; margin-left: 2px;">
                   {{ p.key }}: {{ p.value }}
                 </span>
+              </div>
+              <div class="prana-row" style="font-size: 11px; color: var(--text-muted);">
+                Sasmita (prize tersisa): <strong>{{ p1State.sasmita }}</strong> ·
+                Deck: <strong>{{ p1State.deckCount }}</strong> ·
+                Discard pile: <strong>{{ p1State.discardCount }}</strong>
               </div>
             </div>
             
@@ -254,13 +249,9 @@ import { Subscription } from 'rxjs';
                           <span style="color: var(--text-light)">🛡️ Pertahanan (DR):</span>
                           <strong>{{ card.damage_reduction || 0 }} HP</strong>
                         </div>
-                        <div style="display: flex; justify-content: space-between;">
-                          <span style="color: var(--text-light)">🏃 Retreat Cost:</span>
-                          <strong>{{ card.retreat_cost }} Prana</strong>
-                        </div>
                         
                         <!-- Attack / Skill details -->
-                        <div *ngIf="card.attacks && card.attacks[0] as atk" style="margin-top: 4px; padding: 4px 6px; background: rgba(0,0,0,0.02); border-radius: 4px; display: flex; flex-direction: column; gap: 2px;">
+                        <div *ngFor="let atk of card.attacks" style="margin-top: 4px; padding: 4px 6px; background: rgba(0,0,0,0.02); border-radius: 4px; display: flex; flex-direction: column; gap: 2px;">
                           <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-color); font-size: 12px;">
                             <span>⚔️ {{ atk.name }}</span>
                             <span>{{ atk.base_damage }} DMG</span>
@@ -269,8 +260,8 @@ import { Subscription } from 'rxjs';
                             <span>Syarat Prana:</span>
                             <strong style="color: var(--secondary-color);">{{ getPranaCostText(atk.prana_cost) }}</strong>
                           </div>
-                          <div *ngIf="getEffectDescription(atk, card.name)" style="font-size: 11px; color: var(--success-color); margin-top: 2px; font-style: italic; line-height: 1.2;">
-                            Efek: {{ getEffectDescription(atk, card.name) }}
+                          <div *ngIf="getEffectDescription(atk)" style="font-size: 11px; color: var(--success-color); margin-top: 2px; font-style: italic; line-height: 1.2;">
+                            Efek: {{ getEffectDescription(atk) }}
                           </div>
                         </div>
                       </div>
@@ -302,11 +293,7 @@ import { Subscription } from 'rxjs';
                               <span style="color: var(--text-light)">🛡️ DR:</span>
                               <strong>{{ card.damage_reduction || 0 }} HP</strong>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
-                              <span style="color: var(--text-light)">🏃 Retreat:</span>
-                              <strong>{{ card.retreat_cost }} Prana</strong>
-                            </div>
-                            <div *ngIf="card.attacks && card.attacks[0] as atk" style="margin-top: 3px; padding: 3px 5px; background: rgba(0,0,0,0.015); border-radius: 4px; display: flex; flex-direction: column; gap: 1px;">
+                            <div *ngFor="let atk of card.attacks" style="margin-top: 3px; padding: 3px 5px; background: rgba(0,0,0,0.015); border-radius: 4px; display: flex; flex-direction: column; gap: 1px;">
                               <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--primary-color); font-size: 11px;">
                                 <span>⚔️ {{ atk.name }}</span>
                                 <span>{{ atk.base_damage }} DMG</span>
@@ -315,8 +302,8 @@ import { Subscription } from 'rxjs';
                                 <span>Prana:</span>
                                 <strong>{{ getPranaCostText(atk.prana_cost) }}</strong>
                               </div>
-                              <div *ngIf="getEffectDescription(atk, card.name)" style="font-size: 11px; color: var(--success-color); font-style: italic; line-height: 1.1;">
-                                {{ getEffectDescription(atk, card.name) }}
+                              <div *ngIf="getEffectDescription(atk)" style="font-size: 11px; color: var(--success-color); font-style: italic; line-height: 1.1;">
+                                {{ getEffectDescription(atk) }}
                               </div>
                             </div>
                           </div>
@@ -380,27 +367,27 @@ import { Subscription } from 'rxjs';
           <div *ngIf="activeTab === 'glossary'" class="glossary-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
             <div class="glossary-item">
               <strong style="color: var(--primary-color);">🛡️ SATWIKA (Pandawa)</strong>
-              <p>Sifat kebaikan & kedamaian. Cenderung berfokus pada kemampuan bertahan (Damage Reduction) dan memulihkan HP cadangan di bench (Heal Bench).</p>
+              <p>Sifat kebaikan & kedamaian. Yudhistira punya Damage Reduction (mengurangi damage yang diterima); Arjuna mendapat bonus damage dari jumlah Bench. Efek heal Sabda Rahayu ada di data kartu, tapi di engine ini <b>tidak pernah memulihkan apa pun</b> — karakter di Bench tidak pernah terluka.</p>
             </div>
             <div class="glossary-item">
               <strong style="color: var(--warning-color);">⚔️ RAJASIKA (Aggro/Rajas)</strong>
-              <p>Sifat aksi, agresi & nafsu. Memiliki damage serangan yang sangat tinggi namun memiliki efek timbal-balik berupa Recoil Damage.</p>
+              <p>Sifat aksi, agresi & nafsu. Serangan Karna kuat tapi ia terkena Recoil Damage sendiri setiap menyerang — kalau recoil membuatnya gugur, lawan yang mendapat prize.</p>
             </div>
             <div class="glossary-item">
               <strong style="color: var(--danger-color);">☠️ TAMASIKA (Kurawa/Tamas)</strong>
-              <p>Sifat kegelapan & kelambatan. Menggunakan taktik pengikisan dek lawan (Mill) dan meningkatkan damage berdasarkan kartu mati di Makam.</p>
+              <p>Sifat kegelapan & kelambatan. Sengkuni membuang kartu deck lawan (Mill); Angkara Duryodana mendapat bonus damage per kartu di discard pile lawan.</p>
             </div>
             <div class="glossary-item">
               <strong>💠 Sasmita (Prize Cards)</strong>
-              <p>Hitungan prize card faksi (mulai dari 3, bukan nyawa tim). Setiap kali kamu berhasil membuat karakter aktif lawan gugur, Sasmita milikmu berkurang 1. Sasmita mencapai 0 = Menang.</p>
+              <p>Hitungan prize faksi (mulai dari 3, bukan nyawa tim). Setiap kali karakter aktif lawan gugur, Sasmita milikmu berkurang 1. Menang jika Sasmita-mu mencapai 0, atau jika lawan tidak punya cadangan di Bench saat karakter aktifnya gugur. Kalau sampai 100 giliran belum ada pemenang, yang HP karakter aktifnya lebih tinggi menang.</p>
             </div>
             <div class="glossary-item">
               <strong>🧪 Prana (Energi)</strong>
-              <p>Sumber daya energi faksi yang bertambah 1 setiap kali giliran dimulai. Digunakan untuk mengisi prana syarat meluncurkan serangan.</p>
+              <p>Di awal tiap giliran, +1 Prana sesuai tipe karakter aktif. Prana yang belum terpakai tetap tersimpan untuk giliran berikutnya, dan dipakai untuk membayar biaya serangan.</p>
             </div>
             <div class="glossary-item">
               <strong>🪦 Makam (Discard Pile)</strong>
-              <p>Area pembuangan untuk kartu yang gugur atau terbuang (milled). Paling krusial untuk memperkuat serangan Angkara Duryodana.</p>
+              <p>Hanya berisi kartu deck yang dibuang oleh efek Mill (karakter yang gugur tidak masuk ke sini). Makin banyak isinya, makin besar bonus Angkara Duryodana.</p>
             </div>
           </div>
 
@@ -408,19 +395,19 @@ import { Subscription } from 'rxjs';
           <div *ngIf="activeTab === 'flow'" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 4px; font-size: 11px;">
             <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
               <strong>1. Fase Prana (Resource Phase)</strong>
-              <p style="margin-top: 4px;">Di awal giliran giliran, pemain aktif secara otomatis memperoleh +1 Prana faksi. Prana diakumulasikan untuk membayar syarat jurus/senjata.</p>
+              <p style="margin-top: 4px;">Pemain yang sedang jalan memperoleh +1 Prana sesuai tipe karakter aktifnya. Prana menumpuk sampai dipakai.</p>
             </div>
             <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
               <strong>2. Fase Aksi & Serang (Combat Phase)</strong>
-              <p style="margin-top: 4px;">Karakter aktif menyerang karakter aktif lawan dengan jurusnya. Nilai serangan dikurangi dengan DR (Damage Reduction) musuh.</p>
+              <p style="margin-top: 4px;">Engine memilih serangan dengan damage tertinggi. Kalau Prana belum cukup, karakter menunggu — kecuali HP-nya ≤ 40%, maka ia memakai serangan terkuat yang terjangkau. Damage dikurangi DR (Damage Reduction) lawan.</p>
             </div>
             <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
               <strong>3. Fase Efek Senjata (Effect Phase)</strong>
-              <p style="margin-top: 4px;">Setelah damage bersih dihitung, efek khusus senjata dipicu: pemulihan bench (Heal), pembuangan dek lawan (Mill), lifesteal, atau recoil damage.</p>
+              <p style="margin-top: 4px;">Setelah damage diterapkan, efek serangan dipicu: Mill (buang kartu deck lawan), Recoil (penyerang terluka sendiri), atau Heal Bench (selalu 0 di engine ini).</p>
             </div>
             <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
               <strong>4. Fase Eliminasi & Sasmita (Victory Check)</strong>
-              <p style="margin-top: 4px;">Jika HP karakter aktif menyentuh 0, ia gugur. Faksi lawan (yang menjatuhkannya) meng-klaim 1 prize — Sasmita mereka berkurang 1. Karakter cadangan dikirim ke arena aktif. Giliran selesai.</p>
+              <p style="margin-top: 4px;">Jika HP karakter aktif ≤ 0, ia gugur dan faksi yang menjatuhkannya mengklaim 1 prize (Sasmita −1). Karakter pertama di Bench maju. Tidak ada retreat di engine ini.</p>
             </div>
           </div>
         </div>
@@ -454,13 +441,15 @@ export class SimulatorComponent implements OnInit, OnDestroy {
 
   private subs: Subscription[] = [];
 
-  getCardDetails(name: string): any {
-    const all = [
-      ...this.optimizer.getDeckByFaction('SATWIKA'),
-      ...this.optimizer.getDeckByFaction('RAJASIKA'),
-      ...this.optimizer.getDeckByFaction('TAMASIKA')
-    ];
-    return all.find(c => c.name === name) || null;
+  loadError: string | null = null;
+  private readonly factions: Faction[] = ['SATWIKA', 'RAJASIKA', 'TAMASIKA'];
+
+  getCardDetails(name: string): CardDef | null {
+    for (const faction of this.factions) {
+      const card = this.sandbox.getDeck(faction)?.cards.find(c => c.name === name);
+      if (card) return card;
+    }
+    return null;
   }
 
   getPranaCostText(pranaCost: { [key: string]: number }): string {
@@ -468,31 +457,27 @@ export class SimulatorComponent implements OnInit, OnDestroy {
     return Object.entries(pranaCost).map(([k, v]) => `${v} ${k[0]}`).join(', ');
   }
 
-  getEffectDescription(atk: any, cardName?: string): string {
-    if (cardName === 'Raden Arjuna') {
-      const scale = atk.scale_value !== undefined ? atk.scale_value : 20;
-      return `DMG +${scale} per Cadangan (Bench)`;
+  // Mirrors what research-engine.ts actually does with each field, not what the name suggests.
+  getEffectDescription(atk: any): string {
+    const parts: string[] = [];
+    if (atk?.bench_scaling) parts.push('DMG +5 per karakter di Bench sendiri (maks +15)');
+    const val = atk?.value ?? 0;
+    switch (atk?.effect) {
+      case 'scaled_damage_per_discard_tamasika': parts.push(`DMG +${atk.scale_value ?? 0} per kartu di discard pile lawan`); break;
+      case 'mill_enemy_deck': parts.push(`Buang ${val} kartu teratas deck lawan`); break;
+      case 'recoil_damage': parts.push(`Penyerang terkena ${val} recoil damage`); break;
+      case 'heal_bench_card': parts.push(`Heal ${val} HP ke Bench — selalu 0 di engine ini (Bench tak pernah terluka)`); break;
+      case undefined: case null: case '': break;
+      default: parts.push(`${atk.effect} (tidak dikenal engine, tidak berefek)`);
     }
-    if (cardName === 'Duryodana') {
-      const scale = atk.scale_value !== undefined ? atk.scale_value : 5;
-      return `DMG +${scale} per Kartu di Makam musuh`;
-    }
-    if (!atk || !atk.effect) return '';
-    const val = atk.value !== undefined ? atk.value : '';
-    switch (atk.effect) {
-      case 'heal_bench': return `Pulihkan ${val} HP Bench terluka`;
-      case 'mill': return `Buang ${val} kartu teratas dek lawan`;
-      case 'lifesteal': return `Lifesteal 50% damage bersih`;
-      case 'poison_recoil': return `Diri sendiri terkena recoil ${val}% damage`;
-      default: return atk.effect;
-    }
+    return parts.join(' · ');
   }
 
   @ViewChild('logContainer') private logContainer!: ElementRef;
 
   constructor(
     private simulator: BattleSimulatorService,
-    private optimizer: BalanceOptimizerService,
+    private sandbox: SandboxService,
     private soundService: SoundService
   ) {
     this.soundService.init();
@@ -518,7 +503,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
         }
       }),
       this.simulator.getActivePhase().subscribe((phase: any) => this.activePhase = phase),
-      this.simulator.getActivePlayerIndex().subscribe((idx: number) => this.activePlayerIndex = idx)
+      this.simulator.getActivePlayerIndex().subscribe((idx: number) => this.activePlayerIndex = idx),
+      this.sandbox.getLoadError().subscribe((err) => this.loadError = err)
     );
   }
 
@@ -613,9 +599,10 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   startNewGame() {
     this.soundService.init();
     this.stopAutoPlay();
-    const p1Deck = this.optimizer.getDeckByFaction(this.p1FactionSelect);
-    const p2Deck = this.optimizer.getDeckByFaction(this.p2FactionSelect);
-    this.simulator.startSimulation(p1Deck, p2Deck);
+    const p1Deck = this.sandbox.getDeck(this.p1FactionSelect);
+    const p2Deck = this.sandbox.getDeck(this.p2FactionSelect);
+    if (!p1Deck || !p2Deck) return;
+    this.simulator.startSimulation(p1Deck, p2Deck, this.p1FactionSelect, this.p2FactionSelect);
 
     // Trigger visual coin toss
     this.showCoinFlip = true;

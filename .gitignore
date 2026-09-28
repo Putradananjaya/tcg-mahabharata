@@ -4,5 +4,6 @@ venv/
 node_modules/
 dashboard/dist/
 dashboard/.angular/
+dashboard/.engine-build/
 dashboard/firebase-debug.log
 .DS_Store

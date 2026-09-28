@@ -2,28 +2,24 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { BattleSimulatorService } from '../../core/usecases/battle-simulator.service';
 import { PlayerState, GameLog, CharacterState } from '../../core/domain/match-state.model';
-import { Card } from '../../core/domain/card.model';
+import { CardInstance, FactionDeck, Match, PlayerSim, TURN_CAP } from '../../core/engine/research-engine';
 
-@Injectable({
-  providedIn: 'root'
-})
+type Phase = 'PRANA' | 'ATTACK' | 'EFFECT' | 'EVALUATION';
+
+const EMPTY_STATE: PlayerState = {
+  name: '-', activeCharacter: null, bench: [], prana: {}, sasmita: 3, deckCount: 0, discardCount: 0,
+};
+
+/**
+ * Step-by-step view of one research-engine Match. Each "Next Step" runs one
+ * of the four sub-steps of a player's turn (prana, attack, effect,
+ * knockouts) in the same order as Player.attack(), so the outcome is exactly
+ * what a batch run of the same match would produce.
+ */
+@Injectable({ providedIn: 'root' })
 export class BattleSimulatorImpl implements BattleSimulatorService {
-  private p1State$ = new BehaviorSubject<PlayerState>({
-    name: 'PANDAWA (Satwika)',
-    activeCharacter: null,
-    bench: [],
-    prana: {},
-    sasmita: 3
-  });
-
-  private p2State$ = new BehaviorSubject<PlayerState>({
-    name: 'KURAWA (Tamasika)',
-    activeCharacter: null,
-    bench: [],
-    prana: {},
-    sasmita: 3
-  });
-
+  private p1State$ = new BehaviorSubject<PlayerState>(EMPTY_STATE);
+  private p2State$ = new BehaviorSubject<PlayerState>(EMPTY_STATE);
   private logs$ = new BehaviorSubject<GameLog[]>([]);
   private winner$ = new BehaviorSubject<string | null>(null);
   private isRunning$ = new BehaviorSubject<boolean>(false);
@@ -31,96 +27,8 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
   private activePhase$ = new BehaviorSubject<string>('PRANA');
   private activePlayerIndex$ = new BehaviorSubject<number>(0);
 
-  private currentPhase: 'PRANA' | 'ATTACK' | 'EFFECT' | 'EVALUATION' = 'PRANA';
-  private pendingAttack: {
-    attacker: CharacterState;
-    defender: CharacterState;
-    isP1: boolean;
-    netDmg: number;
-    attack: any;
-  } | null = null;
-
-  private turn = 1;
-  private p1Deck: Card[] = [];
-  private p2Deck: Card[] = [];
-  private p1Active: CharacterState | null = null;
-  private p2Active: CharacterState | null = null;
-  private p1Bench: CharacterState[] = [];
-  private p2Bench: CharacterState[] = [];
-  private p1Sasmita = 3;
-  private p2Sasmita = 3;
-  private p1Prana: { [key: string]: number } = {};
-  private p2Prana: { [key: string]: number } = {};
-  private activePlayerIndex = 0; // 0 for p1, 1 for p2
-  private p1DiscardCount = 0;
-  private p2DiscardCount = 0;
-
-  private getFactionName(deck: Card[]): string {
-    if (!deck || deck.length === 0) return 'UNKNOWN';
-    const id = deck[0].id;
-    if (id.startsWith('stw_')) return 'SATWIKA';
-    if (id.startsWith('rjs_')) return 'RAJASIKA';
-    if (id.startsWith('tms_')) return 'TAMASIKA';
-    return 'MIXED';
-  }
-
-  startSimulation(p1Deck: Card[], p2Deck: Card[]): void {
-    this.p1Deck = p1Deck;
-    this.p2Deck = p2Deck;
-    this.turn = 1;
-    this.p1Sasmita = 3;
-    this.p2Sasmita = 3;
-    this.p1Prana = { 'Satwika': 0, 'Universal': 0 };
-    this.p2Prana = { 'Tamasika': 0, 'Universal': 0 };
-    this.winner$.next(null);
-    this.logs$.next([]);
-    this.turnCount$.next(1);
-    this.currentPhase = 'PRANA';
-    this.activePhase$.next('PRANA');
-    this.pendingAttack = null;
-    this.activePlayerIndex = Math.random() < 0.5 ? 0 : 1;
-    this.activePlayerIndex$.next(this.activePlayerIndex);
-    this.p1DiscardCount = 0;
-    this.p2DiscardCount = 0;
-
-    if (p1Deck && p1Deck.length > 0) {
-      this.p1Active = {
-        name: p1Deck[0].name,
-        maxHp: p1Deck[0].hp,
-        currentHp: p1Deck[0].hp
-      };
-      this.p1Bench = p1Deck.slice(1).map(c => ({
-        name: c.name,
-        maxHp: c.hp,
-        currentHp: c.hp
-      }));
-    } else {
-      this.p1Active = null;
-      this.p1Bench = [];
-    }
-
-    if (p2Deck && p2Deck.length > 0) {
-      this.p2Active = {
-        name: p2Deck[0].name,
-        maxHp: p2Deck[0].hp,
-        currentHp: p2Deck[0].hp
-      };
-      this.p2Bench = p2Deck.slice(1).map(c => ({
-        name: c.name,
-        maxHp: c.hp,
-        currentHp: c.hp
-      }));
-    } else {
-      this.p2Active = null;
-      this.p2Bench = [];
-    }
-
-    this.addLog(`=== MEMULAI PERTANDINGAN TCG MAHABHARATA ===`, 'info');
-    this.addLog(`Lempar Koin: Player ${this.activePlayerIndex === 0 ? 'Pandawa' : 'Kurawa'} jalan pertama.`, 'info');
-
-    this.updateStates();
-    this.isRunning$.next(true);
-  }
+  private match: Match | null = null;
+  private phase: Phase = 'PRANA';
 
   getPlayer1State(): Observable<PlayerState> { return this.p1State$.asObservable(); }
   getPlayer2State(): Observable<PlayerState> { return this.p2State$.asObservable(); }
@@ -131,349 +39,126 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
   getActivePhase(): Observable<string> { return this.activePhase$.asObservable(); }
   getActivePlayerIndex(): Observable<number> { return this.activePlayerIndex$.asObservable(); }
 
+  startSimulation(deck1: FactionDeck, deck2: FactionDeck, name1: string, name2: string): void {
+    const [label1, label2] = name1 === name2 ? [`${name1} (P1)`, `${name2} (P2)`] : [name1, name2];
+    this.match = new Match(deck1, deck2, label1, label2, Math.random);
+    this.phase = 'PRANA';
+    this.logs$.next([]);
+    this.winner$.next(null);
+
+    const first = this.match.order[0];
+    this.addLog(`=== PERTANDINGAN DIMULAI (engine riset, batas ${TURN_CAP} giliran) ===`, 'info');
+    for (const p of this.match.players) {
+      this.addLog(`${p.name}: aktif ${p.active?.name ?? '-'}, bench ${p.bench.length} kartu (${this.benchSummary(p)}), deck tersisa ${p.deck.length}.`, 'info');
+    }
+    this.addLog(`Lempar koin: ${first.name} jalan duluan di setiap giliran.`, 'info');
+
+    this.activePhase$.next('PRANA');
+    this.isRunning$.next(true);
+    this.publish();
+  }
+
   stepSimulation(): boolean {
-    if (this.winner$.value || !this.isRunning$.value) return false;
+    const match = this.match;
+    if (!match || match.finished) return false;
+    const actor = match.actor;
 
-    const isP1Turn = this.activePlayerIndex === 0;
-    const attackerName = isP1Turn ? this.getFactionName(this.p1Deck) : this.getFactionName(this.p2Deck);
-    const attackerActive = isP1Turn ? this.p1Active : this.p2Active;
-    const defenderActive = isP1Turn ? this.p2Active : this.p1Active;
-    const attackerPrana = isP1Turn ? this.p1Prana : this.p2Prana;
-
-    if (!attackerActive || !defenderActive) return false;
-
-    if (this.currentPhase === 'PRANA') {
-      this.addLog(`--- TURN ${this.turn} | GILIRAN ${attackerName} ---`, 'info');
-
-      // 1. Resource Phase
-      const factionPrana = isP1Turn ? 'Satwika' : 'Tamasika';
-      attackerPrana[factionPrana] = (attackerPrana[factionPrana] || 0) + 1;
-      this.addLog(`[FASE PRANA] Menambahkan +1 Prana ${factionPrana} ke ${attackerActive.name} (Total: ${attackerPrana[factionPrana]}).`, 'action');
-
-      this.currentPhase = 'ATTACK';
-      this.activePhase$.next('ATTACK');
-
-    } else if (this.currentPhase === 'ATTACK') {
-      // 2. Attack Phase
-      this.addLog(`[FASE MENYERANG] ${attackerActive.name} bersiap menyerang ${defenderActive.name}.`, 'action');
-      this.executeAttackDamage(attackerActive, defenderActive, isP1Turn);
-
-      this.currentPhase = 'EFFECT';
-      this.activePhase$.next('EFFECT');
-
-    } else if (this.currentPhase === 'EFFECT') {
-      // 3. Effect Phase
-      this.addLog(`[FASE EFEK] Memicu kemampuan pasif/senjata tokoh...`, 'action');
-      this.executeAttackEffect();
-
-      this.currentPhase = 'EVALUATION';
-      this.activePhase$.next('EVALUATION');
-
-    } else if (this.currentPhase === 'EVALUATION') {
-      // 4. Evaluation / End Phase
-      this.addLog(`[FASE EVALUASI] Memeriksa status kesehatan karakter di arena...`, 'info');
-      this.checkKnockouts();
-
-      // Clean up
-      this.pendingAttack = null;
-
-      // Switch Turns
-      this.activePlayerIndex = 1 - this.activePlayerIndex;
-      this.activePlayerIndex$.next(this.activePlayerIndex);
-      this.turn++;
-      this.turnCount$.next(this.turn);
-
-      this.currentPhase = 'PRANA';
-      this.activePhase$.next('PRANA');
-
-      if (this.turn > 9999 && !this.winner$.value) {
-        const hp1 = this.p1Active?.currentHp || 0;
-        const hp2 = this.p2Active?.currentHp || 0;
-        const finalWinner = hp1 >= hp2 ? this.getFactionName(this.p1Deck) : this.getFactionName(this.p2Deck);
-        this.winner$.next(finalWinner);
-        this.isRunning$.next(false);
-        this.addLog(`=== PERTANDINGAN BERAKHIR: TURN LIMIT. Pemenang: ${finalWinner} ===`, 'info');
-      }
-    }
-
-    this.updateStates();
-    return !this.winner$.value;
-  }
-
-  runBatchSimulation(p1Deck: Card[], p2Deck: Card[], matchCount: number): { p1Wins: number, p2Wins: number, draws: number, avgTurns: number } {
-    let p1Wins = 0;
-    let p2Wins = 0;
-    let draws = 0;
-    let totalTurns = 0;
-
-    const p1Name = this.getFactionName(p1Deck);
-    const p2Name = this.getFactionName(p2Deck);
-
-    for (let i = 0; i < matchCount; i++) {
-      let turn = 1;
-      let p1Sasmita = 3;
-      let p2Sasmita = 3;
-
-      const p1Active = { name: p1Deck[0].name, maxHp: p1Deck[0].hp, currentHp: p1Deck[0].hp };
-      const p1Bench = p1Deck.slice(1).map(c => ({ name: c.name, maxHp: c.hp, currentHp: c.hp }));
-      const p2Active = { name: p2Deck[0].name, maxHp: p2Deck[0].hp, currentHp: p2Deck[0].hp };
-      const p2Bench = p2Deck.slice(1).map(c => ({ name: c.name, maxHp: c.hp, currentHp: c.hp }));
-
-      let activePlayerIndex = Math.random() < 0.5 ? 0 : 1;
-      let p1DiscardCount = 0;
-      let p2DiscardCount = 0;
-      let winner: string | null = null;
-
-      while (turn <= 9999 && !winner) {
-        const isP1Turn = activePlayerIndex === 0;
-        const attacker = isP1Turn ? p1Active : p2Active;
-        const defender = isP1Turn ? p2Active : p1Active;
-        const attackerBench = isP1Turn ? p1Bench : p2Bench;
-
-        const card = (isP1Turn ? p1Deck : p2Deck).find(c => c.name === attacker.name);
-        if (card) {
-          const attack = card.attacks[0] || { name: 'Serang', base_damage: 30 };
-
-          // Introduce +/- 10% RNG variance so the 1000 batch matches aren't completely deterministic clones
-          const variance = 0.9 + (Math.random() * 0.2);
-          let dmg = Math.round(attack.base_damage * variance);
-
-          const cardDef = (isP1Turn ? p2Deck : p1Deck).find(c => c.name === defender.name);
-          const attackerBench = isP1Turn ? p1Bench : p2Bench;
-          const defenderDiscard = isP1Turn ? p2DiscardCount : p1DiscardCount;
-
-          if (attacker.name === 'Raden Arjuna') {
-            const scale = attack.scale_value !== undefined ? attack.scale_value : 20;
-            dmg = Math.round((attack.base_damage + (attackerBench.length * scale)) * variance);
-          } else if (attacker.name === 'Duryodana') {
-            const scale = attack.scale_value !== undefined ? attack.scale_value : 5;
-            dmg = Math.round((attack.base_damage + (defenderDiscard * scale)) * variance);
-          }
-
-          const dr = cardDef?.damage_reduction || 0;
-          const netDmg = Math.max(0, dmg - dr);
-          defender.currentHp -= netDmg;
-
-          if (attack.effect === 'heal_bench') {
-            const wounded = attackerBench.find(c => c.currentHp < c.maxHp);
-            const val = attack.value !== undefined ? attack.value : 25;
-            if (wounded) {
-              wounded.currentHp = Math.min(wounded.maxHp, wounded.currentHp + val);
-            }
-          } else if (attack.effect === 'mill') {
-            const val = attack.value !== undefined ? attack.value : 2;
-            if (isP1Turn) {
-              p2DiscardCount += val;
-            } else {
-              p1DiscardCount += val;
-            }
-          } else if (attack.effect === 'lifesteal') {
-            const heal = Math.floor(netDmg * 0.5);
-            attacker.currentHp = Math.min(attacker.maxHp, attacker.currentHp + heal);
-          } else if (attack.effect === 'poison_recoil') {
-            const recoilPct = attack.value !== undefined ? attack.value : 20;
-            const recoil = Math.floor(netDmg * (recoilPct / 100));
-            attacker.currentHp -= recoil;
-          }
-        }
-
-        if (p1Active.currentHp <= 0) {
-          p2Sasmita--;
-          if (p2Sasmita <= 0 || p1Bench.length === 0) {
-            winner = p2Name;
-          } else {
-            const next = p1Bench.shift()!;
-            p1Active.name = next.name;
-            p1Active.maxHp = next.maxHp;
-            p1Active.currentHp = next.currentHp;
-          }
-        }
-
-        if (p2Active.currentHp <= 0 && !winner) {
-          p1Sasmita--;
-          if (p1Sasmita <= 0 || p2Bench.length === 0) {
-            winner = p1Name;
-          } else {
-            const next = p2Bench.shift()!;
-            p2Active.name = next.name;
-            p2Active.maxHp = next.maxHp;
-            p2Active.currentHp = next.currentHp;
-          }
-        }
-
-        activePlayerIndex = 1 - activePlayerIndex;
-        turn++;
-      }
-
-      totalTurns += turn;
-      if (winner === p1Name) {
-        p1Wins++;
-      } else if (winner === p2Name) {
-        p2Wins++;
+    if (this.phase === 'PRANA') {
+      this.addLog(`--- GILIRAN ${match.turn} | ${actor.name} ---`, 'info');
+      const type = match.stepPrana();
+      if (type) {
+        this.addLog(`[FASE PRANA] +1 Prana ${type} untuk ${actor.active?.name} (pool: ${this.poolText(actor)}).`, 'action');
       } else {
-        const hp1 = p1Active.currentHp;
-        const hp2 = p2Active.currentHp;
-        if (hp1 >= hp2) {
-          p1Wins++;
-        } else {
-          p2Wins++;
-        }
+        this.addLog(`[FASE PRANA] Tidak ada karakter aktif, tidak ada Prana.`, 'info');
       }
-    }
-
-    return {
-      p1Wins,
-      p2Wins,
-      draws,
-      avgTurns: Math.round(totalTurns / matchCount)
-    };
-  }
-
-  private executeAttackDamage(attacker: CharacterState, defender: CharacterState, isP1: boolean) {
-    const deck = isP1 ? this.p1Deck : this.p2Deck;
-    const card = deck.find(c => c.name === attacker.name);
-    if (!card) return;
-
-    const attack = card.attacks[0] || { name: 'Serang', base_damage: 30 };
-    let dmg = attack.base_damage;
-
-    const cardDef = (isP1 ? this.p2Deck : this.p1Deck).find(c => c.name === defender.name);
-    const attackerBench = isP1 ? this.p1Bench : this.p2Bench;
-    const defenderDiscard = isP1 ? this.p2DiscardCount : this.p1DiscardCount;
-
-    if (attacker.name === 'Raden Arjuna') {
-      const scale = attack.scale_value !== undefined ? attack.scale_value : 20;
-      dmg = attack.base_damage + (attackerBench.length * scale);
-      this.addLog(`  * Penskalaan Arjuna: +${attackerBench.length * scale} DMG (Bench: ${attackerBench.length} kartu).`, 'action');
-    } else if (attacker.name === 'Duryodana') {
-      const scale = attack.scale_value !== undefined ? attack.scale_value : 5;
-      dmg = attack.base_damage + (defenderDiscard * scale);
-      this.addLog(`  * Penskalaan Duryodana: +${defenderDiscard * scale} DMG (Makam musuh: ${defenderDiscard} kartu).`, 'action');
-    }
-
-    const dr = cardDef?.damage_reduction || 0;
-    const netDmg = Math.max(0, dmg - dr);
-    defender.currentHp -= netDmg;
-
-    this.addLog(`  * Melancarkan jurus '${attack.name}' (Base: ${attack.base_damage} DMG).`, 'action');
-    if (dr > 0) {
-      this.addLog(`  * Pertahanan ${defender.name}: Mengurangi damage sebesar ${dr} HP (Damage Reduction).`, 'heal');
-    }
-    this.addLog(`  * Damage Bersih: ${netDmg} HP dikurangi dari ${defender.name} (Sisa HP: ${defender.currentHp}).`, 'damage');
-
-    // Store computed details for the next phase (EFFECT)
-    this.pendingAttack = {
-      attacker,
-      defender,
-      isP1,
-      netDmg,
-      attack
-    };
-  }
-
-  private executeAttackEffect() {
-    if (!this.pendingAttack) {
-      this.addLog(`  * Tidak ada efek jurus terdeteksi.`, 'info');
-      return;
-    }
-
-    const { attacker, defender, isP1, netDmg, attack } = this.pendingAttack;
-    const attackerBench = isP1 ? this.p1Bench : this.p2Bench;
-
-    if (attack.effect === 'heal_bench') {
-      const wounded = attackerBench.find(c => c.currentHp < c.maxHp);
-      const val = attack.value !== undefined ? attack.value : 25;
-      if (wounded) {
-        wounded.currentHp = Math.min(wounded.maxHp, wounded.currentHp + val);
-        this.addLog(`  * Efek Sabda Rahayu: Memulihkan ${val} HP ${wounded.name} di Bench (HP baru: ${wounded.currentHp}).`, 'heal');
+      this.phase = 'ATTACK';
+    } else if (this.phase === 'ATTACK') {
+      const { attack, skipReason } = match.stepAttack();
+      if (attack) {
+        const bonus = [
+          attack.benchBonus ? `+${attack.benchBonus} bonus Bench` : '',
+          attack.discardBonus ? `+${attack.discardBonus} bonus discard lawan` : '',
+          attack.reduction ? `−${attack.reduction} DR ${attack.defender}` : '',
+        ].filter(Boolean).join(', ');
+        this.addLog(`[FASE SERANG] ${attack.attacker} memakai '${attack.attackName}' (base ${attack.baseDamage}${bonus ? ', ' + bonus : ''}).`, 'action');
+        this.addLog(`  * Damage bersih ${attack.finalDamage} HP dikurangi dari ${attack.defender} (sisa HP: ${attack.defenderHpAfter}).`, 'damage');
       } else {
-        this.addLog(`  * Efek Sabda Rahayu: Tidak ada karakter Bench yang terluka.`, 'info');
+        this.addLog(`[FASE SERANG] ${skipReason}`, 'info');
       }
-    } else if (attack.effect === 'mill') {
-      const val = attack.value !== undefined ? attack.value : 2;
-      if (isP1) {
-        this.p2DiscardCount += val;
+      this.phase = 'EFFECT';
+    } else if (this.phase === 'EFFECT') {
+      const effect = match.stepEffect();
+      if (effect) {
+        const type = effect.effect === 'recoil_damage' ? 'recoil' : effect.effect === 'heal_bench_card' ? 'heal' : 'action';
+        this.addLog(`[FASE EFEK] ${effect.detail}`, type);
       } else {
-        this.p1DiscardCount += val;
+        this.addLog(`[FASE EFEK] Tidak ada efek.`, 'info');
       }
-      const defenderName = isP1 ? this.getFactionName(this.p2Deck) : this.getFactionName(this.p1Deck);
-      this.addLog(`  * Efek Hasutan Amarta: Membuang ${val} kartu ${defenderName} ke Makam!`, 'action');
-    } else if (attack.effect === 'lifesteal') {
-      const heal = Math.floor(netDmg * 0.5);
-      attacker.currentHp = Math.min(attacker.maxHp, attacker.currentHp + heal);
-      this.addLog(`  * Efek Lifesteal: Menyerap nyawa dan memulihkan ${heal} HP ${attacker.name}.`, 'heal');
-    } else if (attack.effect === 'poison_recoil') {
-      const recoilPct = attack.value !== undefined ? attack.value : 20;
-      const recoil = Math.floor(netDmg * (recoilPct / 100));
-      attacker.currentHp -= recoil;
-      this.addLog(`  * Efek Timbal-Balik (Recoil): ${attacker.name} menerima ${recoil} recoil damage (Sisa HP: ${attacker.currentHp}).`, 'recoil');
+      this.phase = 'EVALUATION';
     } else {
-      this.addLog(`  * Tidak ada efek khusus untuk jurus '${attack.name}'.`, 'info');
-    }
-  }
-
-  // Sasmita = prize-card count (canonical definition, see src/simulator/rules_spec.md
-  // section 5.1). Whoever's active character is knocked out — by direct damage or by
-  // their own recoil — hands the OTHER player a prize: the other player's Sasmita
-  // decrements, and that other player wins when their own Sasmita reaches 0 (or when
-  // the knocked-out side has no bench character left to send out).
-  private checkKnockouts() {
-    const p1Name = this.getFactionName(this.p1Deck);
-    const p2Name = this.getFactionName(this.p2Deck);
-
-    if (this.p1Active && this.p1Active.currentHp <= 0) {
-      this.p2Sasmita--;
-      this.addLog(`  * GUGUR: Karakter aktif ${p1Name} (${this.p1Active.name}) kalah! Sasmita ${p2Name} tersisa: ${this.p2Sasmita}`, 'knockout');
-      if (this.p2Sasmita <= 0 || this.p1Bench.length === 0) {
-        this.winner$.next(p2Name);
-        this.isRunning$.next(false);
-        this.addLog(`=== GAME OVER: ${p2Name} MEMENANGKAN DUEL! ===`, 'info');
-        this.p1Active = null;
-      } else {
-        this.p1Active = this.p1Bench.shift() || null;
-        this.addLog(`  * Kirim Karakter: ${this.p1Active?.name} memasuki Arena Aktif dari Bench.`, 'info');
+      const { knockouts } = match.stepKnockouts();
+      for (const ko of knockouts) {
+        const cause = ko.byRecoil ? ' (akibat recoil sendiri)' : '';
+        this.addLog(`  * GUGUR: ${ko.knockedOut}${cause}. ${ko.claimant} mengklaim prize, Sasmita tersisa ${ko.claimantSasmita}.`, 'knockout');
+        if (ko.replacement) this.addLog(`  * ${ko.replacement} maju dari Bench.`, 'info');
       }
+      if (!knockouts.length) this.addLog(`[FASE EVALUASI] Tidak ada yang gugur.`, 'info');
+      this.phase = 'PRANA';
+      if (match.finished) this.finish();
     }
 
-    if (this.p2Active && this.p2Active.currentHp <= 0) {
-      this.p1Sasmita--;
-      this.addLog(`  * GUGUR: Karakter aktif ${p2Name} (${this.p2Active.name}) kalah! Sasmita ${p1Name} tersisa: ${this.p1Sasmita}`, 'knockout');
-      if (this.p1Sasmita <= 0 || this.p2Bench.length === 0) {
-        this.winner$.next(p1Name);
-        this.isRunning$.next(false);
-        this.addLog(`=== GAME OVER: ${p1Name} MEMENANGKAN DUEL! ===`, 'info');
-        this.p2Active = null;
-      } else {
-        this.p2Active = this.p2Bench.shift() || null;
-        this.addLog(`  * Kirim Karakter: ${this.p2Active?.name} memasuki Arena Aktif dari Bench.`, 'info');
-      }
+    this.activePhase$.next(this.phase);
+    this.publish();
+    return !match.finished;
+  }
+
+  private finish(): void {
+    const match = this.match!;
+    const winner = match.players[match.winnerIndex!];
+    if (match.endedByTurnCap) {
+      this.addLog(`=== BATAS ${TURN_CAP} GILIRAN: pemenang ditentukan HP karakter aktif (seri → P1). Pemenang: ${winner.name} ===`, 'info');
+    } else {
+      this.addLog(`=== GAME OVER: ${winner.name} MENANG ===`, 'info');
     }
+    this.winner$.next(winner.name);
+    this.isRunning$.next(false);
   }
 
-  private addLog(message: string, type: 'action' | 'damage' | 'heal' | 'recoil' | 'knockout' | 'info') {
-    const current = this.logs$.value;
-    current.push({ turn: this.turn, message, type });
-    this.logs$.next([...current]);
+  private publish(): void {
+    const match = this.match;
+    if (!match) return;
+    this.p1State$.next(this.toState(match.players[0]));
+    this.p2State$.next(this.toState(match.players[1]));
+    this.turnCount$.next(Math.min(match.turn, TURN_CAP));
+    this.activePlayerIndex$.next(match.players.indexOf(match.actor));
   }
 
-  private updateStates() {
-    const p1Name = this.getFactionName(this.p1Deck);
-    const p2Name = this.getFactionName(this.p2Deck);
+  private toState(p: PlayerSim): PlayerState {
+    const character = (c: CardInstance): CharacterState => ({ name: c.name, maxHp: c.hp, currentHp: c.currentHp });
+    const prana = Object.fromEntries(Object.entries(p.prana).filter(([, v]) => v > 0));
+    return {
+      name: p.name,
+      activeCharacter: p.active ? character(p.active) : null,
+      bench: p.bench.map(character),
+      prana,
+      sasmita: p.sasmita,
+      deckCount: p.deck.length,
+      discardCount: p.discard.length,
+    };
+  }
 
-    this.p1State$.next({
-      name: p1Name,
-      activeCharacter: this.p1Active ? { ...this.p1Active } : null,
-      bench: [...this.p1Bench],
-      prana: { ...this.p1Prana },
-      sasmita: this.p1Sasmita
-    });
+  private poolText(p: PlayerSim): string {
+    const entries = Object.entries(p.prana).filter(([, v]) => v > 0);
+    return entries.length ? entries.map(([k, v]) => `${k} ${v}`).join(', ') : 'kosong';
+  }
 
-    this.p2State$.next({
-      name: p2Name,
-      activeCharacter: this.p2Active ? { ...this.p2Active } : null,
-      bench: [...this.p2Bench],
-      prana: { ...this.p2Prana },
-      sasmita: this.p2Sasmita
-    });
+  private benchSummary(p: PlayerSim): string {
+    const counts = new Map<string, number>();
+    for (const c of p.bench) counts.set(c.name, (counts.get(c.name) ?? 0) + 1);
+    return [...counts].map(([name, n]) => `${n}× ${name}`).join(', ') || 'kosong';
+  }
+
+  private addLog(message: string, type: GameLog['type']): void {
+    this.logs$.next([...this.logs$.value, { turn: this.match ? Math.min(this.match.turn, TURN_CAP) : 1, message, type }]);
   }
 }

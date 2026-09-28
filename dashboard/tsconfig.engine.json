@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./.engine-build",
+    "rootDir": "./src/app/core/engine",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "importHelpers": false,
+    "lib": ["ES2022"]
+  },
+  "include": ["src/app/core/engine/*.ts"]
+}

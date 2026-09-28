@@ -1,243 +1,92 @@
-import { Component, OnInit, OnDestroy, Input, ViewChild, ElementRef } from '@angular/core';
-import { Chart } from 'chart.js';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BalanceOptimizerService, ParamUpdate } from '../../../core/usecases/balance-optimizer.service';
-import { BattleSimulatorService } from '../../../core/usecases/battle-simulator.service';
-import { AnalyticsService } from '../../../core/usecases/analytics.service';
-import { AnalyticsComponent } from '../analytics/analytics.component';
 import { Subscription } from 'rxjs';
-import { FirebaseService } from '../../../core/services/firebase.service';
+import { CustomCardEffect, CustomCardSpec, ParamUpdate, SandboxService } from '../../../core/usecases/sandbox.service';
+import { ResearchResultsService } from '../../../core/services/research-results.service';
+import { Match, mulberry32 } from '../../../core/engine/research-engine';
+import { BOUNDS, CYCLE_MATCHUPS, Faction } from '../../../core/engine/research-params';
+import { WilsonInterval, wilsonCi } from '../../../core/engine/stats';
+
+interface MatchupResult {
+  row: Faction;
+  col: Faction;
+  ci: WilsonInterval;
+  turnCapEndings: number;
+  meanTurns: number;
+}
+
+interface ReferenceCell {
+  row: Faction;
+  col: Faction;
+  winRate: number;
+  lower: number;
+  upper: number;
+  n: number;
+}
+
+const FACTION_LABEL: { [f: string]: string } = {
+  SATWIKA: 'Pandawa (Satwika)',
+  RAJASIKA: 'Rajasika',
+  TAMASIKA: 'Kurawa (Tamasika)',
+};
+
+const LABELS: { [key: string]: string } = {
+  stw_yudhistira_hp: 'Yudhistira HP',
+  stw_yudhistira_dmg: 'Sabda Rahayu Damage',
+  stw_yudhistira_dr: 'Damage Reduction Value',
+  stw_yudhistira_heal: 'Sabda Rahayu Heal Value',
+  stw_yudhistira_cost_satwika: 'Yudhistira Satwika Cost',
+  stw_yudhistira_cost_univ: 'Yudhistira Universal Cost',
+  stw_arjuna_hp: 'Arjuna HP',
+  stw_arjuna_pasupati_dmg: 'Panah Pasupati Damage',
+  stw_arjuna_pasupati_cost: 'Pasupati Satwika Cost',
+  rjs_balarama_hp: 'Balarama HP',
+  rjs_balarama_dmg: 'Nanggala Damage',
+  rjs_balarama_cost: 'Balarama Rajasika Cost',
+  rjs_karna_hp: 'Karna HP',
+  rjs_karna_dmg: 'Senjata Konta Damage',
+  rjs_karna_recoil: 'Karna Recoil Damage',
+  rjs_karna_cost: 'Karna Rajasika Cost',
+  tms_sengkuni_hp: 'Sengkuni HP',
+  tms_sengkuni_dmg: 'Hasutan Amarta Damage',
+  tms_sengkuni_mill: 'Hasutan Amarta Mill Count',
+  tms_sengkuni_cost_tamasika: 'Sengkuni Tamasika Cost',
+  tms_sengkuni_cost_univ: 'Sengkuni Universal Cost',
+  tms_duryodana_hp: 'Duryodana HP',
+  tms_duryodana_angkara_dmg: 'Angkara Base Damage',
+  tms_duryodana_scale_value: 'Angkara Discard Scaling',
+  tms_duryodana_angkara_cost: 'Duryodana Tamasika Cost',
+};
 
 @Component({
   selector: 'app-optimizer',
   standalone: true,
-  imports: [CommonModule, FormsModule, AnalyticsComponent],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="optimizer-layout">
-      
-      <ng-container *ngIf="viewMode === 'engine'">
-        <!-- Page Context Banner -->
-        <div class="welcome-banner md-card">
-          <div class="banner-icon">⚖️</div>
-          <div class="banner-text">
-            <h2>Auto-Balancer Engine</h2>
-            <p>Halaman ini menjalankan algoritma pencarian otomatis untuk menemukan kombinasi statistik kartu paling seimbang antar faksi, lalu menyimpan hasilnya sebagai riwayat parameter.</p>
-          </div>
-        </div>
 
-        <!-- 1. Top Panel: Balance Status & Presets Grid -->
-        <div class="top-row-grid">
-          <!-- Balance Status Card -->
-          <div class="balance-status-card md-card">
-            <h3>Meta Balance Assessment</h3>
-            <div class="status-badge-container">
-              <span class="status-badge md-badge" [ngClass]="getBalanceStatusClass()">
-                {{ getBalanceStatusText() }}
-              </span>
-            </div>
-            <p class="status-description">{{ getBalanceStatusDesc() }}</p>
-            <div class="loss-display-row">
-              <span class="loss-lbl">Skor Ketidakseimbangan (Loss, 0 = sempurna seimbang):</span>
-              <span class="loss-val" [class.unbalanced]="loss > 500" [class.balanced]="loss <= 100">
-                {{ loss <= 100 ? '✓' : '⚠' }} {{ loss.toFixed(2) }}
-              </span>
-            </div>
-          </div>
+      <div class="research-error" *ngIf="loadError">
+        Gagal memuat parameter riset (data/ga_balanced_params.json): {{ loadError }}. Sandbox tidak bisa dipakai tanpa
+        parameter ini — tidak ada nilai cadangan yang dipakai diam-diam.
+      </div>
 
-          <!-- Presets Card -->
-          <div class="presets-section md-card">
-            <h3>Pilih Skema Meta Default (Preset)</h3>
-            <p class="section-desc">Pilih arketipe taktis untuk menerapkan parameter awal faksi secara cepat:</p>
-            <div class="presets-grid">
-              <div 
-                *ngFor="let preset of presets" 
-                (click)="applyPreset(preset)" 
-                class="preset-card"
-                [class.active]="selectedPresetName === preset.name">
-                <div class="preset-header">
-                  <span class="preset-name">{{ preset.name }}</span>
-                  <span class="preset-loss-badge">Loss: {{ preset.loss.toFixed(1) }}</span>
-                </div>
-                <p class="preset-desc">{{ preset.description }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. Balancer Actions (GA/PSO Run) -->
-        <div class="action-panel md-card">
-          <h3>Demo Animasi Optimasi (Bukan Komputasi Nyata)</h3>
-          <p class="section-desc" style="color: #b00020; font-weight: 600;">
-            Tombol di bawah hanya memutar animasi interpolasi menuju parameter target yang sudah di-hardcode di kode dashboard —
-            bukan menjalankan GA/PSO sungguhan. Hasil optimasi GA/PSO/hybrid yang sah ada di
-            <code>results/exp07_optimizer_ablation.json</code> dan <code>results/exp07_nsga2_power_balance.json</code>.
-          </p>
-          <div class="controls-row" style="align-items: flex-start; flex-wrap: wrap;">
-            <div class="algo-btn-group">
-              <button
-                [disabled]="isOptimizing"
-                (click)="runGeneticAlgorithm()"
-                class="md-btn md-btn-primary">
-                🧬 Play GA Demo Animation
-              </button>
-              <p class="algo-btn-caption">Animasi ilustrasi seleksi-genetika — bukan GA yang benar-benar dieksekusi di browser.</p>
-            </div>
-            <div class="algo-btn-group">
-              <button
-                [disabled]="isOptimizing"
-                (click)="runParticleSwarm()"
-                class="md-btn md-btn-secondary">
-                🛰️ Play PSO Demo Animation
-              </button>
-              <p class="algo-btn-caption">Animasi ilustrasi particle swarm — bukan PSO yang benar-benar dieksekusi di browser.</p>
-            </div>
-          </div>
-
-          <!-- Optimization Progress Loading Overlay -->
-          <div class="progress-bar-container" *ngIf="isOptimizing">
-            <div class="spinner"></div>
-            <div class="progress-text">
-              Memutar animasi demo <strong>{{ activeAlgo }}</strong>... Langkah {{ optStep }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Batch Simulation Runner -->
-        <div class="batch-runner-card md-card" style="margin-top: 24px;">
-          <h3>📊 Batch Simulation Runner</h3>
-          <p class="section-desc">
-            Simulasikan ribuan pertandingan instan dengan faksi dan parameter terpilih saat ini untuk melihat keakuratan win rate faksi:
-          </p>
-          <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 16px;">
-            <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 150px;">
-              <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin: 0;">Player 1 Faction</label>
-              <select [(ngModel)]="p1FactionSelect" class="md-select">
-                <option value="SATWIKA">Satwika (Pandawa)</option>
-                <option value="RAJASIKA">Rajasika (Balarama dkk)</option>
-                <option value="TAMASIKA">Tamasika (Kurawa)</option>
-              </select>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 150px;">
-              <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin: 0;">Player 2 Faction</label>
-              <select [(ngModel)]="p2FactionSelect" class="md-select">
-                <option value="SATWIKA">Satwika (Pandawa)</option>
-                <option value="RAJASIKA">Rajasika (Balarama dkk)</option>
-                <option value="TAMASIKA">Tamasika (Kurawa)</option>
-              </select>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px; flex: 0.8; min-width: 120px;">
-              <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin: 0;">Match Size</label>
-              <select [(ngModel)]="batchCount" class="md-select">
-                <option [ngValue]="1000">1.000 Matches</option>
-                <option [ngValue]="2000">2.000 Matches</option>
-                <option [ngValue]="5000">5.000 Matches</option>
-              </select>
-            </div>
-            <div style="display: flex; align-items: flex-end; padding-top: 18px;">
-              <button [disabled]="isSimulatingBatch" (click)="runBatch()" class="md-btn md-btn-primary">
-                {{ isSimulatingBatch ? 'Running...' : '⚡ Run Match Batch' }}
-              </button>
-            </div>
-          </div>
-          
-          <div [style.display]="batchResult ? 'grid' : 'none'" style="background: rgba(0,0,0,0.01); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: center; margin-top: 12px;">
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-                <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Player 1 ({{ p1FactionSelect | titlecase }}) Win Rate:</span>
-                <strong style="color: var(--primary-color); font-size: 16px;">{{ ((batchResult?.p1Wins || 0) / batchCount * 100).toFixed(1) }}%</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-                <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Player 2 ({{ p2FactionSelect | titlecase }}) Win Rate:</span>
-                <strong style="color: var(--warning-color); font-size: 16px;">{{ ((batchResult?.p2Wins || 0) / batchCount * 100).toFixed(1) }}%</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-                <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Draw Rate (Seri):</span>
-                <strong style="color: var(--text-muted); font-size: 16px;">{{ ((batchResult?.draws || 0) / batchCount * 100).toFixed(1) }}%</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Rata-rata Durasi Laga:</span>
-                <strong style="color: var(--text-main); font-size: 16px;">{{ batchResult?.avgTurns }} turns</strong>
-              </div>
-            </div>
-            
-            <!-- Dynamic Bar Chart canvas container -->
-            <div style="height: 160px; position: relative;">
-              <canvas #batchChartCanvas></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dynamic Visual Analytics -->
-        <div style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 32px;">
-          <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px; font-family: 'Outfit', sans-serif;">📈 Visual Analytics Ekuilibrium</h2>
-          <p class="section-desc" style="margin-bottom: 24px;">Analisis sensitivitas bifurcation, kompleksitas waktu eksekusi, tren power spike faksi, dan klasterisasi model taktis:</p>
-          <app-analytics></app-analytics>
-        </div>
-
-        <!-- Parameter History Table -->
-        <div class="md-card" style="margin-top: 32px; padding: 24px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-            📜 Riwayat Progress Parameter & Optimasi
-          </h3>
-          <p class="section-desc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-            Daftar snapshot parameter yang tersimpan otomatis di Firebase Firestore setiap kali preset diterapkan atau algoritma penyeimbang dijalankan.
-          </p>
-
-          <div class="error-message-banner" *ngIf="historyLoadError" style="margin-bottom: 16px;">
-            Gagal memuat riwayat dari database, coba muat ulang halaman.
-          </div>
-
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-              <thead>
-                <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted); font-weight: 600;">
-                  <th style="padding: 10px 8px;">Waktu Penyetelan</th>
-                  <th style="padding: 10px 8px;">Metode / Sumber</th>
-                  <th style="padding: 10px 8px; text-align: right;">Loss Value</th>
-                  <th style="padding: 10px 8px;">Cuplikan Parameter Utama</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngIf="parameterHistory.length === 0 && !historyLoadError">
-                  <td colspan="4" style="padding: 20px 8px; text-align: center; color: var(--text-muted); font-style: italic;">
-                    Belum ada riwayat data tersimpan di database.
-                  </td>
-                </tr>
-                <tr *ngFor="let row of parameterHistory" style="border-bottom: 1px solid rgba(0, 0, 0, 0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.015)'" onmouseout="this.style.background='transparent'">
-                  <td style="padding: 10px 8px; white-space: nowrap; color: var(--text-muted);">
-                    {{ row.timestamp | date:'dd MMM yyyy HH:mm:ss' }}
-                  </td>
-                  <td style="padding: 10px 8px; font-weight: 600; color: var(--primary-color);">
-                    {{ row.source }}
-                  </td>
-                  <td style="padding: 10px 8px; font-weight: 700; text-align: right;" [style.color]="row.loss <= 100 ? '#2e7d32' : '#c62828'">
-                    {{ row.loss <= 100 ? '✓' : '⚠' }} {{ row.loss }}
-                  </td>
-                  <td style="padding: 10px 8px; font-family: monospace; font-size: 11px; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted);" [title]="formatParamsTooltip(row.params)">
-                    {{ getParamsSnippet(row.params) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </ng-container>
-
+      <!-- ===================== CARD CREATOR ===================== -->
       <ng-container *ngIf="viewMode === 'creator'">
-        <!-- Page Context Banner -->
         <div class="welcome-banner md-card">
           <div class="banner-icon">➕</div>
           <div class="banner-text">
-            <h2>Card Creator</h2>
-            <p>Halaman ini untuk membuat karakter kartu baru secara manual — atur nama, faksi, HP, damage, dan mekanik efeknya, lalu langsung uji coba di dalam game.</p>
+            <h2>Card Creator (Sandbox)</h2>
+            <p>
+              Tambahkan jenis kartu baru ke deck sebuah faksi, lalu coba di Game Simulator atau uji di Parameter Sliders.
+              Kartu kustom <strong>hanya ada di sesi browser ini</strong> (hilang saat halaman di-reload) dan tidak
+              memengaruhi hasil riset.
+            </p>
           </div>
         </div>
 
-        <!-- 2. Card Creator & Custom Mechanics Panel -->
         <div class="creator-panel md-card">
           <h3>Buat Kartu Baru</h3>
-          <p class="section-desc">Tambahkan karakter baru dengan mekanik kustom ke dalam game:</p>
           <div class="creator-form">
             <div class="form-row">
               <div class="form-group">
@@ -245,117 +94,197 @@ import { FirebaseService } from '../../../core/services/firebase.service';
                 <input type="text" [(ngModel)]="newName" placeholder="misal: Gatotkaca" class="md-input">
               </div>
               <div class="form-group">
-                <label>Faksi Penempatan</label>
+                <label>Faksi</label>
                 <select [(ngModel)]="newFaction" class="md-select">
-                  <option value="PANDAWA">Pandawa (Satwika)</option>
-                  <option value="KURAWA">Kurawa/Rajasika (Tamasika)</option>
+                  <option *ngFor="let f of factions" [value]="f">{{ factionLabel(f) }}</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>Mekanik Efek Karakter</label>
-                <select [(ngModel)]="newMechanic" class="md-select">
-                  <option value="standard">Standard Damage (Serangan Murni)</option>
-                  <option value="heal_bench">Heal Bench (Memulihkan Cadangan)</option>
-                  <option value="mill">Mill Deck (Membuang Kartu Lawan)</option>
-                  <option value="lifesteal">Lifesteal (Menghisap HP 50%)</option>
-                  <option value="poison_recoil">Poison Recoil (Double Dmg, 20% Recoil)</option>
+                <label>Efek Serangan</label>
+                <select [(ngModel)]="newEffect" class="md-select">
+                  <option value="none">Tanpa efek (damage saja)</option>
+                  <option value="mill_enemy_deck">Mill — buang kartu deck lawan</option>
+                  <option value="recoil_damage">Recoil — penyerang ikut terluka</option>
+                  <option value="heal_bench_card">Heal Bench — catatan: selalu 0 di engine ini</option>
                 </select>
               </div>
             </div>
             <div class="form-row sliders-row">
               <div class="form-group">
-                <label>HP Awal Karakter: <strong>{{ newHp }} HP</strong></label>
+                <label>HP: <strong>{{ newHp }}</strong></label>
                 <input type="range" min="60" max="160" [(ngModel)]="newHp" class="md-slider">
               </div>
               <div class="form-group">
-                <label>Damage Dasar Serangan: <strong>{{ newDmg }} DMG</strong></label>
-                <input type="range" min="20" max="80" [(ngModel)]="newDmg" class="md-slider">
+                <label>Damage: <strong>{{ newDamage }}</strong></label>
+                <input type="range" min="20" max="80" [(ngModel)]="newDamage" class="md-slider">
+              </div>
+              <div class="form-group">
+                <label>Biaya Prana {{ pranaOf(newFaction) }}: <strong>{{ newCost }}</strong></label>
+                <input type="range" min="0" max="3" [(ngModel)]="newCost" class="md-slider">
+              </div>
+              <div class="form-group" *ngIf="newEffect !== 'none'">
+                <label>Nilai efek: <strong>{{ newEffectValue }}</strong></label>
+                <input type="range" min="1" max="30" [(ngModel)]="newEffectValue" class="md-slider">
               </div>
               <div class="form-group action-group">
-                <button (click)="createCard()" class="md-btn md-btn-primary">➕ Tambahkan Kartu</button>
+                <button (click)="createCard()" [disabled]="!params" class="md-btn md-btn-primary">➕ Tambahkan Kartu</button>
               </div>
             </div>
-            <div class="error-message-banner" *ngIf="errorMessage">
-              {{ errorMessage }}
-            </div>
-            <div class="success-message-banner" *ngIf="successMessage">
-              {{ successMessage }}
-            </div>
+            <div class="error-message-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+            <div class="success-message-banner" *ngIf="successMessage">{{ successMessage }}</div>
           </div>
+
+          <div class="research-caveat" style="margin-top: 16px;">
+            Cara engine memakai kartu ini: setiap jenis kartu dimasukkan 20 salinan ke deck (deck riset asli berisi 2 jenis
+            kartu). Karakter aktif dipilih otomatis dari 7 kartu awal dengan prioritas Yudhistira, Patih Sengkuni, lalu
+            Karna — jadi kartu kustom biasanya mulai di Bench dan baru bertarung setelah karakter di depannya gugur.
+          </div>
+        </div>
+
+        <div class="md-card research-section" *ngIf="customCards.length">
+          <h3>Kartu kustom di sesi ini ({{ customCards.length }})</h3>
+          <table class="research-table">
+            <thead><tr><th>Nama</th><th>Faksi</th><th>HP</th><th>Damage</th><th>Biaya</th><th>Efek</th><th></th></tr></thead>
+            <tbody>
+              <tr *ngFor="let c of customCards; let i = index">
+                <td>{{ c.name }}</td>
+                <td>{{ factionLabel(c.faction) }}</td>
+                <td>{{ c.hp }}</td>
+                <td>{{ c.damage }}</td>
+                <td>{{ c.cost }} {{ pranaOf(c.faction) }}</td>
+                <td>{{ effectLabel(c.effect) }}{{ c.effect !== 'none' ? ' (' + c.effectValue + ')' : '' }}</td>
+                <td><button class="md-btn md-btn-outlined" (click)="removeCustomCard(i)">Hapus</button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </ng-container>
 
+      <!-- ===================== PARAMETER SLIDERS ===================== -->
       <ng-container *ngIf="viewMode === 'sliders'">
-        <!-- Page Context Banner -->
         <div class="welcome-banner md-card">
           <div class="banner-icon">🎛️</div>
           <div class="banner-text">
-            <h2>Parameter Sliders</h2>
-            <p>Halaman ini untuk mengatur statistik tiap karakter secara langsung dan manual lewat slider, sebagai alternatif dari pencarian otomatis di Auto-Balancer Engine.</p>
+            <h2>Parameter Sliders (Sandbox)</h2>
+            <p>
+              Atur 25 parameter riset secara manual, lalu uji hasilnya dengan pertandingan sungguhan. Nilai awal diambil
+              dari <code>data/ga_balanced_params.json</code> (parameter hasil optimasi GA) dan rentang slider mengikuti
+              ruang parameter riset (<code>BOUNDS</code> di <code>src/simulator/fitness.py</code>).
+            </p>
           </div>
         </div>
 
-        <!-- 4. Sliders Container: Dynamic Faction Slider Groups -->
+        <!-- Real sandbox test: plays the 3-matchup cycle with the research-engine port. -->
+        <div class="md-card research-section" *ngIf="params">
+          <div class="research-section-head">
+            <h3>Uji parameter ini</h3>
+            <span class="research-source">engine: port TS dari engine riset Python</span>
+          </div>
+          <p class="section-desc">
+            Menjalankan pertandingan sungguhan untuk 3 matchup siklus yang sama dengan riset
+            (Satwika vs Tamasika, Tamasika vs Rajasika, Rajasika vs Satwika). Skor ketidakseimbangan =
+            Σ(win rate − 50)² atas 3 matchup — rumus yang sama dengan fungsi loss riset; 0 = seimbang sempurna.
+            <span *ngIf="changedParamCount() > 0"><strong>{{ changedParamCount() }}</strong> parameter berbeda dari parameter riset.</span>
+          </p>
+
+          <div class="sandbox-controls">
+            <label>Jumlah pertandingan per matchup
+              <select [(ngModel)]="testN" class="md-select" [disabled]="testRunning">
+                <option [ngValue]="1000">1.000 (cepat, CI ±3 pp)</option>
+                <option [ngValue]="5000">5.000 (CI ±1,4 pp)</option>
+                <option [ngValue]="20000">20.000 (standar riset, CI ±0,7 pp)</option>
+              </select>
+            </label>
+            <label>Seed
+              <input type="number" [(ngModel)]="testSeed" class="md-input" [disabled]="testRunning" style="width: 120px;">
+            </label>
+            <button class="md-btn md-btn-primary" (click)="runSandboxTest()" [disabled]="testRunning">
+              {{ testRunning ? 'Menjalankan… ' + (testProgress * 100 | number:'1.0-0') + '%' : '▶ Uji sekarang' }}
+            </button>
+            <button class="md-btn md-btn-outlined" (click)="resetParams()" [disabled]="testRunning || changedParamCount() === 0">
+              ↺ Kembalikan ke parameter riset
+            </button>
+          </div>
+
+          <ng-container *ngIf="testResults">
+            <table class="research-table">
+              <thead>
+                <tr>
+                  <th>Matchup (baris menang vs kolom)</th>
+                  <th>Sandbox: win rate</th><th>95% CI (Wilson)</th><th>n</th>
+                  <th>Referensi riset (Python, parameter riset)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of testResults; let i = index">
+                  <td>{{ r.row }} vs {{ r.col }}</td>
+                  <td><strong>{{ r.ci.pHat * 100 | number:'1.1-1' }}%</strong></td>
+                  <td class="ci">[{{ r.ci.lower * 100 | number:'1.1-1' }}, {{ r.ci.upper * 100 | number:'1.1-1' }}]</td>
+                  <td>{{ r.ci.n | number }}</td>
+                  <td class="ci">
+                    <ng-container *ngIf="referenceCells">
+                      {{ referenceCells[i].winRate * 100 | number:'1.1-1' }}%
+                      [{{ referenceCells[i].lower * 100 | number:'1.1-1' }}, {{ referenceCells[i].upper * 100 | number:'1.1-1' }}],
+                      n = {{ referenceCells[i].n | number }}
+                    </ng-container>
+                    <span *ngIf="!referenceCells">tidak tersedia</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="paired-grid">
+              <div class="paired-card">
+                <h4>Skor ketidakseimbangan — parameter kamu (sandbox)</h4>
+                <div class="paired-value">{{ testLoss | number:'1.1-1' }}</div>
+                <p class="paired-stats">
+                  Seed {{ testedSeed }}, {{ testResults[0].ci.n | number }} pertandingan/matchup.
+                  <span *ngIf="turnCapTotal() > 0">{{ turnCapTotal() }} pertandingan berakhir di batas 100 giliran (pemenang lewat HP).</span>
+                </p>
+              </div>
+              <div class="paired-card" *ngIf="referenceLoss !== null">
+                <h4>Skor ketidakseimbangan — parameter riset (engine Python)</h4>
+                <div class="paired-value">{{ referenceLoss | number:'1.1-1' }}</div>
+                <p class="paired-stats">Dari <code>results/exp03_balance_matrix.json</code> (ga_balanced), n = {{ referenceCells?.[0]?.n | number }}/matchup.</p>
+              </div>
+            </div>
+            <p class="payoff-caption">
+              Catatan noise: walaupun ketiga matchup benar-benar 50%, skor rata-rata tetap sekitar
+              <strong>{{ noiseFloor(testResults[0].ci.n) | number:'1.2-2' }}</strong> hanya karena acak sampel pada
+              n = {{ testResults[0].ci.n | number }} (= 3 × 10.000 × 0,25 / n). Skor di sekitar angka itu belum bisa dibedakan
+              dari seimbang — naikkan n sebelum membandingkan dua pengaturan. "Seimbang" di sini diukur dengan pemilihan
+              serangan otomatis bawaan engine.
+            </p>
+          </ng-container>
+        </div>
+
         <div class="sliders-container" *ngIf="params">
-          <!-- Pandawa (Satwika) -->
-          <div class="faction-group md-card">
-            <h3 class="faction-title satwika-color">Pandawa (Satwika)</h3>
-            <div class="sliders-grid">
-              <div class="slider-row" *ngFor="let key of getPandawaKeys()">
-                <div class="slider-labels">
-                  <span class="slider-name">{{ getLabel(key) }}</span>
-                  <span class="slider-val">{{ params[key] }}</span>
+          <div class="faction-group md-card" *ngFor="let f of sliderFactions">
+            <h3 class="faction-title" [ngClass]="f.cssClass">
+              {{ factionLabel(f.faction) }} &mdash; {{ getCharacterGroups(f.prefix).length }} karakter
+              <span *ngIf="customCountFor(f.faction)"> + {{ customCountFor(f.faction) }} kartu kustom</span>
+            </h3>
+            <div class="character-group" *ngFor="let group of getCharacterGroups(f.prefix)">
+              <h4 class="character-name">{{ group.characterName }}</h4>
+              <div class="sliders-grid">
+                <div class="slider-row" *ngFor="let key of group.keys">
+                  <div class="slider-labels">
+                    <span class="slider-name">{{ getLabel(key) }}</span>
+                    <span class="slider-val" [class.changed-val]="isChanged(key)">{{ params[key] }}</span>
+                  </div>
+                  <p class="slider-desc">{{ getStatDescription(key) }}</p>
+                  <input
+                    type="range"
+                    [min]="sliderMin(key)"
+                    [max]="sliderMax(key)"
+                    [value]="params[key]"
+                    [disabled]="testRunning"
+                    (input)="onSliderChange(key, $event)"
+                    class="md-slider">
+                  <p class="slider-warning" *ngIf="isOutOfBounds(key)">
+                    Nilai {{ params[key] }} di luar rentang riset [{{ bounds(key)[0] }}, {{ bounds(key)[1] }}] — nilai ini
+                    berasal dari ga_balanced_params.json apa adanya.
+                  </p>
                 </div>
-                <input 
-                  type="range" 
-                  [min]="getBounds(key).min" 
-                  [max]="getBounds(key).max" 
-                  [value]="params[key]" 
-                  [disabled]="isOptimizing"
-                  (input)="onSliderChange(key, $event)" 
-                  class="md-slider">
-              </div>
-            </div>
-          </div>
-
-          <!-- Rajasika -->
-          <div class="faction-group md-card">
-            <h3 class="faction-title rajasika-color">Rajasika (Aggro)</h3>
-            <div class="sliders-grid">
-              <div class="slider-row" *ngFor="let key of getRajasikaKeys()">
-                <div class="slider-labels">
-                  <span class="slider-name">{{ getLabel(key) }}</span>
-                  <span class="slider-val">{{ params[key] }}</span>
-                </div>
-                <input 
-                  type="range" 
-                  [min]="getBounds(key).min" 
-                  [max]="getBounds(key).max" 
-                  [value]="params[key]" 
-                  [disabled]="isOptimizing"
-                  (input)="onSliderChange(key, $event)" 
-                  class="md-slider">
-              </div>
-            </div>
-          </div>
-
-          <!-- Kurawa (Tamasika) -->
-          <div class="faction-group md-card">
-            <h3 class="faction-title tamasika-color">Kurawa (Tamasika)</h3>
-            <div class="sliders-grid">
-              <div class="slider-row" *ngFor="let key of getKurawaKeys()">
-                <div class="slider-labels">
-                  <span class="slider-name">{{ getLabel(key) }}</span>
-                  <span class="slider-val">{{ params[key] }}</span>
-                </div>
-                <input 
-                  type="range" 
-                  [min]="getBounds(key).min" 
-                  [max]="getBounds(key).max" 
-                  [value]="params[key]" 
-                  [disabled]="isOptimizing"
-                  (input)="onSliderChange(key, $event)" 
-                  class="md-slider">
               </div>
             </div>
           </div>
@@ -366,387 +295,238 @@ import { FirebaseService } from '../../../core/services/firebase.service';
   `
 })
 export class OptimizerComponent implements OnInit, OnDestroy {
-  @Input() viewMode: 'engine' | 'creator' | 'sliders' = 'engine';
+  @Input() viewMode: 'creator' | 'sliders' = 'sliders';
 
-  params: ParamUpdate = {};
-  loss = 54.30;
-  isOptimizing = false;
-  activeAlgo: string | null = null;
-  optStep = 0;
-  selectedPresetName = 'Balanced Meta (Default)';
+  readonly factions: Faction[] = ['SATWIKA', 'RAJASIKA', 'TAMASIKA'];
+  readonly sliderFactions = [
+    { faction: 'SATWIKA' as Faction, prefix: 'stw_', cssClass: 'satwika-color' },
+    { faction: 'RAJASIKA' as Faction, prefix: 'rjs_', cssClass: 'rajasika-color' },
+    { faction: 'TAMASIKA' as Faction, prefix: 'tms_', cssClass: 'tamasika-color' },
+  ];
 
-  // Batch Runner properties
-  batchCount = 1000;
-  p1FactionSelect: 'SATWIKA' | 'RAJASIKA' | 'TAMASIKA' = 'SATWIKA';
-  p2FactionSelect: 'SATWIKA' | 'RAJASIKA' | 'TAMASIKA' = 'TAMASIKA';
-  batchResult: { p1Wins: number, p2Wins: number, draws: number, avgTurns: number } | null = null;
-  isSimulatingBatch = false;
+  params: ParamUpdate | null = null;
+  researchParams: ParamUpdate | null = null;
+  loadError: string | null = null;
+  customCards: CustomCardSpec[] = [];
 
-  @ViewChild('batchChartCanvas') private batchChartCanvas!: ElementRef<HTMLCanvasElement>;
-  private batchChart: Chart | null = null;
-
-  // Firebase History list
-  parameterHistory: any[] = [];
-
-  // Card Creator fields
+  // Card Creator form
   newName = '';
-  newFaction: 'PANDAWA' | 'KURAWA' = 'PANDAWA';
+  newFaction: Faction = 'SATWIKA';
   newHp = 100;
-  newDmg = 40;
+  newDamage = 40;
   newCost = 1;
-  newMechanic = 'standard';
+  newEffect: CustomCardEffect = 'none';
+  newEffectValue = 10;
   successMessage = '';
   errorMessage = '';
-  historyLoadError = false;
 
-  presets = [
-    {
-      name: 'Balanced Meta (Default)',
-      description: 'Parameter optimal berimbang hasil kalkulasi ekuilibrium GA.',
-      loss: 54.30,
-      params: {
-        stw_yudhistira_hp: 135, stw_yudhistira_dmg: 30, stw_yudhistira_dr: 6, stw_yudhistira_heal: 10,
-        stw_arjuna_hp: 110, stw_arjuna_pasupati_dmg: 45, stw_arjuna_scale_value: 5,
-        stw_bima_hp: 130, stw_bima_dmg: 52,
-        stw_nakula_hp: 90, stw_nakula_dmg: 35,
-        rjs_balarama_hp: 105, rjs_balarama_dmg: 50,
-        rjs_karna_hp: 135, rjs_karna_dmg: 60, rjs_karna_recoil: 14,
-        tms_sengkuni_hp: 110, tms_sengkuni_dmg: 45, tms_sengkuni_mill: 3,
-        tms_duryodana_hp: 140, tms_duryodana_angkara_dmg: 46, tms_duryodana_scale_value: 4
-      }
-    },
-    {
-      name: 'Aggressive Rush Meta',
-      description: 'Rajasika sangat dominan. Balarama & Karna memiliki damage sangat masif dengan HP tipis.',
-      loss: 1840.12,
-      params: {
-        stw_yudhistira_hp: 110, stw_yudhistira_dmg: 25, stw_yudhistira_dr: 10, stw_yudhistira_heal: 15,
-        stw_arjuna_hp: 90, stw_arjuna_pasupati_dmg: 40, stw_arjuna_scale_value: 5,
-        stw_bima_hp: 110, stw_bima_dmg: 50,
-        stw_nakula_hp: 70, stw_nakula_dmg: 30,
-        rjs_balarama_hp: 80, rjs_balarama_dmg: 65,
-        rjs_karna_hp: 95, rjs_karna_dmg: 85, rjs_karna_recoil: 15,
-        tms_sengkuni_hp: 80, tms_sengkuni_dmg: 30, tms_sengkuni_mill: 1,
-        tms_duryodana_hp: 110, tms_duryodana_angkara_dmg: 30, tms_duryodana_scale_value: 3
-      }
-    },
-    {
-      name: 'Defensive Stall/Heal Meta',
-      description: 'Pandawa & Kurawa sangat tebal. Yudhistira menyembuhkan terus-menerus. Durasi laga panjang.',
-      loss: 2154.50,
-      params: {
-        stw_yudhistira_hp: 160, stw_yudhistira_dmg: 20, stw_yudhistira_dr: 30, stw_yudhistira_heal: 35,
-        stw_arjuna_hp: 130, stw_arjuna_pasupati_dmg: 35, stw_arjuna_scale_value: 5,
-        stw_bima_hp: 160, stw_bima_dmg: 40,
-        stw_nakula_hp: 110, stw_nakula_dmg: 25,
-        rjs_balarama_hp: 120, rjs_balarama_dmg: 30,
-        rjs_karna_hp: 130, rjs_karna_dmg: 50, rjs_karna_recoil: 5,
-        tms_sengkuni_hp: 110, tms_sengkuni_dmg: 25, tms_sengkuni_mill: 3,
-        tms_duryodana_hp: 160, tms_duryodana_angkara_dmg: 30, tms_duryodana_scale_value: 8
-      }
-    },
-    {
-      name: 'Glass Cannon Chaos',
-      description: 'Pertempuran instan mematikan. Semua kartu memiliki damage ekstrem dengan HP serendah mungkin.',
-      loss: 3410.22,
-      params: {
-        stw_yudhistira_hp: 70, stw_yudhistira_dmg: 60, stw_yudhistira_dr: 5, stw_yudhistira_heal: 5,
-        stw_arjuna_hp: 60, stw_arjuna_pasupati_dmg: 80,
-        rjs_balarama_hp: 60, rjs_balarama_dmg: 75,
-        rjs_karna_hp: 60, rjs_karna_dmg: 80, rjs_karna_recoil: 20,
-        tms_sengkuni_hp: 60, tms_sengkuni_dmg: 65, tms_sengkuni_mill: 5,
-        tms_duryodana_hp: 70, tms_duryodana_angkara_dmg: 80, tms_duryodana_scale_value: 12
-      }
-    }
-  ];
+  // Sandbox test
+  testN = 1000;
+  testSeed = 20260801;
+  testedSeed = 0;
+  testRunning = false;
+  testProgress = 0;
+  testResults: MatchupResult[] | null = null;
+  testLoss = 0;
+  referenceCells: ReferenceCell[] | null = null;
+  referenceLoss: number | null = null;
 
   private subs: Subscription[] = [];
 
-  constructor(
-    private optimizer: BalanceOptimizerService,
-    private simulator: BattleSimulatorService,
-    private analytics: AnalyticsService,
-    private firebase: FirebaseService
-  ) { }
+  constructor(private sandbox: SandboxService, private research: ResearchResultsService) { }
 
   ngOnInit(): void {
     this.subs.push(
-      this.optimizer.getParams().subscribe((p: any) => this.params = p),
-      this.optimizer.getLoss().subscribe((l: any) => {
-        this.loss = l;
-        this.analytics.recalculateAnalytics(l, undefined, undefined, this.p1FactionSelect, this.p2FactionSelect);
-      })
+      this.sandbox.getParams().subscribe((p) => this.params = p),
+      this.sandbox.getResearchParams().subscribe((p) => this.researchParams = p),
+      this.sandbox.getLoadError().subscribe((e) => this.loadError = e),
+      this.sandbox.getCustomCards().subscribe((c) => this.customCards = c),
     );
-    this.loadHistory();
+    this.research.loadResult('exp03_balance_matrix')
+      .then((exp03) => {
+        const matrix = exp03.ga_balanced.payoff_matrix;
+        this.referenceCells = CYCLE_MATCHUPS.map(([row, col]) => {
+          const cell = matrix[`${row}_vs_${col}`];
+          return { row, col, winRate: cell.win_rate, lower: cell.wilson_ci_95.lower, upper: cell.wilson_ci_95.upper, n: cell.n };
+        });
+        this.referenceLoss = this.referenceCells.reduce((s, c) => s + (c.winRate * 100 - 50) ** 2, 0);
+      })
+      .catch(() => { this.referenceCells = null; this.referenceLoss = null; });
   }
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
   }
 
-  // Balance Validator Helpers
-  getBalanceStatusText(): string {
-    if (this.loss <= 100) return '✅ Faksi Seimbang';
-    if (this.loss <= 500) return '⚠️ Deviasi Moderat';
-    return '🚨 Meta Timpang';
+  factionLabel(f: Faction): string {
+    return FACTION_LABEL[f] ?? f;
   }
 
-  getBalanceStatusClass(): string {
-    if (this.loss <= 100) return 'success';
-    if (this.loss <= 500) return 'warning';
-    return 'error';
+  pranaOf(f: Faction): string {
+    return f.charAt(0) + f.slice(1).toLowerCase();
   }
 
-  getBalanceStatusDesc(): string {
-    if (this.loss <= 100) {
-      return 'Tingkat deviasi win rate antar-faksi berada di dalam batas aman (< 5%). Parameter seimbang dan adil untuk rilis.';
-    }
-    if (this.loss <= 500) {
-      return 'Faksi memiliki perbedaan kekuatan tempo minor. Jalankan auto-balancer untuk meredam deviasi lebih lanjut.';
-    }
-    return 'Salah satu faksi memiliki dominasi ekstrem (> 70% win rate). Segera jalankan GA atau PSO untuk auto-balancing!';
+  effectLabel(effect: CustomCardEffect): string {
+    return { none: 'Tanpa efek', mill_enemy_deck: 'Mill', recoil_damage: 'Recoil', heal_bench_card: 'Heal Bench (selalu 0)' }[effect];
   }
 
-  // Dynamic Slider groups
-  getPandawaKeys(): string[] {
-    return Object.keys(this.params).filter(k => k.startsWith('stw_'));
+  customCountFor(f: Faction): number {
+    return this.customCards.filter(c => c.faction === f).length;
   }
 
-  getRajasikaKeys(): string[] {
-    return Object.keys(this.params).filter(k => k.startsWith('rjs_'));
-  }
-
-  getKurawaKeys(): string[] {
-    return Object.keys(this.params).filter(k => k.startsWith('tms_'));
-  }
-
-  // Card Creator Action
-  createCard() {
-    if (!this.newName.trim()) {
-      this.errorMessage = 'Masukkan nama karakter terlebih dahulu!';
-      setTimeout(() => this.errorMessage = '', 5000);
-      return;
-    }
-    this.errorMessage = '';
-    this.optimizer.addCustomCard(
-      this.newFaction,
-      this.newName,
-      this.newHp,
-      this.newDmg,
-      this.newCost,
-      this.newMechanic
-    );
-    this.selectedPresetName = 'Custom (New Card Added)';
-    this.successMessage = `Sukses menambahkan karakter kustom '${this.newName}' ke dalam faksi ${this.newFaction === 'PANDAWA' ? 'Pandawa' : 'Kurawa'}! Sliders HP & DMG baru otomatis dibuat di bawah.`;
-
-    this.newName = '';
-    setTimeout(() => this.successMessage = '', 6000);
-  }
-
-  applyPreset(preset: any) {
-    this.selectedPresetName = preset.name;
-    Object.keys(preset.params).forEach(key => {
-      this.optimizer.updateParam(key, preset.params[key]);
-    });
-    this.firebase.saveParameterState(preset.params, preset.loss, `Preset: ${preset.name}`);
-    setTimeout(() => this.loadHistory(), 500);
-  }
-
-  onSliderChange(key: string, event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.selectedPresetName = 'Custom (Manual Tuning)';
-    this.optimizer.updateParam(key, parseInt(target.value));
-  }
-
-  runGeneticAlgorithm() {
-    this.isOptimizing = true;
-    this.activeAlgo = 'Genetic Algorithm (GA) — Demo Animation';
-    this.optStep = 0;
-    this.selectedPresetName = 'Playing demo animation...';
-
-    const op$ = this.optimizer.runGAOptimization().subscribe({
-      next: (res: any) => {
-        this.optStep = res.step;
-      },
-      complete: () => {
-        this.isOptimizing = false;
-        this.activeAlgo = null;
-        this.selectedPresetName = 'Custom (GA Demo Animation — not a real run)';
-        op$.unsubscribe();
-        setTimeout(() => this.loadHistory(), 1000);
+  // Groups a faction's param keys by character (2nd underscore segment, e.g. "stw_arjuna_hp" -> "Arjuna").
+  getCharacterGroups(prefix: string): { characterName: string, keys: string[] }[] {
+    const groups: { characterName: string, keys: string[] }[] = [];
+    const indexByName: { [name: string]: number } = {};
+    for (const key of Object.keys(this.params ?? {}).filter(k => k.startsWith(prefix))) {
+      const rawName = key.split('_')[1] || key;
+      const characterName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      if (!(characterName in indexByName)) {
+        indexByName[characterName] = groups.length;
+        groups.push({ characterName, keys: [] });
       }
-    });
-  }
-
-  runParticleSwarm() {
-    this.isOptimizing = true;
-    this.activeAlgo = 'Particle Swarm Optimization (PSO) — Demo Animation';
-    this.optStep = 0;
-    this.selectedPresetName = 'Playing demo animation...';
-
-    const op$ = this.optimizer.runPSOOptimization().subscribe({
-      next: (res: any) => {
-        this.optStep = res.step;
-      },
-      complete: () => {
-        this.isOptimizing = false;
-        this.activeAlgo = null;
-        this.selectedPresetName = 'Custom (PSO Demo Animation — not a real run)';
-        op$.unsubscribe();
-        setTimeout(() => this.loadHistory(), 1000);
-      }
-    });
-  }
-
-  runBatch() {
-    this.isSimulatingBatch = true;
-    this.batchResult = null;
-
-    setTimeout(() => {
-      const p1Deck = this.optimizer.getDeckByFaction(this.p1FactionSelect);
-      const p2Deck = this.optimizer.getDeckByFaction(this.p2FactionSelect);
-      const result = this.simulator.runBatchSimulation(p1Deck, p2Deck, this.batchCount);
-      this.batchResult = result;
-      this.isSimulatingBatch = false;
-
-      // Update Visual Analytics using dynamic batch simulation outcomes
-      const p1WR = (result.p1Wins / this.batchCount) * 100;
-      this.analytics.recalculateAnalytics(this.loss, p1WR, result.avgTurns);
-
-      // Render the result bar chart
-      setTimeout(() => {
-        this.renderBatchChart(result);
-      }, 50);
-    }, 100);
-  }
-
-  private renderBatchChart(res: any) {
-    if (this.batchChart) {
-      this.batchChart.destroy();
+      groups[indexByName[characterName]].keys.push(key);
     }
-
-    const ctx = this.batchChartCanvas.nativeElement.getContext('2d');
-    if (!ctx) return;
-
-    const p1Pct = (res.p1Wins / this.batchCount) * 100;
-    const p2Pct = (res.p2Wins / this.batchCount) * 100;
-    const drawPct = (res.draws / this.batchCount) * 100;
-
-    this.batchChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['P1 Win %', 'P2 Win %', 'Draw %'],
-        datasets: [{
-          data: [p1Pct, p2Pct, drawPct],
-          backgroundColor: [
-            'rgba(79, 70, 229, 0.85)', // Indigo
-            'rgba(245, 158, 11, 0.85)', // Amber
-            'rgba(148, 163, 184, 0.85)' // Slate
-          ],
-          borderColor: [
-            '#4f46e5',
-            '#f59e0b',
-            '#94a3b8'
-          ],
-          borderWidth: 1.5,
-          borderRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: {
-            min: 0,
-            max: 100,
-            ticks: { font: { size: 10 } },
-            grid: { color: 'rgba(0,0,0,0.05)' }
-          },
-          x: {
-            ticks: { font: { size: 10, weight: 'bold' } },
-            grid: { display: false }
-          }
-        }
-      }
-    });
+    return groups;
   }
 
   getLabel(key: string): string {
-    const mapping: { [key: string]: string } = {
-      stw_yudhistira_hp: 'Yudhistira HP',
-      stw_yudhistira_dmg: 'Sabda Rahayu Damage',
-      stw_yudhistira_dr: 'Damage Reduction Value',
-      stw_yudhistira_heal: 'Sabda Rahayu Heal Value',
-      stw_yudhistira_cost_satwika: 'Yudhistira Satwika Cost',
-      stw_yudhistira_cost_univ: 'Yudhistira Universal Cost',
-      stw_arjuna_hp: 'Arjuna HP',
-      stw_arjuna_pasupati_dmg: 'Panah Pasupati Damage',
-      stw_arjuna_scale_value: 'Pasupati Scaling / Bench',
-      stw_arjuna_pasupati_cost: 'Pasupati Satwika Cost',
-      rjs_balarama_hp: 'Balarama HP',
-      rjs_balarama_dmg: 'Nanggala Damage',
-      rjs_balarama_cost: 'Balarama Rajasika Cost',
-      rjs_karna_hp: 'Karna HP',
-      rjs_karna_dmg: 'Senjata Konta Damage',
-      rjs_karna_recoil: 'Karna Recoil Damage',
-      rjs_karna_cost: 'Karna Rajasika Cost',
-      tms_sengkuni_hp: 'Sengkuni HP',
-      tms_sengkuni_dmg: 'Hasutan Amarta Damage',
-      tms_sengkuni_mill: 'Hasutan Amarta Mill Count',
-      tms_sengkuni_cost_tamasika: 'Sengkuni Tamasika Cost',
-      tms_sengkuni_cost_univ: 'Sengkuni Universal Cost',
-      tms_duryodana_hp: 'Duryodana HP',
-      tms_duryodana_angkara_dmg: 'Angkara Base Damage',
-      tms_duryodana_scale_value: 'Angkara Discard Scaling',
-      tms_duryodana_angkara_cost: 'Duryodana Tamasika Cost'
-    };
-    if (mapping[key]) return mapping[key];
+    return LABELS[key] ?? key;
+  }
 
-    const parts = key.split('_');
-    if (parts.length >= 3) {
-      const cardName = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
-      const statName = parts[2].toUpperCase();
-      return `${cardName} ${statName}`;
+  bounds(key: string): [number, number] {
+    return BOUNDS[key] ?? [0, 100];
+  }
+
+  sliderMin(key: string): number {
+    return Math.min(this.bounds(key)[0], this.params?.[key] ?? Infinity);
+  }
+
+  sliderMax(key: string): number {
+    return Math.max(this.bounds(key)[1], this.params?.[key] ?? -Infinity);
+  }
+
+  isOutOfBounds(key: string): boolean {
+    const value = this.params?.[key];
+    const [low, high] = this.bounds(key);
+    return value !== undefined && (value < low || value > high);
+  }
+
+  isChanged(key: string): boolean {
+    return !!this.researchParams && this.params?.[key] !== this.researchParams[key];
+  }
+
+  changedParamCount(): number {
+    return Object.keys(this.params ?? {}).filter(k => this.isChanged(k)).length;
+  }
+
+  // Plain-language caption shown under every slider, describing what research-engine.ts actually does with it.
+  getStatDescription(key: string): string {
+    if (key === 'stw_arjuna_pasupati_dmg') {
+      return 'Damage dasar Panah Pasupati. Engine menambah +5 per karakter di Bench sendiri (maks +15) — bonus itu tetap, bukan parameter.';
     }
-    return key;
-  }
-
-  getBounds(key: string): { min: number, max: number } {
-    if (key.includes('hp')) return { min: 60, max: 160 };
-    if (key.includes('dmg')) return { min: 20, max: 80 };
-    if (key.includes('cost')) return { min: 0, max: 3 };
-    if (key.includes('dr') || key.includes('heal') || key.includes('recoil')) return { min: 5, max: 35 };
-    if (key.includes('mill') || key.includes('scale')) return { min: 1, max: 15 };
-    return { min: 0, max: 100 };
-  }
-
-  async loadHistory() {
-    try {
-      this.parameterHistory = await this.firebase.getParameterHistory(20);
-      this.historyLoadError = false;
-    } catch (err) {
-      console.error('Error loading param history:', err);
-      this.historyLoadError = true;
+    if (key === 'tms_duryodana_scale_value') {
+      return 'Bonus damage Angkara per kartu di discard pile lawan (discard pile hanya terisi oleh Mill Sengkuni).';
     }
+    if (key === 'stw_yudhistira_heal') {
+      return 'Jumlah HP yang coba dipulihkan ke Bench. Di engine ini selalu 0, karena karakter di Bench tidak pernah terluka — slider ini tidak mengubah hasil.';
+    }
+    if (key.endsWith('_cost_univ')) return 'Biaya Prana Universal (boleh dibayar Prana tipe apa pun) untuk serangan ini.';
+    if (key.includes('cost')) return 'Biaya Prana tipe faksi untuk serangan ini. Kalau belum cukup, karakter menunggu (kecuali HP ≤ 40%).';
+    if (key.endsWith('_hp')) return 'Nyawa karakter. Habis = gugur, lawan mengklaim 1 prize (Sasmita).';
+    if (key.endsWith('_dr')) return 'Mengurangi setiap damage yang diterima karakter ini.';
+    if (key.includes('recoil')) return 'Damage yang diterima penyerang sendiri setiap kali serangan ini dipakai.';
+    if (key.includes('mill')) return 'Jumlah kartu deck lawan yang dibuang ke discard pile setiap serangan.';
+    if (key.includes('dmg')) return 'Damage dasar serangan ini, sebelum dikurangi DR lawan.';
+    return '';
   }
 
-  getParamsSnippet(params: any): string {
-    if (!params) return '-';
-    const parts: string[] = [];
-    if (params.stw_yudhistira_dr !== undefined) parts.push(`Yudhis-DR: ${params.stw_yudhistira_dr}`);
-    if (params.stw_yudhistira_heal !== undefined) parts.push(`Yudhis-Heal: ${params.stw_yudhistira_heal}`);
-    if (params.tms_sengkuni_hp !== undefined) parts.push(`Sengkuni-HP: ${params.tms_sengkuni_hp}`);
-    if (params.tms_duryodana_hp !== undefined) parts.push(`Duryodana-HP: ${params.tms_duryodana_hp}`);
-    return parts.join(', ');
+  onSliderChange(key: string, event: Event) {
+    this.sandbox.updateParam(key, parseInt((event.target as HTMLInputElement).value, 10));
   }
 
-  formatParamsTooltip(params: any): string {
-    if (!params) return '';
-    return Object.keys(params)
-      .map(k => `${k}: ${params[k]}`)
-      .join('\n');
+  resetParams() {
+    this.sandbox.resetToResearchParams();
+  }
+
+  /** Expected loss from sampling noise alone when every cycle matchup is exactly 50%: 3 * 10000 * 0.25 / n. */
+  noiseFloor(n: number): number {
+    return (CYCLE_MATCHUPS.length * 10000 * 0.25) / n;
+  }
+
+  turnCapTotal(): number {
+    return (this.testResults ?? []).reduce((s, r) => s + r.turnCapEndings, 0);
+  }
+
+  async runSandboxTest(): Promise<void> {
+    if (this.testRunning) return;
+    const decks = Object.fromEntries(this.factions.map(f => [f, this.sandbox.getDeck(f)]));
+    if (this.factions.some(f => !decks[f])) return;
+
+    this.testRunning = true;
+    this.testProgress = 0;
+    const n = this.testN;
+    const seed = Number(this.testSeed) || 0;
+    const rng = mulberry32(seed);
+    const chunk = 500;
+    const results: MatchupResult[] = [];
+    const total = n * CYCLE_MATCHUPS.length;
+    let done = 0;
+
+    for (const [row, col] of CYCLE_MATCHUPS) {
+      let wins = 0;
+      let turnCapEndings = 0;
+      let turns = 0;
+      for (let i = 0; i < n; i++) {
+        const match = new Match(decks[row]!, decks[col]!, row, col, rng);
+        match.runToEnd();
+        if (match.winnerIndex === 0) wins++;
+        if (match.endedByTurnCap) turnCapEndings++;
+        turns += Math.min(match.turn, 100);
+        if (++done % chunk === 0) {
+          this.testProgress = done / total;
+          await new Promise(resolve => setTimeout(resolve));
+        }
+      }
+      results.push({ row, col, ci: wilsonCi(wins, n), turnCapEndings, meanTurns: turns / n });
+    }
+
+    this.testResults = results;
+    this.testLoss = results.reduce((s, r) => s + (r.ci.pHat * 100 - 50) ** 2, 0);
+    this.testedSeed = seed;
+    this.testRunning = false;
+  }
+
+  createCard() {
+    const name = this.newName.trim();
+    if (!name) {
+      this.flash('error', 'Masukkan nama karakter terlebih dahulu.');
+      return;
+    }
+    const taken = this.factions.some(f => this.sandbox.getDeck(f)?.cards.some(c => c.name.toLowerCase() === name.toLowerCase()));
+    if (taken) {
+      this.flash('error', `Nama '${name}' sudah dipakai kartu lain. Pilih nama yang berbeda.`);
+      return;
+    }
+    this.sandbox.addCustomCard({
+      faction: this.newFaction, name, hp: Number(this.newHp), damage: Number(this.newDamage),
+      cost: Number(this.newCost), effect: this.newEffect, effectValue: Number(this.newEffectValue),
+    });
+    this.flash('success', `'${name}' ditambahkan ke deck ${this.factionLabel(this.newFaction)} untuk sesi ini.`);
+    this.newName = '';
+  }
+
+  removeCustomCard(index: number) {
+    this.sandbox.removeCustomCard(index);
+  }
+
+  private flash(kind: 'error' | 'success', message: string) {
+    if (kind === 'error') {
+      this.errorMessage = message;
+      setTimeout(() => this.errorMessage = '', 5000);
+    } else {
+      this.successMessage = message;
+      setTimeout(() => this.successMessage = '', 5000);
+    }
   }
 }

@@ -19,7 +19,9 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.json",
             "assets": [
-              "src/assets"
+              "src/assets",
+              { "glob": "exp*.json", "input": "../results", "output": "/research/results" },
+              { "glob": "ga_balanced_params.json", "input": "../data", "output": "/research/data" }
             ],
             "styles": [
               "src/styles.css"

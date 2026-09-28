@@ -10,6 +10,8 @@ export interface PlayerState {
   bench: CharacterState[];
   prana: { [key: string]: number };
   sasmita: number;
+  deckCount: number;
+  discardCount: number;
 }
 
 export interface GameLog {

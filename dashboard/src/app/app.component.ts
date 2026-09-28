@@ -5,10 +5,8 @@ import { RouterModule } from '@angular/router';
 // Inject implementations into abstract tokens for Clean Architecture
 import { BattleSimulatorService } from './core/usecases/battle-simulator.service';
 import { BattleSimulatorImpl } from './data/repositories/battle-simulator.impl';
-import { BalanceOptimizerService } from './core/usecases/balance-optimizer.service';
-import { BalanceOptimizerImpl } from './data/repositories/balance-optimizer.impl';
-import { AnalyticsService } from './core/usecases/analytics.service';
-import { AnalyticsImpl } from './data/repositories/analytics.impl';
+import { SandboxService } from './core/usecases/sandbox.service';
+import { SandboxImpl } from './data/repositories/sandbox.impl';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +17,7 @@ import { AnalyticsImpl } from './data/repositories/analytics.impl';
   ],
   providers: [
     { provide: BattleSimulatorService, useClass: BattleSimulatorImpl },
-    { provide: BalanceOptimizerService, useClass: BalanceOptimizerImpl },
-    { provide: AnalyticsService, useClass: AnalyticsImpl }
+    { provide: SandboxService, useClass: SandboxImpl },
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']

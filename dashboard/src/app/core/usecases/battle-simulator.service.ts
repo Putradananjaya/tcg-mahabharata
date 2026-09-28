@@ -1,8 +1,9 @@
 import { Observable } from 'rxjs';
-import { Card } from '../domain/card.model';
+import { FactionDeck } from '../engine/research-engine';
+import { PlayerState, GameLog } from '../domain/match-state.model';
 
 export abstract class BattleSimulatorService {
-  abstract startSimulation(p1Deck: Card[], p2Deck: Card[]): void;
+  abstract startSimulation(deck1: FactionDeck, deck2: FactionDeck, name1: string, name2: string): void;
   abstract getPlayer1State(): Observable<PlayerState>;
   abstract getPlayer2State(): Observable<PlayerState>;
   abstract getLogs(): Observable<GameLog[]>;
@@ -12,7 +13,4 @@ export abstract class BattleSimulatorService {
   abstract getActivePlayerIndex(): Observable<number>;
   abstract stepSimulation(): boolean;
   abstract getTurnCount(): Observable<number>;
-  abstract runBatchSimulation(p1Deck: Card[], p2Deck: Card[], matchCount: number): { p1Wins: number, p2Wins: number, draws: number, avgTurns: number };
 }
-
-import { PlayerState, GameLog } from '../domain/match-state.model';
