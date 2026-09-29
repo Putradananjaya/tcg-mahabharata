@@ -1342,3 +1342,378 @@ h3 { font-size: 14px; }
   border-radius: 4px;
   padding: 0 4px;
 }
+
+/* ==========================================================================
+   Mahabharata theme layer
+   Night-sky + gold theme shared with the app shell, /guide and /flow.
+   Applied last so it overrides the base rules above; data-encoding colors
+   (payoff cells, chart series) are intentionally left untouched.
+   ========================================================================== */
+:root {
+  --bg-primary: #f7f6fb;
+  --border-color: #e7e2ef;
+  --primary-color: #5b2fa0;
+  --primary-hover: #46237f;
+  --secondary-color: #1b1535;
+  --secondary-hover: #2d2356;
+  --text-main: #1b1535;
+
+  --gold: #e8b54a;
+  --gold-soft: #f6dc9a;
+  --gold-deep: #b07d1a;
+  --night: #0d0b1f;
+  --ink: #1b1535;
+  --faction-satwika: #2b4c9a;
+  --faction-rajasika: #c2451f;
+  --faction-tamasika: #4a2a74;
+  --night-gradient: radial-gradient(ellipse at 85% 10%, rgba(91, 42, 134, 0.9) 0%, transparent 55%),
+    radial-gradient(ellipse at 5% 100%, rgba(122, 31, 43, 0.85) 0%, transparent 50%),
+    linear-gradient(135deg, #0d0b1f, #1b1535);
+  --starfield: radial-gradient(1px 1px at 14% 30%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 38% 75%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 62% 18%, #f6dc9a 50%, transparent 51%),
+    radial-gradient(1px 1px at 80% 60%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 93% 25%, #fff 50%, transparent 51%);
+}
+
+.md-card {
+  border-radius: 16px;
+  border-color: var(--border-color);
+  box-shadow: 0 1px 2px rgba(27, 21, 53, 0.04), 0 8px 24px -18px rgba(27, 21, 53, 0.25);
+}
+
+/* Page banners (/balancer, /creator, /tuning, /analytics) */
+.welcome-banner {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  padding: 32px 36px;
+  color: #fff;
+  background: var(--night-gradient);
+  box-shadow: 0 24px 60px -28px rgba(27, 21, 53, 0.6);
+}
+.welcome-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--starfield);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.welcome-banner > * { position: relative; }
+.welcome-banner .banner-icon {
+  flex: none;
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #2d2356, var(--night));
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 0 5px rgba(232, 181, 74, 0.15), 0 0 24px -4px rgba(232, 181, 74, 0.5);
+}
+.welcome-banner .banner-text h2 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(20px, 2.6vw, 26px);
+  color: #fff;
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+.welcome-banner .banner-text p { color: rgba(255, 255, 255, 0.78); font-size: 13.5px; margin: 0; }
+.welcome-banner .banner-text p strong,
+.welcome-banner .banner-text p b { color: var(--gold-soft); }
+.welcome-banner code {
+  color: var(--gold-soft);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.welcome-banner .md-btn-outlined {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+}
+.welcome-banner .md-btn-outlined:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.5); }
+.welcome-banner .md-btn-primary:not(:disabled) {
+  background: linear-gradient(135deg, var(--gold), #c98a1c);
+  color: var(--night);
+}
+
+/* Buttons */
+.md-btn { border-radius: 999px; padding: 10px 20px; }
+.md-btn:focus-visible { box-shadow: 0 0 0 3px rgba(232, 181, 74, 0.6); }
+.md-btn-primary {
+  background: linear-gradient(135deg, #2d1b55, var(--primary-color));
+  color: #fff;
+  box-shadow: 0 6px 16px -8px rgba(91, 47, 160, 0.8);
+}
+.md-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3a2466, #6d3bb8);
+  box-shadow: 0 0 0 2px var(--gold-soft), 0 10px 22px -10px rgba(91, 47, 160, 0.9);
+}
+.md-btn-outlined:hover:not(:disabled) { background: #fbf8f1; border-color: var(--gold); }
+
+/* Form controls */
+.md-input, .md-select { border-radius: 10px; }
+.md-input:focus, .md-select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(232, 181, 74, 0.2);
+}
+.md-slider {
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e9e2f3, #f1ead9);
+}
+.md-slider::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle at 35% 35%, var(--gold-soft), var(--gold) 55%, #b07d1a);
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 3px rgba(232, 181, 74, 0.2);
+}
+.md-slider::-webkit-slider-thumb:hover { background: radial-gradient(circle at 35% 35%, #fff3cf, var(--gold) 60%, #b07d1a); }
+.md-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--ink);
+}
+.md-slider:disabled { opacity: 0.5; }
+
+/* Badges, scrollbars */
+.md-badge { border-radius: 999px; }
+.md-badge.primary { border-color: rgba(91, 47, 160, 0.25); background: rgba(91, 47, 160, 0.06); }
+::-webkit-scrollbar-thumb { background: #d9cfe8; }
+
+/* Section heads & data tables (/balancer, /analytics, /tuning) */
+.research-section-head h3,
+.creator-panel h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 17px;
+  color: var(--ink);
+}
+.research-source {
+  color: var(--gold-deep);
+  background: #fbf6ea;
+  border-color: #efe2c2;
+  border-radius: 999px;
+}
+.payoff-table th,
+.research-table th {
+  background: #f4f0fa;
+  color: var(--ink);
+}
+.research-verdict {
+  background: linear-gradient(90deg, #f6f1fd, #fff);
+  border: 1px solid #e3d7f3;
+  border-left: 3px solid var(--primary-color);
+}
+.research-caveat {
+  background: #fffaf0;
+  border: 1px solid #f1e3bf;
+  border-left: 3px solid var(--gold);
+}
+.best-row td { background: rgba(232, 181, 74, 0.1); }
+
+/* Faction headings (/tuning) */
+.faction-title { font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.06em; }
+.satwika-color { color: var(--faction-satwika); border-bottom-color: var(--faction-satwika); }
+.rajasika-color { color: var(--faction-rajasika); border-bottom-color: var(--faction-rajasika); }
+.tamasika-color { color: var(--faction-tamasika); border-bottom-color: var(--faction-tamasika); }
+.character-group { border-radius: 14px; background: #fff; border-color: #ece6d6; padding: 10px 12px 12px; }
+.slider-val.changed-val { color: var(--gold-deep); }
+
+/* Card Creator: the forge */
+.creator-form {
+  background: linear-gradient(180deg, #fffdf7, #faf6ec);
+  border: 1px solid #ece2c8;
+  border-radius: 14px;
+}
+
+/* Game Simulator (research engine): a night battle table with light play mats */
+.battlefield-area {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  background: var(--night-gradient);
+  color: #fff;
+}
+.battlefield-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--starfield);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.battlefield-area > * { position: relative; }
+.battlefield-header { border-bottom-color: rgba(232, 181, 74, 0.25); }
+.battlefield-header h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  color: #fff;
+}
+.battlefield-area .engine-note {
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(232, 181, 74, 0.2);
+  border-radius: 10px;
+}
+.battlefield-area .engine-note code { color: var(--gold-soft); }
+.battlefield-area .engine-note strong,
+.battlefield-area .engine-note b { color: #fff; }
+.battlefield-area .faksi-board {
+  background: #fdfcff;
+  border-radius: 14px;
+  color: var(--text-main);
+}
+.battlefield-area .faksi-board.p1 { border-left: 4px solid var(--gold); box-shadow: -6px 0 24px -8px rgba(232, 181, 74, 0.5); }
+.battlefield-area .faksi-board.p2 { border-right: 4px solid #d0512a; box-shadow: 6px 0 24px -8px rgba(208, 81, 42, 0.5); }
+.battlefield-area .faksi-board.active-turn-board {
+  background: #fff;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), 0 0 32px -6px rgba(232, 181, 74, 0.7);
+}
+.battlefield-area .md-card { color: var(--text-main); }
+.battlefield-area .md-card h2,
+.battlefield-area .md-card h3 { color: var(--ink); }
+
+/* Mode TCG (/simulator/tcg). Its component stylesheet is near the size budget,
+   so the theme is applied here by re-scoping the tokens its rules read. */
+app-tcg-mode .md-card.tcg-controls,
+app-tcg-mode .md-card.tcg-lobby {
+  --text-main: #fff;
+  --text-muted: rgba(255, 255, 255, 0.72);
+  --text-light: rgba(255, 255, 255, 0.55);
+  --bg-surface: transparent;
+  --border-color: rgba(255, 255, 255, 0.2);
+  --primary-color: #b07d1a;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  color: #fff;
+  background: var(--night-gradient);
+}
+app-tcg-mode .md-card.tcg-controls h2 { font-family: 'Cinzel', serif; }
+app-tcg-mode .tcg-controls .engine-note { background: rgba(255, 255, 255, 0.06); }
+app-tcg-mode .tcg-controls .engine-note code { color: var(--gold-soft); }
+app-tcg-mode .tcg-controls .md-select,
+app-tcg-mode .tcg-controls .md-input { background: #fff; color: var(--ink); }
+app-tcg-mode .tcg-controls .md-btn-outlined:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
+app-tcg-mode .tcg-controls .md-btn-secondary { border: 1px solid rgba(255, 255, 255, 0.3); }
+app-tcg-mode .tcg-controls .md-btn-primary:not(:disabled) { background: linear-gradient(135deg, var(--gold), #c98a1c); color: var(--night); }
+app-tcg-mode .tcg-controls .tcg-pending-note { color: var(--gold-soft); }
+app-tcg-mode .md-card.tcg-lobby h3 { font-family: 'Cinzel', serif; font-size: 22px; }
+app-tcg-mode .md-card.tcg-lobby strong { color: var(--gold-soft); }
+app-tcg-mode .md-card.tcg-lobby .tcg-lobby-coin { filter: drop-shadow(0 0 14px rgba(232, 181, 74, 0.7)); }
+app-tcg-mode .md-card.tcg-lobby .md-btn-primary:not(:disabled) { background: linear-gradient(135deg, var(--gold), #c98a1c); color: var(--night); }
+app-tcg-mode .e-Satwika { --primary-color: var(--faction-satwika); }
+
+/* ==========================================================================
+   Mobile layer
+   ========================================================================== */
+
+/* Grids whose minimum column is wider than a phone's content box. */
+.sliders-container { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+.payoff-pair { grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+.paired-grid { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+.form-row { grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
+
+/* Touch devices: larger hit areas. */
+@media (pointer: coarse) {
+  .md-btn { min-height: 44px; }
+  .md-slider { height: 6px; margin: 16px 0; }
+  .md-slider::-webkit-slider-thumb { width: 26px; height: 26px; }
+  .md-slider::-moz-range-thumb { width: 22px; height: 22px; }
+  app-tcg-mode .tcg-card .tcg-mini-btn { min-height: 36px; padding: 6px 12px; }
+  app-tcg-mode .tcg-hand-row .tcg-hand-card { min-height: 44px; }
+}
+
+@media (max-width: 900px) {
+  /* Game Simulator (research engine) */
+  .battlefield-header { flex-direction: column; align-items: stretch; }
+  .controls-row { flex-wrap: wrap; }
+  .controls-row .md-select { flex: 1 1 140px; min-width: 0 !important; }
+  .controls-row .md-btn { flex: 1 1 auto; }
+  .cards-row { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .active-card-slot .tcg-card-flat { max-width: none; }
+}
+
+@media (max-width: 600px) {
+  .md-card { padding: 16px; border-radius: 14px; }
+
+  /* Page banners */
+  .welcome-banner { flex-wrap: wrap; gap: 14px; padding: 22px 18px; }
+  .welcome-banner .banner-icon { width: 46px; height: 46px; font-size: 20px; }
+  .welcome-banner .banner-text { flex: 1 1 220px; min-width: 0; }
+  .welcome-banner .banner-text p { font-size: 13px; }
+
+  /* Long file names in source chips must wrap instead of widening the page. */
+  .research-source { white-space: normal; word-break: break-all; }
+  .research-chart { height: 280px; }
+
+  /* Game Simulator */
+  .battlefield-header h2 { font-size: 17px; }
+  .faksi-board { padding: 10px; }
+  .bench-cards-slot { padding: 8px; gap: 8px; }
+  .bench-cards-slot .tcg-card-flat { max-width: none; flex: 1 1 140px; }
+  .log-viewport { height: 320px; }
+  .glossary-panel { min-height: 0 !important; }
+
+  /* Mode TCG. Component rules like `.tcg-control-row .md-select` carry
+     encapsulation attributes (specificity 0,4,0), hence the repeated classes. */
+  /* Controls: a tidy 2-column grid. Mode toggle and the start button span the
+     full width; secondary buttons pair up underneath. */
+  app-tcg-mode .tcg-controls .tcg-control-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 10px;
+    align-items: end;
+  }
+  app-tcg-mode .tcg-controls .tcg-control-row .tcg-segmented { grid-column: 1 / -1; display: flex; height: 44px; }
+  app-tcg-mode .tcg-controls .tcg-control-row .tcg-segmented button { flex: 1 1 0; }
+  app-tcg-mode .tcg-controls .tcg-control-row label { min-width: 0; }
+  app-tcg-mode .tcg-controls .tcg-control-row .md-select.md-select,
+  app-tcg-mode .tcg-controls .tcg-control-row .md-input.md-input {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    padding: 0 12px;
+    line-height: normal;
+    font-size: 16px;
+  }
+  app-tcg-mode .tcg-controls .tcg-control-row .md-btn { width: 100%; min-height: 44px; padding: 0 12px; }
+  app-tcg-mode .tcg-controls .tcg-control-row [data-testid="tcg-start"] { grid-column: 1 / -1; order: 1; min-height: 48px; font-size: 15px; }
+  app-tcg-mode .tcg-controls .tcg-control-row .tcg-hint { grid-column: 1 / -1; }
+  app-tcg-mode .tcg-bench-row .tcg-card.bench,
+  app-tcg-mode .tcg-bench-row .tcg-back-lg.bench { width: calc(50% - 4px); }
+  app-tcg-mode .md-card.tcg-lobby { padding: 24px 16px; }
+  app-tcg-mode .tcg-banner { max-width: calc(100vw - 32px); }
+  app-tcg-mode .tcg-log .tcg-log-box { max-height: 320px; }
+
+  /* Parameter Sliders "Uji parameter ini": match-count select on its own row,
+     seed next to the run button, reset button full width underneath. */
+  .sandbox-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 10px;
+    align-items: end;
+  }
+  .sandbox-controls label { min-width: 0; }
+  .sandbox-controls label:first-child { grid-column: 1 / -1; }
+  .sandbox-controls .md-select,
+  .sandbox-controls .md-input {
+    width: 100% !important; /* seed input sets width: 120px inline */
+    height: 44px;
+    padding: 0 12px;
+  }
+  .sandbox-controls .md-btn { width: 100%; min-height: 44px; }
+  .sandbox-controls .md-btn-outlined { grid-column: 1 / -1; white-space: normal; }
+
+  /* iOS zooms into inputs below 16px on focus; the simulator selects set 12px inline. */
+  .md-input, .md-select { font-size: 16px; }
+  .controls-row .md-select { font-size: 16px !important; }
+}

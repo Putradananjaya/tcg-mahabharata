@@ -11,36 +11,22 @@
   </header>
 
   <!-- Main Layout -->
-  <div class="dashboard-layout">
+  <div class="dashboard-layout" [class.nav-collapsed]="navCollapsed">
     <!-- Navigation Sidebar -->
-    <nav class="dashboard-nav glass-card">
-      <button routerLink="/guide" routerLinkActive="active" class="nav-btn">
-        <span class="btn-icon">🕹️</span>
-        <span class="btn-label">Panduan Bermain</span>
+    <nav class="dashboard-nav glass-card" aria-label="Navigasi utama">
+      <button type="button" class="nav-toggle" (click)="toggleNav()"
+              [attr.aria-expanded]="!navCollapsed"
+              [attr.aria-label]="navCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
+              [attr.title]="navCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'">
+        <svg class="toggle-chevron" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span class="btn-label">Ciutkan</span>
       </button>
-      <button routerLink="/simulator" routerLinkActive="active" class="nav-btn">
-        <span class="btn-icon">🎮</span>
-        <span class="btn-label">Game Simulator</span>
-      </button>
-      <button routerLink="/balancer" routerLinkActive="active" class="nav-btn">
-        <span class="btn-icon">🔬</span>
-        <span class="btn-label">Hasil Riset Balancing</span>
-      </button>
-      <button routerLink="/creator" routerLinkActive="active" class="nav-btn">
-        <span class="btn-icon">➕</span>
-        <span class="btn-label">Card Creator</span>
-      </button>
-      <button routerLink="/tuning" routerLinkActive="active" class="nav-btn">
-        <span class="btn-icon">🎛️</span>
-        <span class="btn-label">Parameter Sliders</span>
-      </button>
-      <button routerLink="/analytics" routerLinkActive="active" class="nav-btn">
-        <span class="btn-icon">📊</span>
-        <span class="btn-label">Visual Analytics</span>
-      </button>
-      <button routerLink="/flow" routerLinkActive="active" class="nav-btn">
-        <span class="btn-icon">⚙️</span>
-        <span class="btn-label">Flow & Schema</span>
+      <button *ngFor="let item of navItems" [routerLink]="item.path" routerLinkActive="active" class="nav-btn"
+              [attr.title]="navCollapsed ? item.label : null" [attr.aria-label]="item.label">
+        <span class="btn-icon">{{ item.icon }}</span>
+        <span class="btn-label">{{ item.label }}</span>
       </button>
     </nav>
 

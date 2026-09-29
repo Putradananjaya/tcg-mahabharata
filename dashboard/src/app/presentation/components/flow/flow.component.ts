@@ -1,262 +1,212 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+type Tone = 'start' | 'gold' | 'green' | 'purple' | 'blue' | 'end';
+
+interface FlowNode {
+  icon: string;
+  title: string;
+  /** May contain <code> markup; rendered via [innerHTML] (Angular-sanitized). */
+  desc: string;
+  tone?: Tone;
+}
+
+interface FlowTab {
+  id: string;
+  icon: string;
+  label: string;
+  heading: string;
+  summary: string;
+  nodes: FlowNode[];
+}
+
 @Component({
   selector: 'app-flow',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flowcharts-layout">
-      <!-- Left Side: Diagram Container -->
-      <div class="diagram-card md-card">
-        <div class="logs-header">
+    <div class="f-page">
+
+      <section class="f-banner">
+        <div class="f-stars" aria-hidden="true"></div>
+        <div class="f-banner-body">
+          <span class="f-kicker">Flow &amp; Schema</span>
           <h2>Interactive Architecture Diagrams</h2>
-          <div class="flow-tabs-header">
-            <button (click)="activeTab = 'tcg'" [class.active]="activeTab === 'tcg'" class="flow-tab-btn">🕹️ Turn Logic</button>
-            <button (click)="activeTab = 'opt'" [class.active]="activeTab === 'opt'" class="flow-tab-btn">🧬 Balancer Loop</button>
-            <button (click)="activeTab = 'ml'" [class.active]="activeTab === 'ml'" class="flow-tab-btn">🤖 ML Pipeline</button>
-            <button (click)="activeTab = 'clean'" [class.active]="activeTab === 'clean'" class="flow-tab-btn">🏰 Clean Arch</button>
+          <div class="f-tabs" role="tablist">
+            <button *ngFor="let t of tabs" type="button" role="tab" class="f-tab"
+                    [class.active]="activeTab === t.id" [attr.aria-selected]="activeTab === t.id"
+                    (click)="activeTab = t.id">
+              <span>{{ t.icon }}</span> {{ t.label }}
+            </button>
           </div>
         </div>
+      </section>
 
-        <!-- Tab 1: Core TCG Turn Logic -->
-        <div class="diagram-viewport" *ngIf="activeTab === 'tcg'">
-          <div class="diagram-desc">
-            <strong>Core TCG Turn Loop:</strong> Alur eksekusi per giliran pemain oleh game engine simulator.
+      <div class="f-layout">
+        <ng-container *ngFor="let t of tabs">
+          <section *ngIf="activeTab === t.id" class="f-diagram" role="tabpanel">
+            <p class="f-summary"><strong>{{ t.heading }}:</strong> {{ t.summary }}</p>
+            <div *ngIf="t.id === 'tcg'" class="f-terminal">Mulai Giliran</div>
+            <ol class="f-flow">
+              <li *ngFor="let n of t.nodes; let i = index" [style.animation-delay.ms]="i * 90">
+                <div class="f-node" [ngClass]="'tone-' + (n.tone || 'gold')">
+                  <span class="f-icon">{{ n.icon }}</span>
+                  <div>
+                    <strong>{{ n.title }}</strong>
+                    <p [innerHTML]="n.desc"></p>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </section>
+        </ng-container>
+
+        <aside class="f-schemas">
+          <header>
+            <span class="f-kicker">Data</span>
+            <h3>Data Structure Formats</h3>
+            <p>Format pertukaran data yang digunakan antar-faksi:</p>
+          </header>
+          <div class="f-code">
+            <div class="f-code-head"><span class="f-dots"><i></i><i></i><i></i></span>Card Schema Format (JSON)</div>
+            <pre><code>{{ cardJsonSchema }}</code></pre>
           </div>
-          <div class="visual-flow">
-            <div class="node-box" style="justify-content: center; font-weight: 700; background: rgba(0,0,0,0.02)">Mulai Giliran</div>
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-            
-            <div class="node-box">
-              <span class="node-icon">🎴</span>
-              <div class="node-details">
-                <strong>Ambil Kartu (Draw Phase)</strong>
-                <span>Pemain aktif mengambil kartu dari deck. Jika deck kosong, Kurawa memenangkan penalti mill.</span>
-              </div>
-            </div>
-            
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box">
-              <span class="node-icon">🔮</span>
-              <div class="node-details">
-                <strong>Akumulasi Prana</strong>
-                <span>Setiap pemain mengundi prana faksi (Satwika/Rajasika/Tamasika) dan Universal sesuai karakter aktif.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box">
-              <span class="node-icon">⚔️</span>
-              <div class="node-details">
-                <strong>Fase Penyerangan (Action Phase)</strong>
-                <span>Karakter aktif mengeksekusi serangan atau skill penyembuhan jika syarat prana cost terpenuhi.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box">
-              <span class="node-icon">🔄</span>
-              <div class="node-details">
-                <strong>Fase Retreat (Opsional)</strong>
-                <span>Karakter aktif dapat retreat ke Bench dengan membayar cost untuk digantikan cadangan jika HP sekarat.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box end-check">
-              <span class="node-icon">⚖️</span>
-              <div class="node-details">
-                <strong>Cek Kematian (Sasmita Claim)</strong>
-                <span>Berhasil membuat karakter aktif lawan gugur mengurangi Sasmita milikmu (-1, klaim prize). Jika Sasmita-mu = 0, kamu menang!</span>
-              </div>
-            </div>
+          <div class="f-code">
+            <div class="f-code-head"><span class="f-dots"><i></i><i></i><i></i></span>Tournament Outcome Logs (CSV)</div>
+            <pre><code>{{ tournamentCsvSchema }}</code></pre>
           </div>
-        </div>
-
-        <!-- Tab 2: Balance Optimization Loop -->
-        <div class="diagram-viewport" *ngIf="activeTab === 'opt'">
-          <div class="diagram-desc">
-            <strong>Optimization Loop:</strong> Siklus komputasi penyesuaian parameter menggunakan Genetic Algorithm (GA) dan Particle Swarm (PSO).
-          </div>
-          <div class="visual-flow">
-            <div class="node-box accent-box">
-              <span class="node-icon">📂</span>
-              <div class="node-details">
-                <strong>Inisialisasi Parameter Awal</strong>
-                <span>Memuat HP, damage, dr, dan heal kartu TCG dari file JSON default.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box">
-              <span class="node-icon">💻</span>
-              <div class="node-details">
-                <strong>Simulasi 1.500 Pertandingan</strong>
-                <span>Mengeksekusi pertempuran acak asimetris untuk menguji kekuatan mutan parameter secara statistik.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box">
-              <span class="node-icon">🎚️</span>
-              <div class="node-details">
-                <strong>Evaluasi Fungsi Kebugaran (Loss)</strong>
-                <span>Menghitung deviasi win rate antar faksi terhadap target seimbang 50:50.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box">
-              <span class="node-icon">🧬</span>
-              <div class="node-details">
-                <strong>Operator Optimasi (GA / PSO)</strong>
-                <span>Menggunakan Seleksi & Mutasi (GA) atau Penyesuaian Vektor Kecepatan Swarm (PSO) untuk membuat generasi baru.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box success-box">
-              <span class="node-icon">💾</span>
-              <div class="node-details">
-                <strong>Ekspor File Parameter Seimbang</strong>
-                <span>Menyimpan file parameter optimal baru ke folder <code>data/</code> saat tingkat deviasi mendekati nol.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 3: Machine Learning Pipeline -->
-        <div class="diagram-viewport" *ngIf="activeTab === 'ml'">
-          <div class="diagram-desc">
-            <strong>AI & ML Pipeline:</strong> Arsitektur integrasi data log hasil sim, model prediksi, dan pembelajaran reward taktis.
-          </div>
-          <div class="visual-flow">
-            <div class="node-box">
-              <span class="node-icon">🏟️</span>
-              <div class="node-details">
-                <strong>Data Logger (Simulator & Game Engine)</strong>
-                <span>Mengekspor state per giliran, prana, HP, damage, dan hasil akhir pertempuran ke <code>hasil_riset.csv</code>.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box border-emerald">
-              <span class="node-icon">📊</span>
-              <div class="node-details">
-                <strong>Metode Regresi Random Forest</strong>
-                <span>Membaca CSV untuk mencari feature importance dari setiap parameter dan korelasi HP terhadap peluang menang.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box border-magenta">
-              <span class="node-icon">🧠</span>
-              <div class="node-details">
-                <strong>Deep Surrogate Model (MLP Classifier)</strong>
-                <span>Melatih Multi-Layer Perceptron (MLP) 4-layer untuk bertindak sebagai fungsi aproksimasi loss pengganti simulator.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box success-box">
-              <span class="node-icon">🤖</span>
-              <div class="node-details">
-                <strong>Self-Play Reinforcement Learning (Q-Learning)</strong>
-                <span>Melatih agen cerdas melawan dirinya sendiri untuk menemukan pola giliran (turn sequence) optimal tiap faksi.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 4: Clean Architecture Layer Boundaries -->
-        <div class="diagram-viewport" *ngIf="activeTab === 'clean'">
-          <div class="diagram-desc">
-            <strong>Clean Architecture Layers:</strong> Batasan antar-layar kode untuk memisahkan domain inti dari UI.
-          </div>
-          <div class="visual-flow">
-            <div class="node-box border-cyan">
-              <span class="node-icon">🖥️</span>
-              <div class="node-details">
-                <strong>Presentation Layer (UI/View)</strong>
-                <span>Komponen Angular Standalone: Panel Arena Simulator, Tuning Sliders, dan Canvas Chart.js.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box border-magenta">
-              <span class="node-icon">⚙️</span>
-              <div class="node-details">
-                <strong>Use Cases Layer (Business Services)</strong>
-                <span>Layanan abstrak 'BattleSimulatorService', 'BalanceOptimizerService', dan 'AnalyticsService'.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box border-emerald">
-              <span class="node-icon">📦</span>
-              <div class="node-details">
-                <strong>Data Repository / Driver Layer</strong>
-                <span>Implementasi konkrit log simulator per giliran murni TypeScript dan pencari loss fungsi.</span>
-              </div>
-            </div>
-
-            <div class="connector"><svg width="20" height="30"><line x1="10" y1="0" x2="10" y2="30" stroke="#cbd5e1" stroke-width="2" marker-end="url(#arrow)"/></svg></div>
-
-            <div class="node-box success-box">
-              <span class="node-icon">💎</span>
-              <div class="node-details">
-                <strong>Core Domain Layer</strong>
-                <span>Entitas murni 'Card' dan 'PlayerState' yang terbebas dari library eksternal.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Defs for markers -->
-        <svg width="0" height="0">
-          <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#cbd5e1" />
-            </marker>
-          </defs>
-        </svg>
-
-      </div>
-
-      <!-- Right Side: Data Structures -->
-      <div class="data-card md-card">
-        <h2>Data Structure Formats</h2>
-        <p class="description">Format pertukaran data yang digunakan antar-faksi:</p>
-        
-        <div class="schema-box">
-          <h3>Card Schema Format (JSON)</h3>
-          <pre><code>{{ cardJsonSchema }}</code></pre>
-        </div>
-
-        <div class="schema-box" style="margin-top: 16px;">
-          <h3>Tournament Outcome Logs (CSV)</h3>
-          <pre><code>{{ tournamentCsvSchema }}</code></pre>
-        </div>
+        </aside>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    :host { display: block; --gold: #e8b54a; --gold-soft: #f6dc9a; --night: #0d0b1f; --ink: #1b1535; }
+    .f-page { display: flex; flex-direction: column; gap: 28px; padding-bottom: 40px; }
+    p { margin: 0; }
+    .f-kicker { font-size: 11px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+
+    /* Banner + tabs */
+    .f-banner { position: relative; overflow: hidden; border-radius: 20px; padding: 36px 40px;
+      background: radial-gradient(ellipse at 85% 10%, #5b2a86 0%, transparent 55%), radial-gradient(ellipse at 5% 100%, #7a1f2b 0%, transparent 50%), linear-gradient(135deg, var(--night), var(--ink));
+      box-shadow: 0 24px 60px -24px rgba(27, 21, 53, .55); }
+    .f-stars { position: absolute; inset: 0; opacity: .6;
+      background-image: radial-gradient(1px 1px at 14% 30%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 38% 75%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 62% 18%, var(--gold-soft) 50%, transparent 51%), radial-gradient(1px 1px at 80% 60%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 93% 25%, #fff 50%, transparent 51%); }
+    .f-banner-body { position: relative; }
+    .f-banner h2 { font-family: 'Cinzel', serif; font-size: clamp(24px, 3.4vw, 34px); color: #fff; margin: 8px 0 22px; }
+    .f-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .f-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; cursor: pointer; font: 600 13px 'Inter', sans-serif;
+      color: rgba(255, 255, 255, .78); background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .16); transition: background .2s, color .2s, border-color .2s; }
+    .f-tab:hover { background: rgba(255, 255, 255, .12); color: #fff; }
+    .f-tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .f-tab.active { background: linear-gradient(135deg, var(--gold), #c98a1c); color: var(--night); border-color: transparent; box-shadow: 0 8px 20px -8px rgba(232, 181, 74, .8); }
+
+    /* Layout */
+    .f-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 24px; align-items: start; }
+
+    /* Diagram */
+    .f-diagram { background: #fff; border: 1px solid #ece6d6; border-radius: 18px; padding: 28px; }
+    .f-summary { font-size: 14px; line-height: 1.65; padding: 14px 18px; border-radius: 12px; background: #fffaf0; border-left: 3px solid var(--gold); margin-bottom: 24px; }
+    .f-summary strong { color: var(--ink); }
+    .f-terminal { width: fit-content; margin: 0 auto 0 0; padding: 8px 20px; border-radius: 999px; font: 700 12px 'Inter', sans-serif; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--gold-soft); background: var(--ink); border: 1px solid var(--gold); }
+    .f-flow { list-style: none; margin: 0; padding: 0; }
+    .f-flow li { position: relative; padding-top: 28px; animation: f-rise .5s ease-out both; }
+    .f-flow li::before { content: ''; position: absolute; left: 28px; top: 0; height: 28px; width: 2px;
+      background: repeating-linear-gradient(to bottom, var(--gold) 0 5px, transparent 5px 9px); background-size: 2px 18px; animation: f-flowline 1s linear infinite; }
+    .f-flow li:first-child::before { display: none; }
+    .f-flow li:first-child { padding-top: 0; }
+    .f-diagram .f-terminal + .f-flow li:first-child { padding-top: 28px; }
+    .f-diagram .f-terminal + .f-flow li:first-child::before { display: block; }
+    .f-node { display: flex; gap: 16px; align-items: flex-start; padding: 14px 18px 14px 10px; border-radius: 14px; border: 1px solid #ece6d6; background: #fff; transition: border-color .2s, box-shadow .2s, transform .2s; }
+    .f-node:hover { transform: translateX(3px); border-color: var(--accent); box-shadow: 0 10px 24px -16px var(--accent); }
+    .f-icon { flex: none; width: 36px; height: 36px; display: grid; place-items: center; font-size: 17px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #2d2356, var(--night)); border: 2px solid var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent); }
+    .f-node strong { display: block; font-size: 15px; color: var(--ink); margin: 2px 0 4px; }
+    .f-node p { font-size: 13px; line-height: 1.6; color: #64748b; }
+    .f-node p ::ng-deep code { font-size: 12px; padding: 1px 6px; border-radius: 4px; background: #f3efe4; color: #7a4f0c; }
+    .tone-gold, .tone-start { --accent: #e8b54a; }
+    .tone-green, .tone-end { --accent: #10b981; }
+    .tone-purple { --accent: #9b5de5; }
+    .tone-blue { --accent: #3b82f6; }
+    .tone-end { background: linear-gradient(90deg, #f0fdf7, #fff); }
+    .tone-start { background: linear-gradient(90deg, #fffaf0, #fff); }
+
+    /* Schemas */
+    .f-schemas { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .f-schemas header .f-kicker { color: #b07d1a; }
+    .f-schemas h3 { font-family: 'Cinzel', serif; font-size: 22px; color: var(--ink); margin: 6px 0 4px; }
+    .f-schemas header p { font-size: 13px; }
+    .f-code { border-radius: 14px; overflow: hidden; background: var(--night); border: 1px solid rgba(232, 181, 74, .25); box-shadow: 0 16px 36px -22px rgba(13, 11, 31, .8); }
+    .f-code-head { display: flex; align-items: center; gap: 12px; padding: 10px 14px; font: 600 12px 'Inter', sans-serif; color: var(--gold-soft); background: rgba(255, 255, 255, .04); border-bottom: 1px solid rgba(232, 181, 74, .18); }
+    .f-dots { display: inline-flex; gap: 5px; }
+    .f-dots i { width: 9px; height: 9px; border-radius: 50%; background: #7a1f2b; }
+    .f-dots i:nth-child(2) { background: #c98a1c; }
+    .f-dots i:nth-child(3) { background: #3d6b4f; }
+    .f-code pre { margin: 0; padding: 16px; overflow-x: auto; font: 12px/1.6 'SFMono-Regular', Menlo, Consolas, monospace; color: #e7e2f5; }
+
+    @keyframes f-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes f-flowline { to { background-position: 0 18px; } }
+
+    @media (max-width: 1100px) {
+      .f-layout { grid-template-columns: minmax(0, 1fr); }
+      .f-schemas { position: static; }
+    }
+    @media (max-width: 600px) {
+      .f-banner { padding: 28px 20px; }
+      .f-diagram { padding: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .f-flow li, .f-flow li::before { animation: none; }
+    }
+  `]
 })
 export class FlowComponent {
   activeTab = 'tcg';
+
+  readonly tabs: FlowTab[] = [
+    {
+      id: 'tcg', icon: '🕹️', label: 'Turn Logic', heading: 'Core TCG Turn Loop',
+      summary: 'Alur eksekusi per giliran pemain oleh game engine simulator.',
+      nodes: [
+        { icon: '🎴', title: 'Ambil Kartu (Draw Phase)', desc: 'Pemain aktif mengambil kartu dari deck. Jika deck kosong, Kurawa memenangkan penalti mill.' },
+        { icon: '🔮', title: 'Akumulasi Prana', desc: 'Setiap pemain mengundi prana faksi (Satwika/Rajasika/Tamasika) dan Universal sesuai karakter aktif.' },
+        { icon: '⚔️', title: 'Fase Penyerangan (Action Phase)', desc: 'Karakter aktif mengeksekusi serangan atau skill penyembuhan jika syarat prana cost terpenuhi.' },
+        { icon: '🔄', title: 'Fase Retreat (Opsional)', desc: 'Karakter aktif dapat retreat ke Bench dengan membayar cost untuk digantikan cadangan jika HP sekarat.' },
+        { icon: '⚖️', title: 'Cek Kematian (Sasmita Claim)', desc: 'Berhasil membuat karakter aktif lawan gugur mengurangi Sasmita milikmu (-1, klaim prize). Jika Sasmita-mu = 0, kamu menang!', tone: 'end' }
+      ]
+    },
+    {
+      id: 'opt', icon: '🧬', label: 'Balancer Loop', heading: 'Optimization Loop',
+      summary: 'Siklus komputasi penyesuaian parameter menggunakan Genetic Algorithm (GA) dan Particle Swarm (PSO).',
+      nodes: [
+        { icon: '📂', title: 'Inisialisasi Parameter Awal', desc: 'Memuat HP, damage, dr, dan heal kartu TCG dari file JSON default.', tone: 'start' },
+        { icon: '💻', title: 'Simulasi 1.500 Pertandingan', desc: 'Mengeksekusi pertempuran acak asimetris untuk menguji kekuatan mutan parameter secara statistik.' },
+        { icon: '🎚️', title: 'Evaluasi Fungsi Kebugaran (Loss)', desc: 'Menghitung deviasi win rate antar faksi terhadap target seimbang 50:50.' },
+        { icon: '🧬', title: 'Operator Optimasi (GA / PSO)', desc: 'Menggunakan Seleksi & Mutasi (GA) atau Penyesuaian Vektor Kecepatan Swarm (PSO) untuk membuat generasi baru.' },
+        { icon: '💾', title: 'Ekspor File Parameter Seimbang', desc: 'Menyimpan file parameter optimal baru ke folder <code>data/</code> saat tingkat deviasi mendekati nol.', tone: 'end' }
+      ]
+    },
+    {
+      id: 'ml', icon: '🤖', label: 'ML Pipeline', heading: 'AI & ML Pipeline',
+      summary: 'Arsitektur integrasi data log hasil sim, model prediksi, dan pembelajaran reward taktis.',
+      nodes: [
+        { icon: '🏟️', title: 'Data Logger (Simulator & Game Engine)', desc: 'Mengekspor state per giliran, prana, HP, damage, dan hasil akhir pertempuran ke <code>hasil_riset.csv</code>.' },
+        { icon: '📊', title: 'Metode Regresi Random Forest', desc: 'Membaca CSV untuk mencari feature importance dari setiap parameter dan korelasi HP terhadap peluang menang.', tone: 'green' },
+        { icon: '🧠', title: 'Deep Surrogate Model (MLP Classifier)', desc: 'Melatih Multi-Layer Perceptron (MLP) 4-layer untuk bertindak sebagai fungsi aproksimasi loss pengganti simulator.', tone: 'purple' },
+        { icon: '🤖', title: 'Self-Play Reinforcement Learning (Q-Learning)', desc: 'Melatih agen cerdas melawan dirinya sendiri untuk menemukan pola giliran (turn sequence) optimal tiap faksi.', tone: 'end' }
+      ]
+    },
+    {
+      id: 'clean', icon: '🏰', label: 'Clean Arch', heading: 'Clean Architecture Layers',
+      summary: 'Batasan antar-layar kode untuk memisahkan domain inti dari UI.',
+      nodes: [
+        { icon: '🖥️', title: 'Presentation Layer (UI/View)', desc: 'Komponen Angular Standalone: Panel Arena Simulator, Tuning Sliders, dan Canvas Chart.js.', tone: 'blue' },
+        { icon: '⚙️', title: 'Use Cases Layer (Business Services)', desc: "Layanan abstrak 'BattleSimulatorService', 'BalanceOptimizerService', dan 'AnalyticsService'.", tone: 'purple' },
+        { icon: '📦', title: 'Data Repository / Driver Layer', desc: 'Implementasi konkrit log simulator per giliran murni TypeScript dan pencari loss fungsi.', tone: 'green' },
+        { icon: '💎', title: 'Core Domain Layer', desc: "Entitas murni 'Card' dan 'PlayerState' yang terbebas dari library eksternal.", tone: 'end' }
+      ]
+    }
+  ];
 
   cardJsonSchema = `{
   "id": "stw_yudhistira",

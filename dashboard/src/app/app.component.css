@@ -12,8 +12,10 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 16px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at 90% 0%, rgba(91, 42, 134, 0.55), transparent 60%), linear-gradient(120deg, #0d0b1f, #1b1535);
+  box-shadow: 0 12px 30px -18px rgba(27, 21, 53, 0.7);
 }
 
 .logo-area {
@@ -23,25 +25,33 @@
 }
 
 .logo-icon {
-  font-size: 28px;
-  background: rgba(63, 81, 181, 0.08);
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(63, 81, 181, 0.2);
+  font-size: 26px;
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #2d2356, #0d0b1f);
+  border: 2px solid #e8b54a;
+  box-shadow: 0 0 0 4px rgba(232, 181, 74, 0.15);
 }
 
 .logo-text h1 {
   margin: 0;
+  font-family: 'Cinzel', serif;
   font-size: 22px;
   font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.01em;
+  color: #fff;
+  letter-spacing: 0.03em;
 }
 
 .logo-text p {
   margin: 2px 0 0 0;
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e8b54a;
 }
 
 .badge-area {
@@ -52,21 +62,32 @@
 /* Layout Grid */
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 240px minmax(0, 1fr);
   gap: 24px;
   flex: 1;
+  /* Without this, spare viewport height is spread over the rows, which opens a
+     gap under the nav when it stacks above short pages on mobile. */
+  align-content: start;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.dashboard-layout.nav-collapsed {
+  grid-template-columns: 74px minmax(0, 1fr);
 }
 
 .dashboard-nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   height: fit-content;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 24px;
+  overflow: hidden;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 181, 74, 0.18);
+  background: radial-gradient(ellipse at 100% 0%, rgba(91, 42, 134, 0.5), transparent 55%), radial-gradient(ellipse at 0% 100%, rgba(122, 31, 43, 0.35), transparent 55%), linear-gradient(180deg, #0d0b1f, #1b1535);
+  box-shadow: 0 12px 30px -18px rgba(27, 21, 53, 0.7);
 }
 
 .nav-btn {
@@ -74,41 +95,227 @@
   align-items: center;
   gap: 14px;
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 14px;
   background: transparent;
   border: none;
-  border-radius: 6px;
-  color: var(--text-muted);
-  font-family: 'Roboto', sans-serif;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.68);
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 500;
   text-align: left;
   cursor: pointer;
   outline: none;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .nav-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
-  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  transform: translateX(2px);
+}
+
+.nav-btn:focus-visible {
+  box-shadow: 0 0 0 2px #e8b54a;
 }
 
 .nav-btn.active {
-  background: rgba(63, 81, 181, 0.08);
-  color: var(--primary-color);
+  background: linear-gradient(90deg, rgba(232, 181, 74, 0.24), rgba(232, 181, 74, 0.04));
+  color: #f6dc9a;
   font-weight: 700;
+  box-shadow: inset 3px 0 0 #e8b54a;
 }
 
 .btn-icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
   font-size: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-btn.active .btn-icon {
+  border-color: #e8b54a;
+  background: radial-gradient(circle at 30% 30%, #2d2356, #0d0b1f);
+  box-shadow: 0 0 12px -2px rgba(232, 181, 74, 0.6);
+}
+
+.nav-toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 8px 14px;
+  margin-bottom: 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(232, 181, 74, 0.15);
+  border-radius: 10px 10px 0 0;
+  color: rgba(232, 181, 74, 0.8);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  outline: none;
+  transition: color 0.2s ease;
+}
+
+.nav-toggle:hover {
+  color: #f6dc9a;
+}
+
+.nav-toggle:focus-visible {
+  box-shadow: 0 0 0 2px #e8b54a;
+}
+
+.toggle-chevron {
+  flex: none;
+  width: 32px;
+  transition: transform 0.3s ease;
+}
+
+.btn-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-collapsed .dashboard-nav {
+  padding: 10px 8px;
+}
+
+.nav-collapsed .nav-btn,
+.nav-collapsed .nav-toggle {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.nav-collapsed .btn-label {
+  display: none;
+}
+
+.nav-collapsed .toggle-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-collapsed .nav-btn:hover {
+  transform: none;
 }
 
 .dashboard-main {
   min-height: 500px;
 }
 
+/* Tablet & phone: the sidebar becomes a sticky, horizontally scrollable tab strip. */
 @media (max-width: 900px) {
-  .dashboard-layout {
-    grid-template-columns: 1fr;
+  .dashboard-layout,
+  .dashboard-layout.nav-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .dashboard-nav,
+  .nav-collapsed .dashboard-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    flex-direction: row;
+    gap: 6px;
+    padding: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Collapsing only makes sense for the vertical sidebar. */
+  .nav-toggle {
+    display: none;
+  }
+
+  .nav-btn,
+  .nav-collapsed .nav-btn {
+    flex: none;
+    width: auto;
+    gap: 8px;
+    padding: 6px 14px 6px 6px;
+    border-radius: 999px;
+    scroll-snap-align: center;
+    justify-content: flex-start;
+  }
+
+  .nav-collapsed .btn-label {
+    display: inline;
+  }
+
+  .nav-btn:hover {
+    transform: none;
+  }
+
+  .nav-btn.active {
+    box-shadow: inset 0 0 0 1px #e8b54a;
+  }
+
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-container {
+    padding: 12px;
+  }
+
+  .dashboard-header {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .logo-area {
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .logo-text h1 {
+    font-size: 17px;
+  }
+
+  .logo-text p {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+
+  .dashboard-layout,
+  .dashboard-layout.nav-collapsed {
+    gap: 12px;
+  }
+
+  .dashboard-nav,
+  .nav-collapsed .dashboard-nav {
+    margin: 0 -12px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 }

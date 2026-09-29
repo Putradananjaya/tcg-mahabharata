@@ -7,6 +7,7 @@ import { ResearchResultsService } from '../../../core/services/research-results.
 import { Match, mulberry32 } from '../../../core/engine/research-engine';
 import { BOUNDS, CYCLE_MATCHUPS, Faction } from '../../../core/engine/research-params';
 import { WilsonInterval, wilsonCi } from '../../../core/engine/stats';
+import { CharacterArtComponent } from '../character-art/character-art.component';
 
 interface MatchupResult {
   row: Faction;
@@ -62,7 +63,7 @@ const LABELS: { [key: string]: string } = {
 @Component({
   selector: 'app-optimizer',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CharacterArtComponent],
   template: `
     <div class="optimizer-layout">
 
@@ -264,7 +265,11 @@ const LABELS: { [key: string]: string } = {
               <span *ngIf="customCountFor(f.faction)"> + {{ customCountFor(f.faction) }} kartu kustom</span>
             </h3>
             <div class="character-group" *ngFor="let group of getCharacterGroups(f.prefix)">
-              <h4 class="character-name">{{ group.characterName }}</h4>
+              <app-character-art
+                [key]="group.characterName.toLowerCase()"
+                [hp]="statOf(group.keys, '_hp')"
+                [damage]="statOf(group.keys, '_dmg')">
+              </app-character-art>
               <div class="sliders-grid">
                 <div class="slider-row" *ngFor="let key of group.keys">
                   <div class="slider-labels">
@@ -388,6 +393,12 @@ export class OptimizerComponent implements OnInit, OnDestroy {
       groups[indexByName[characterName]].keys.push(key);
     }
     return groups;
+  }
+
+  /** Current value of the first param in `keys` ending with `suffix`, or null if none. */
+  statOf(keys: string[], suffix: string): number | null {
+    const key = keys.find(k => k.endsWith(suffix));
+    return key && this.params ? this.params[key] : null;
   }
 
   getLabel(key: string): string {
