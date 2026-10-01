@@ -45,6 +45,11 @@ npm run start
 Setelah server aktif, buka peramban Anda dan kunjungi:
 👉 **`http://localhost:4200/`**
 
+### 4. Deploy ke GitHub Pages
+Deploy otomatis lewat `.github/workflows/deploy-dashboard.yml` setiap push ke `main` yang
+mengubah `dashboard/`, `results/exp*.json`, atau `data/ga_balanced_params.json` (bisa juga
+dijalankan manual dari tab **Actions**). Situs: **`https://putradananjaya.github.io/tcg-mahabharata/`**
+
 ---
 
 ## 📈 Fitur Utama Dashboard

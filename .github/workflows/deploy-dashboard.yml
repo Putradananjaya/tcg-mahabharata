@@ -1,0 +1,70 @@
+# Build dashboard Angular (dashboard/) dan deploy ke GitHub Pages.
+# Situs: https://<owner>.github.io/<repo>/
+#
+# Data riset di situs disalin apa adanya dari results/exp*.json dan
+# data/ga_balanced_params.json oleh konfigurasi assets di dashboard/angular.json;
+# workflow ini tidak membuat atau mengubah data apa pun.
+name: Deploy dashboard ke GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "dashboard/**"
+      - "results/exp*.json"
+      - "data/ga_balanced_params.json"
+      - ".github/workflows/deploy-dashboard.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+
+      - run: npm ci
+
+      - name: Build (production)
+        run: npx ng build --base-href "/${{ github.event.repository.name }}/"
+
+      # GitHub Pages tidak punya SPA fallback; 404.html = index.html agar deep link
+      # seperti /simulator/tcg tetap dimuat oleh router Angular.
+      - name: SPA fallback
+        run: cp dist/tcg-mahabharata-dashboard/index.html dist/tcg-mahabharata-dashboard/404.html
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dashboard/dist/tcg-mahabharata-dashboard
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
