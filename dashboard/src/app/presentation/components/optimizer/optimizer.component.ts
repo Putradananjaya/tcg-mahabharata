@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -8,6 +8,7 @@ import { Match, mulberry32 } from '../../../core/engine/research-engine';
 import { BOUNDS, CYCLE_MATCHUPS, Faction } from '../../../core/engine/research-params';
 import { WilsonInterval, wilsonCi } from '../../../core/engine/stats';
 import { CharacterArtComponent } from '../character-art/character-art.component';
+import { LanguageService } from '../../../core/services/language.service';
 
 interface MatchupResult {
   row: Faction;
@@ -68,8 +69,8 @@ const LABELS: { [key: string]: string } = {
     <div class="optimizer-layout">
 
       <div class="research-error" *ngIf="loadError">
-        Gagal memuat parameter riset (data/ga_balanced_params.json): {{ loadError }}. Sandbox tidak bisa dipakai tanpa
-        parameter ini — tidak ada nilai cadangan yang dipakai diam-diam.
+        {{ t('Gagal memuat parameter riset', 'Failed to load the research parameters') }} (data/ga_balanced_params.json): {{ loadError }}.
+        {{ t('Sandbox tidak bisa dipakai tanpa parameter ini — tidak ada nilai cadangan yang dipakai diam-diam.', 'The sandbox cannot be used without these parameters — no fallback values are silently used.') }}
       </div>
 
       <!-- ===================== CARD CREATOR ===================== -->
@@ -78,35 +79,43 @@ const LABELS: { [key: string]: string } = {
           <div class="banner-icon">➕</div>
           <div class="banner-text">
             <h2>Card Creator (Sandbox)</h2>
+            @if (i18n.isEn()) {
+            <p>
+              Add a new card type to a faction's deck, then try it in the Game Simulator or test it in Parameter Sliders.
+              Custom cards <strong>exist only in this browser session</strong> (they disappear when the page is reloaded) and do not
+              affect the research results.
+            </p>
+            } @else {
             <p>
               Tambahkan jenis kartu baru ke deck sebuah faksi, lalu coba di Game Simulator atau uji di Parameter Sliders.
               Kartu kustom <strong>hanya ada di sesi browser ini</strong> (hilang saat halaman di-reload) dan tidak
               memengaruhi hasil riset.
             </p>
+            }
           </div>
         </div>
 
         <div class="creator-panel md-card">
-          <h3>Buat Kartu Baru</h3>
+          <h3>{{ t('Buat Kartu Baru', 'Create a New Card') }}</h3>
           <div class="creator-form">
             <div class="form-row">
               <div class="form-group">
-                <label>Nama Karakter</label>
-                <input type="text" [(ngModel)]="newName" placeholder="misal: Gatotkaca" class="md-input">
+                <label>{{ t('Nama Karakter', 'Character Name') }}</label>
+                <input type="text" [(ngModel)]="newName" [placeholder]="t('misal: Gatotkaca', 'e.g. Gatotkaca')" class="md-input">
               </div>
               <div class="form-group">
-                <label>Faksi</label>
+                <label>{{ t('Faksi', 'Faction') }}</label>
                 <select [(ngModel)]="newFaction" class="md-select">
                   <option *ngFor="let f of factions" [value]="f">{{ factionLabel(f) }}</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>Efek Serangan</label>
+                <label>{{ t('Efek Serangan', 'Attack Effect') }}</label>
                 <select [(ngModel)]="newEffect" class="md-select">
-                  <option value="none">Tanpa efek (damage saja)</option>
-                  <option value="mill_enemy_deck">Mill — buang kartu deck lawan</option>
-                  <option value="recoil_damage">Recoil — penyerang ikut terluka</option>
-                  <option value="heal_bench_card">Heal Bench — catatan: selalu 0 di engine ini</option>
+                  <option value="none">{{ t('Tanpa efek (damage saja)', 'No effect (damage only)') }}</option>
+                  <option value="mill_enemy_deck">{{ t('Mill — buang kartu deck lawan', 'Mill — discard cards from the opponent deck') }}</option>
+                  <option value="recoil_damage">{{ t('Recoil — penyerang ikut terluka', 'Recoil — the attacker is hurt too') }}</option>
+                  <option value="heal_bench_card">{{ t('Heal Bench — catatan: selalu 0 di engine ini', 'Heal Bench — note: always 0 in this engine') }}</option>
                 </select>
               </div>
             </div>
@@ -120,15 +129,15 @@ const LABELS: { [key: string]: string } = {
                 <input type="range" min="20" max="80" [(ngModel)]="newDamage" class="md-slider">
               </div>
               <div class="form-group">
-                <label>Biaya Prana {{ pranaOf(newFaction) }}: <strong>{{ newCost }}</strong></label>
+                <label>{{ t('Biaya Prana', 'Prana Cost') }} {{ pranaOf(newFaction) }}: <strong>{{ newCost }}</strong></label>
                 <input type="range" min="0" max="3" [(ngModel)]="newCost" class="md-slider">
               </div>
               <div class="form-group" *ngIf="newEffect !== 'none'">
-                <label>Nilai efek: <strong>{{ newEffectValue }}</strong></label>
+                <label>{{ t('Nilai efek', 'Effect value') }}: <strong>{{ newEffectValue }}</strong></label>
                 <input type="range" min="1" max="30" [(ngModel)]="newEffectValue" class="md-slider">
               </div>
               <div class="form-group action-group">
-                <button (click)="createCard()" [disabled]="!params" class="md-btn md-btn-primary">➕ Tambahkan Kartu</button>
+                <button (click)="createCard()" [disabled]="!params" class="md-btn md-btn-primary">➕ {{ t('Tambahkan Kartu', 'Add Card') }}</button>
               </div>
             </div>
             <div class="error-message-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -136,16 +145,15 @@ const LABELS: { [key: string]: string } = {
           </div>
 
           <div class="research-caveat" style="margin-top: 16px;">
-            Cara engine memakai kartu ini: setiap jenis kartu dimasukkan 20 salinan ke deck (deck riset asli berisi 2 jenis
-            kartu). Karakter aktif dipilih otomatis dari 7 kartu awal dengan prioritas Yudhistira, Patih Sengkuni, lalu
-            Karna — jadi kartu kustom biasanya mulai di Bench dan baru bertarung setelah karakter di depannya gugur.
+            {{ t('Cara engine memakai kartu ini: setiap jenis kartu dimasukkan 20 salinan ke deck (deck riset asli berisi 2 jenis kartu). Karakter aktif dipilih otomatis dari 7 kartu awal dengan prioritas Yudhistira, Patih Sengkuni, lalu Karna — jadi kartu kustom biasanya mulai di Bench dan baru bertarung setelah karakter di depannya gugur.',
+                 'How the engine uses this card: each card type is put into the deck as 20 copies (the original research decks have 2 card types). The active character is picked automatically from the 7 opening cards with priority Yudhistira, Patih Sengkuni, then Karna — so a custom card usually starts on the Bench and only fights after the character in front of it is knocked out.') }}
           </div>
         </div>
 
         <div class="md-card research-section" *ngIf="customCards.length">
-          <h3>Kartu kustom di sesi ini ({{ customCards.length }})</h3>
+          <h3>{{ t('Kartu kustom di sesi ini', 'Custom cards in this session') }} ({{ customCards.length }})</h3>
           <table class="research-table">
-            <thead><tr><th>Nama</th><th>Faksi</th><th>HP</th><th>Damage</th><th>Biaya</th><th>Efek</th><th></th></tr></thead>
+            <thead><tr><th>{{ t('Nama', 'Name') }}</th><th>{{ t('Faksi', 'Faction') }}</th><th>HP</th><th>Damage</th><th>{{ t('Biaya', 'Cost') }}</th><th>{{ t('Efek', 'Effect') }}</th><th></th></tr></thead>
             <tbody>
               <tr *ngFor="let c of customCards; let i = index">
                 <td>{{ c.name }}</td>
@@ -154,7 +162,7 @@ const LABELS: { [key: string]: string } = {
                 <td>{{ c.damage }}</td>
                 <td>{{ c.cost }} {{ pranaOf(c.faction) }}</td>
                 <td>{{ effectLabel(c.effect) }}{{ c.effect !== 'none' ? ' (' + c.effectValue + ')' : '' }}</td>
-                <td><button class="md-btn md-btn-outlined" (click)="removeCustomCard(i)">Hapus</button></td>
+                <td><button class="md-btn md-btn-outlined" (click)="removeCustomCard(i)">{{ t('Hapus', 'Remove') }}</button></td>
               </tr>
             </tbody>
           </table>
@@ -167,43 +175,50 @@ const LABELS: { [key: string]: string } = {
           <div class="banner-icon">🎛️</div>
           <div class="banner-text">
             <h2>Parameter Sliders (Sandbox)</h2>
+            @if (i18n.isEn()) {
+            <p>
+              Set the 25 research parameters by hand, then test the result with real matches. Starting values come
+              from <code>data/ga_balanced_params.json</code> (parameters found by the GA) and the slider ranges follow the
+              research parameter space (<code>BOUNDS</code> in <code>src/simulator/fitness.py</code>).
+            </p>
+            } @else {
             <p>
               Atur 25 parameter riset secara manual, lalu uji hasilnya dengan pertandingan sungguhan. Nilai awal diambil
               dari <code>data/ga_balanced_params.json</code> (parameter hasil optimasi GA) dan rentang slider mengikuti
               ruang parameter riset (<code>BOUNDS</code> di <code>src/simulator/fitness.py</code>).
             </p>
+            }
           </div>
         </div>
 
         <!-- Real sandbox test: plays the 3-matchup cycle with the research-engine port. -->
         <div class="md-card research-section" *ngIf="params">
           <div class="research-section-head">
-            <h3>Uji parameter ini</h3>
-            <span class="research-source">engine: port TS dari engine riset Python</span>
+            <h3>{{ t('Uji parameter ini', 'Test these parameters') }}</h3>
+            <span class="research-source">{{ t('engine: port TS dari engine riset Python', 'engine: TS port of the Python research engine') }}</span>
           </div>
           <p class="section-desc">
-            Menjalankan pertandingan sungguhan untuk 3 matchup siklus yang sama dengan riset
-            (Satwika vs Tamasika, Tamasika vs Rajasika, Rajasika vs Satwika). Skor ketidakseimbangan =
-            Σ(win rate − 50)² atas 3 matchup — rumus yang sama dengan fungsi loss riset; 0 = seimbang sempurna.
-            <span *ngIf="changedParamCount() > 0"><strong>{{ changedParamCount() }}</strong> parameter berbeda dari parameter riset.</span>
+            {{ t('Menjalankan pertandingan sungguhan untuk 3 matchup siklus yang sama dengan riset (Satwika vs Tamasika, Tamasika vs Rajasika, Rajasika vs Satwika). Skor ketidakseimbangan = Σ(win rate − 50)² atas 3 matchup — rumus yang sama dengan fungsi loss riset; 0 = seimbang sempurna.',
+                 'Plays real matches for the same 3 cycle matchups as the research (Satwika vs Tamasika, Tamasika vs Rajasika, Rajasika vs Satwika). Imbalance score = Σ(win rate − 50)² over the 3 matchups — the same formula as the research loss function; 0 = perfectly balanced.') }}
+            <span *ngIf="changedParamCount() > 0"><strong>{{ changedParamCount() }}</strong> {{ t('parameter berbeda dari parameter riset.', 'parameter(s) differ from the research parameters.') }}</span>
           </p>
 
           <div class="sandbox-controls">
-            <label>Jumlah pertandingan per matchup
+            <label>{{ t('Jumlah pertandingan per matchup', 'Games per matchup') }}
               <select [(ngModel)]="testN" class="md-select" [disabled]="testRunning">
-                <option [ngValue]="1000">1.000 (cepat, CI ±3 pp)</option>
-                <option [ngValue]="5000">5.000 (CI ±1,4 pp)</option>
-                <option [ngValue]="20000">20.000 (standar riset, CI ±0,7 pp)</option>
+                <option [ngValue]="1000">{{ t('1.000 (cepat, CI ±3 pp)', '1,000 (fast, CI ±3 pp)') }}</option>
+                <option [ngValue]="5000">{{ t('5.000 (CI ±1,4 pp)', '5,000 (CI ±1.4 pp)') }}</option>
+                <option [ngValue]="20000">{{ t('20.000 (standar riset, CI ±0,7 pp)', '20,000 (research standard, CI ±0.7 pp)') }}</option>
               </select>
             </label>
             <label>Seed
               <input type="number" [(ngModel)]="testSeed" class="md-input" [disabled]="testRunning" style="width: 120px;">
             </label>
             <button class="md-btn md-btn-primary" (click)="runSandboxTest()" [disabled]="testRunning">
-              {{ testRunning ? 'Menjalankan… ' + (testProgress * 100 | number:'1.0-0') + '%' : '▶ Uji sekarang' }}
+              {{ testRunning ? t('Menjalankan… ', 'Running… ') + (testProgress * 100 | number:'1.0-0') + '%' : t('▶ Uji sekarang', '▶ Test now') }}
             </button>
             <button class="md-btn md-btn-outlined" (click)="resetParams()" [disabled]="testRunning || changedParamCount() === 0">
-              ↺ Kembalikan ke parameter riset
+              ↺ {{ t('Kembalikan ke parameter riset', 'Reset to research parameters') }}
             </button>
           </div>
 
@@ -211,9 +226,9 @@ const LABELS: { [key: string]: string } = {
             <table class="research-table">
               <thead>
                 <tr>
-                  <th>Matchup (baris menang vs kolom)</th>
+                  <th>{{ t('Matchup (baris menang vs kolom)', 'Matchup (row wins vs column)') }}</th>
                   <th>Sandbox: win rate</th><th>95% CI (Wilson)</th><th>n</th>
-                  <th>Referensi riset (Python, parameter riset)</th>
+                  <th>{{ t('Referensi riset (Python, parameter riset)', 'Research reference (Python, research parameters)') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -228,26 +243,35 @@ const LABELS: { [key: string]: string } = {
                       [{{ referenceCells[i].lower * 100 | number:'1.1-1' }}, {{ referenceCells[i].upper * 100 | number:'1.1-1' }}],
                       n = {{ referenceCells[i].n | number }}
                     </ng-container>
-                    <span *ngIf="!referenceCells">tidak tersedia</span>
+                    <span *ngIf="!referenceCells">{{ t('tidak tersedia', 'not available') }}</span>
                   </td>
                 </tr>
               </tbody>
             </table>
             <div class="paired-grid">
               <div class="paired-card">
-                <h4>Skor ketidakseimbangan — parameter kamu (sandbox)</h4>
+                <h4>{{ t('Skor ketidakseimbangan — parameter kamu (sandbox)', 'Imbalance score — your parameters (sandbox)') }}</h4>
                 <div class="paired-value">{{ testLoss | number:'1.1-1' }}</div>
                 <p class="paired-stats">
-                  Seed {{ testedSeed }}, {{ testResults[0].ci.n | number }} pertandingan/matchup.
-                  <span *ngIf="turnCapTotal() > 0">{{ turnCapTotal() }} pertandingan berakhir di batas 100 giliran (pemenang lewat HP).</span>
+                  Seed {{ testedSeed }}, {{ testResults[0].ci.n | number }} {{ t('pertandingan/matchup.', 'games/matchup.') }}
+                  <span *ngIf="turnCapTotal() > 0">{{ turnCapTotal() }} {{ t('pertandingan berakhir di batas 100 giliran (pemenang lewat HP).', 'games ended at the 100-turn cap (winner decided by HP).') }}</span>
                 </p>
               </div>
               <div class="paired-card" *ngIf="referenceLoss !== null">
-                <h4>Skor ketidakseimbangan — parameter riset (engine Python)</h4>
+                <h4>{{ t('Skor ketidakseimbangan — parameter riset (engine Python)', 'Imbalance score — research parameters (Python engine)') }}</h4>
                 <div class="paired-value">{{ referenceLoss | number:'1.1-1' }}</div>
-                <p class="paired-stats">Dari <code>results/exp03_balance_matrix.json</code> (ga_balanced), n = {{ referenceCells?.[0]?.n | number }}/matchup.</p>
+                <p class="paired-stats">{{ t('Dari', 'From') }} <code>results/exp03_balance_matrix.json</code> (ga_balanced), n = {{ referenceCells?.[0]?.n | number }}/matchup.</p>
               </div>
             </div>
+            @if (i18n.isEn()) {
+            <p class="payoff-caption">
+              Noise note: even if all three matchups were exactly 50%, the average score would still be about
+              <strong>{{ noiseFloor(testResults[0].ci.n) | number:'1.2-2' }}</strong> purely from sampling randomness at
+              n = {{ testResults[0].ci.n | number }} (= 3 × 10,000 × 0.25 / n). A score around that value cannot yet be told apart
+              from balanced — increase n before comparing two settings. "Balanced" here is measured with the engine's built-in
+              automatic attack choice.
+            </p>
+            } @else {
             <p class="payoff-caption">
               Catatan noise: walaupun ketiga matchup benar-benar 50%, skor rata-rata tetap sekitar
               <strong>{{ noiseFloor(testResults[0].ci.n) | number:'1.2-2' }}</strong> hanya karena acak sampel pada
@@ -255,14 +279,15 @@ const LABELS: { [key: string]: string } = {
               dari seimbang — naikkan n sebelum membandingkan dua pengaturan. "Seimbang" di sini diukur dengan pemilihan
               serangan otomatis bawaan engine.
             </p>
+            }
           </ng-container>
         </div>
 
         <div class="sliders-container" *ngIf="params">
           <div class="faction-group md-card" *ngFor="let f of sliderFactions">
             <h3 class="faction-title" [ngClass]="f.cssClass">
-              {{ factionLabel(f.faction) }} &mdash; {{ getCharacterGroups(f.prefix).length }} karakter
-              <span *ngIf="customCountFor(f.faction)"> + {{ customCountFor(f.faction) }} kartu kustom</span>
+              {{ factionLabel(f.faction) }} &mdash; {{ getCharacterGroups(f.prefix).length }} {{ t('karakter', 'characters') }}
+              <span *ngIf="customCountFor(f.faction)"> + {{ customCountFor(f.faction) }} {{ t('kartu kustom', 'custom cards') }}</span>
             </h3>
             <div class="character-group" *ngFor="let group of getCharacterGroups(f.prefix)">
               <app-character-art
@@ -286,8 +311,8 @@ const LABELS: { [key: string]: string } = {
                     (input)="onSliderChange(key, $event)"
                     class="md-slider">
                   <p class="slider-warning" *ngIf="isOutOfBounds(key)">
-                    Nilai {{ params[key] }} di luar rentang riset [{{ bounds(key)[0] }}, {{ bounds(key)[1] }}] — nilai ini
-                    berasal dari ga_balanced_params.json apa adanya.
+                    {{ t('Nilai', 'Value') }} {{ params[key] }} {{ t('di luar rentang riset', 'is outside the research range') }} [{{ bounds(key)[0] }}, {{ bounds(key)[1] }}] —
+                    {{ t('nilai ini berasal dari ga_balanced_params.json apa adanya.', 'this value comes from ga_balanced_params.json as is.') }}
                   </p>
                 </div>
               </div>
@@ -338,6 +363,9 @@ export class OptimizerComponent implements OnInit, OnDestroy {
 
   private subs: Subscription[] = [];
 
+  readonly i18n = inject(LanguageService);
+  readonly t = this.i18n.t;
+
   constructor(private sandbox: SandboxService, private research: ResearchResultsService) { }
 
   ngOnInit(): void {
@@ -372,7 +400,10 @@ export class OptimizerComponent implements OnInit, OnDestroy {
   }
 
   effectLabel(effect: CustomCardEffect): string {
-    return { none: 'Tanpa efek', mill_enemy_deck: 'Mill', recoil_damage: 'Recoil', heal_bench_card: 'Heal Bench (selalu 0)' }[effect];
+    return {
+      none: this.t('Tanpa efek', 'No effect'), mill_enemy_deck: 'Mill', recoil_damage: 'Recoil',
+      heal_bench_card: this.t('Heal Bench (selalu 0)', 'Heal Bench (always 0)'),
+    }[effect];
   }
 
   customCountFor(f: Faction): number {
@@ -433,22 +464,26 @@ export class OptimizerComponent implements OnInit, OnDestroy {
 
   // Plain-language caption shown under every slider, describing what research-engine.ts actually does with it.
   getStatDescription(key: string): string {
+    const t = this.t;
     if (key === 'stw_arjuna_pasupati_dmg') {
-      return 'Damage dasar Panah Pasupati. Engine menambah +5 per karakter di Bench sendiri (maks +15) — bonus itu tetap, bukan parameter.';
+      return t('Damage dasar Panah Pasupati. Engine menambah +5 per karakter di Bench sendiri (maks +15) — bonus itu tetap, bukan parameter.',
+        'Base damage of Panah Pasupati. The engine adds +5 per character on your own Bench (max +15) — that bonus is fixed, not a parameter.');
     }
     if (key === 'tms_duryodana_scale_value') {
-      return 'Bonus damage Angkara per kartu di discard pile lawan (discard pile hanya terisi oleh Mill Sengkuni).';
+      return t('Bonus damage Angkara per kartu di discard pile lawan (discard pile hanya terisi oleh Mill Sengkuni).',
+        'Angkara bonus damage per card in the opponent discard pile (the discard pile is only filled by Sengkuni\'s Mill).');
     }
     if (key === 'stw_yudhistira_heal') {
-      return 'Jumlah HP yang coba dipulihkan ke Bench. Di engine ini selalu 0, karena karakter di Bench tidak pernah terluka — slider ini tidak mengubah hasil.';
+      return t('Jumlah HP yang coba dipulihkan ke Bench. Di engine ini selalu 0, karena karakter di Bench tidak pernah terluka — slider ini tidak mengubah hasil.',
+        'HP the attack tries to restore on the Bench. Always 0 in this engine, because Bench characters are never damaged — this slider does not change the result.');
     }
-    if (key.endsWith('_cost_univ')) return 'Biaya Prana Universal (boleh dibayar Prana tipe apa pun) untuk serangan ini.';
-    if (key.includes('cost')) return 'Biaya Prana tipe faksi untuk serangan ini. Kalau belum cukup, karakter menunggu (kecuali HP ≤ 40%).';
-    if (key.endsWith('_hp')) return 'Nyawa karakter. Habis = gugur, lawan mengklaim 1 prize (Sasmita).';
-    if (key.endsWith('_dr')) return 'Mengurangi setiap damage yang diterima karakter ini.';
-    if (key.includes('recoil')) return 'Damage yang diterima penyerang sendiri setiap kali serangan ini dipakai.';
-    if (key.includes('mill')) return 'Jumlah kartu deck lawan yang dibuang ke discard pile setiap serangan.';
-    if (key.includes('dmg')) return 'Damage dasar serangan ini, sebelum dikurangi DR lawan.';
+    if (key.endsWith('_cost_univ')) return t('Biaya Prana Universal (boleh dibayar Prana tipe apa pun) untuk serangan ini.', 'Universal Prana cost (payable with any Prana type) for this attack.');
+    if (key.includes('cost')) return t('Biaya Prana tipe faksi untuk serangan ini. Kalau belum cukup, karakter menunggu (kecuali HP ≤ 40%).', 'Faction-type Prana cost for this attack. If there is not enough yet, the character waits (unless HP ≤ 40%).');
+    if (key.endsWith('_hp')) return t('Nyawa karakter. Habis = gugur, lawan mengklaim 1 prize (Sasmita).', 'Character hit points. At 0 = knocked out, and the opponent claims 1 prize (Sasmita).');
+    if (key.endsWith('_dr')) return t('Mengurangi setiap damage yang diterima karakter ini.', 'Reduces every hit of damage this character takes.');
+    if (key.includes('recoil')) return t('Damage yang diterima penyerang sendiri setiap kali serangan ini dipakai.', 'Damage the attacker takes itself every time this attack is used.');
+    if (key.includes('mill')) return t('Jumlah kartu deck lawan yang dibuang ke discard pile setiap serangan.', 'Number of opponent deck cards sent to the discard pile with each attack.');
+    if (key.includes('dmg')) return t('Damage dasar serangan ini, sebelum dikurangi DR lawan.', 'Base damage of this attack, before the opponent\'s DR is subtracted.');
     return '';
   }
 
@@ -511,19 +546,19 @@ export class OptimizerComponent implements OnInit, OnDestroy {
   createCard() {
     const name = this.newName.trim();
     if (!name) {
-      this.flash('error', 'Masukkan nama karakter terlebih dahulu.');
+      this.flash('error', this.t('Masukkan nama karakter terlebih dahulu.', 'Enter a character name first.'));
       return;
     }
     const taken = this.factions.some(f => this.sandbox.getDeck(f)?.cards.some(c => c.name.toLowerCase() === name.toLowerCase()));
     if (taken) {
-      this.flash('error', `Nama '${name}' sudah dipakai kartu lain. Pilih nama yang berbeda.`);
+      this.flash('error', this.t(`Nama '${name}' sudah dipakai kartu lain. Pilih nama yang berbeda.`, `The name '${name}' is already used by another card. Choose a different name.`));
       return;
     }
     this.sandbox.addCustomCard({
       faction: this.newFaction, name, hp: Number(this.newHp), damage: Number(this.newDamage),
       cost: Number(this.newCost), effect: this.newEffect, effectValue: Number(this.newEffectValue),
     });
-    this.flash('success', `'${name}' ditambahkan ke deck ${this.factionLabel(this.newFaction)} untuk sesi ini.`);
+    this.flash('success', this.t(`'${name}' ditambahkan ke deck ${this.factionLabel(this.newFaction)} untuk sesi ini.`, `'${name}' was added to the ${this.factionLabel(this.newFaction)} deck for this session.`));
     this.newName = '';
   }
 

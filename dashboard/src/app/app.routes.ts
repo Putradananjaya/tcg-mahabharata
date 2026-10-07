@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { OverviewComponent } from './presentation/components/overview/overview.component';
 import { GuideComponent } from './presentation/components/guide/guide.component';
 import { SimulatorComponent } from './presentation/components/simulator/simulator.component';
 import { OptimizerComponent } from './presentation/components/optimizer/optimizer.component';
@@ -8,7 +9,8 @@ import { ResearchComponent } from './presentation/components/research/research.c
 import { TcgModeComponent } from './presentation/components/tcg-mode/tcg-mode.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'guide', pathMatch: 'full' },
+  { path: '', redirectTo: 'overview', pathMatch: 'full' },
+  { path: 'overview', component: OverviewComponent },
   { path: 'guide', component: GuideComponent },
   { path: 'simulator', component: SimulatorComponent },
   { path: 'simulator/tcg', component: TcgModeComponent },
@@ -17,5 +19,5 @@ export const routes: Routes = [
   { path: 'tuning', component: OptimizerComponent, data: { viewMode: 'sliders' } },
   { path: 'analytics', component: AnalyticsComponent },
   { path: 'flow', component: FlowComponent },
-  { path: '**', redirectTo: 'guide' }
+  { path: '**', redirectTo: 'overview' }
 ];

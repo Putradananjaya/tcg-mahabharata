@@ -54,6 +54,43 @@
   color: #e8b54a;
 }
 
+.lang-switch {
+  display: inline-flex;
+  flex: none;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 181, 74, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lang-switch button {
+  border: 0;
+  cursor: pointer;
+  min-width: 40px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font: 700 12px 'Inter', sans-serif;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.75);
+  background: transparent;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lang-switch button:hover {
+  color: #fff;
+}
+
+.lang-switch button.on {
+  color: #0d0b1f;
+  background: linear-gradient(135deg, #e8b54a, #c98a1c);
+}
+
+.lang-switch button:focus-visible {
+  outline: 2px solid #e8b54a;
+  outline-offset: 2px;
+}
+
 .badge-area {
   display: flex;
   gap: 12px;

@@ -12,6 +12,8 @@
  * not by name, so mirror matches need no relabeling (rules_spec.md 4.5).
  */
 
+import { tr } from './lang';
+
 export interface AttackDef {
   name: string;
   prana_cost: { [prana: string]: number };
@@ -276,9 +278,9 @@ export class Match {
     const self = this.actor;
     const opponent = this.opponent;
     this.pendingAttack = null;
-    if (!self.active) return { attack: null, skipReason: 'Tidak ada karakter aktif.' };
+    if (!self.active) return { attack: null, skipReason: tr('Tidak ada karakter aktif.', 'No active character.') };
     const attacks = self.active.def.attacks ?? [];
-    if (attacks.length === 0) return { attack: null, skipReason: 'Karakter tidak punya serangan.' };
+    if (attacks.length === 0) return { attack: null, skipReason: tr('Karakter tidak punya serangan.', 'The character has no attacks.') };
 
     const sorted = [...attacks].sort((a, b) => (b.base_damage ?? 0) - (a.base_damage ?? 0));
     const best = sorted[0];
@@ -289,9 +291,9 @@ export class Match {
     } else if (inPanic) {
       chosen = sorted.find((a) => self.canAfford(a.prana_cost ?? {})) ?? null;
     } else {
-      return { attack: null, skipReason: `Prana belum cukup untuk '${best.name}' — menunggu giliran berikutnya.` };
+      return { attack: null, skipReason: tr(`Prana belum cukup untuk '${best.name}' — menunggu giliran berikutnya.`, `Not enough Prana for '${best.name}' — waiting for the next turn.`) };
     }
-    if (!chosen) return { attack: null, skipReason: 'Panik, tetapi tidak ada serangan yang terjangkau.' };
+    if (!chosen) return { attack: null, skipReason: tr('Panik, tetapi tidak ada serangan yang terjangkau.', 'Panicking, but no attack is affordable.') };
 
     self.payPrana(chosen.prana_cost ?? {});
     self.attackLog.push(chosen.name);
@@ -302,7 +304,7 @@ export class Match {
     const reduction = opponent.active?.damageReduction ?? 0;
     const finalDamage = Math.max(0, (chosen.base_damage ?? 0) + benchBonus + discardBonus - reduction);
 
-    if (!opponent.active) return { attack: null, skipReason: 'Lawan tidak punya karakter aktif.' };
+    if (!opponent.active) return { attack: null, skipReason: tr('Lawan tidak punya karakter aktif.', 'The opponent has no active character.') };
     opponent.active.currentHp -= finalDamage;
     this.pendingAttack = chosen;
     return {
@@ -329,18 +331,18 @@ export class Match {
         opponent.discard.push(opponent.deck.shift()!);
         milled++;
       }
-      return { effect: attack.effect, detail: `${milled} kartu deck lawan dibuang ke discard pile (discard lawan: ${opponent.discard.length}).` };
+      return { effect: attack.effect, detail: tr(`${milled} kartu deck lawan dibuang ke discard pile (discard lawan: ${opponent.discard.length}).`, `${milled} opponent deck cards sent to the discard pile (opponent discard: ${opponent.discard.length}).`) };
     }
     if (attack.effect === 'heal_bench_card') {
-      if (self.bench.length === 0) return { effect: attack.effect, detail: 'Bench kosong, tidak ada yang dipulihkan.' };
+      if (self.bench.length === 0) return { effect: attack.effect, detail: tr('Bench kosong, tidak ada yang dipulihkan.', 'Bench is empty, nothing to restore.') };
       const target = self.bench[Math.floor(this.rng() * self.bench.length)];
       const healed = Math.min(value, target.hp - target.currentHp);
       target.currentHp += healed;
-      return { effect: attack.effect, detail: `Memulihkan ${healed} HP ${target.name} di Bench (karakter di Bench tidak pernah terluka di engine ini, jadi hasilnya selalu 0).` };
+      return { effect: attack.effect, detail: tr(`Memulihkan ${healed} HP ${target.name} di Bench (karakter di Bench tidak pernah terluka di engine ini, jadi hasilnya selalu 0).`, `Restores ${healed} HP to ${target.name} on the Bench (Bench characters are never hurt in this engine, so this is always 0).`) };
     }
     if (attack.effect === 'recoil_damage') {
       if (self.active) self.active.currentHp -= value;
-      return { effect: attack.effect, detail: `${self.active?.name ?? 'Penyerang'} menerima ${value} recoil damage (sisa HP: ${self.active?.currentHp ?? 0}).` };
+      return { effect: attack.effect, detail: tr(`${self.active?.name ?? 'Penyerang'} menerima ${value} recoil damage (sisa HP: ${self.active?.currentHp ?? 0}).`, `${self.active?.name ?? 'The attacker'} takes ${value} recoil damage (HP left: ${self.active?.currentHp ?? 0}).`) };
     }
     return null;
   }

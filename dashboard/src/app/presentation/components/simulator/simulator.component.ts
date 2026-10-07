@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BattleSimulatorService } from '../../../core/usecases/battle-simulator.service';
@@ -9,6 +9,7 @@ import { PlayerState, GameLog } from '../../../core/domain/match-state.model';
 import { SoundService } from '../../../core/services/sound.service';
 import { Subscription } from 'rxjs';
 import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-simulator',
@@ -32,10 +33,10 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
           </div>
           
           <div class="coin-status">
-            <h3 *ngIf="!coinResult" style="color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); font-size: 18px; margin: 0; font-family: 'Inter', sans-serif;">Melempar Koin Pengundian...</h3>
+            <h3 *ngIf="!coinResult" style="color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); font-size: 18px; margin: 0; font-family: 'Inter', sans-serif;">{{ t('Melempar Koin Pengundian...', 'Tossing the coin...') }}</h3>
             <div *ngIf="coinResult" class="fade-in-text">
               <h3 style="color: #fcd34d; font-size: 22px; text-shadow: 0 2px 10px rgba(251,191,36,0.6); margin: 0 0 4px 0; font-family: 'Outfit', sans-serif; font-weight: 800;">{{ coinResult }}</h3>
-              <p style="color: #ffffff; font-weight: 700; font-size: 14px; margin: 0; text-shadow: 0 2px 6px rgba(0,0,0,0.6);">Menang Undian & Jalan Pertama!</p>
+              <p style="color: #ffffff; font-weight: 700; font-size: 14px; margin: 0; text-shadow: 0 2px 6px rgba(0,0,0,0.6);">{{ t('Menang Undian & Jalan Pertama!', 'Wins the toss & goes first!') }}</p>
             </div>
           </div>
         </div>
@@ -52,7 +53,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
               'error': activePhase === 'EFFECT',
               'success': activePhase === 'EVALUATION'
             }" style="font-weight: 700; text-transform: uppercase; padding: 4px 8px; font-size: 12px; letter-spacing: 0.5px;">
-              Fase: {{ activePhase }}
+              {{ t('Fase', 'Phase') }}: {{ activePhase }}
             </span>
             <select [(ngModel)]="p1FactionSelect" (change)="onFactionChange()" class="md-select" style="min-width: 130px; font-size: 12px; height: 36px; padding: 0 8px;">
               <option value="SATWIKA">P1: Satwika</option>
@@ -65,19 +66,25 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
               <option value="SATWIKA">P2: Satwika</option>
               <option value="RAJASIKA">P2: Rajasika</option>
             </select>
-            <button (click)="startNewGame()" class="md-btn md-btn-primary" style="height: 36px; line-height: 36px; padding: 0 16px;">🔄 Reset & Start Match</button>
-            <button [disabled]="!isRunning || winner" (click)="stepGame()" class="md-btn md-btn-outlined" style="height: 36px; line-height: 36px; padding: 0 16px;">➡️ Next Step</button>
+            <button (click)="startNewGame()" class="md-btn md-btn-primary" style="height: 36px; line-height: 36px; padding: 0 16px;">🔄 {{ t('Reset & Mulai Pertandingan', 'Reset & Start Match') }}</button>
+            <button [disabled]="!isRunning || winner" (click)="stepGame()" class="md-btn md-btn-outlined" style="height: 36px; line-height: 36px; padding: 0 16px;">➡️ {{ t('Langkah Berikutnya', 'Next Step') }}</button>
             <button [disabled]="!isRunning || winner" (click)="toggleAutoPlay()" class="md-btn md-btn-secondary" style="height: 36px; line-height: 36px; padding: 0 16px;">
-              {{ autoPlayInterval ? '⏸️ Pause' : '▶️ Auto Play' }}
+              {{ autoPlayInterval ? t('⏸️ Jeda', '⏸️ Pause') : t('▶️ Main Otomatis', '▶️ Auto Play') }}
             </button>
           </div>
         </div>
 
         <div class="engine-note">
+          @if (i18n.isEn()) {
+          Engine: TypeScript port of the Python research engine (validated against <code>results/exp03_balance_matrix.json</code>,
+          see <code>npm run verify:engine</code>). Card parameters = the current sandbox parameters — change them on the
+          <strong>Parameter Sliders</strong> page. Attacks are chosen automatically by the engine (no player decisions).
+          } @else {
           Engine: port TypeScript dari engine riset Python (divalidasi terhadap <code>results/exp03_balance_matrix.json</code>,
           lihat <code>npm run verify:engine</code>). Parameter kartu = parameter sandbox saat ini — ubah di halaman
           <strong>Parameter Sliders</strong>. Serangan dipilih otomatis oleh engine (tidak ada keputusan pemain).
-          <span *ngIf="loadError" class="engine-note-error">Gagal memuat parameter riset: {{ loadError }}</span>
+          }
+          <span *ngIf="loadError" class="engine-note-error">{{ t('Gagal memuat parameter riset', 'Failed to load the research parameters') }}: {{ loadError }}</span>
         </div>
 
         <!-- Material TCG Board Layout -->
@@ -88,13 +95,13 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
             <div class="faksi-title-bar" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
               <span class="faksi-name" style="font-size: 15px; font-weight: 700;">☠️ {{ p2State.name }}</span>
               <div class="prana-row" style="display: flex; align-items: center; gap: 6px; font-size: 11px;">
-                <span style="color: var(--text-muted);">Energi Prana (Resource Turn):</span>
+                <span style="color: var(--text-muted);">{{ t('Energi Prana (Resource Turn):', 'Prana Energy (turn resource):') }}</span>
                 <span class="md-badge" [ngClass]="p.key === 'Satwika' ? 'primary' : p.key === 'Tamasika' ? 'error' : p.key === 'Rajasika' ? 'warning' : 'outlined'" *ngFor="let p of p2State.prana | keyvalue" style="font-size: 12px; font-weight: 700; margin-left: 2px;">
                   {{ p.key }}: {{ p.value }}
                 </span>
               </div>
               <div class="prana-row" style="font-size: 11px; color: var(--text-muted);">
-                Sasmita (prize tersisa): <strong>{{ p2State.sasmita }}</strong> ·
+                {{ t('Sasmita (prize tersisa)', 'Sasmita (prizes left)') }}: <strong>{{ p2State.sasmita }}</strong> ·
                 Deck: <strong>{{ p2State.deckCount }}</strong> ·
                 Discard pile: <strong>{{ p2State.discardCount }}</strong>
               </div>
@@ -102,7 +109,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
             
             <div class="cards-row">
               <div class="active-card-wrapper">
-                <span class="wrapper-label">Arena Aktif</span>
+                <span class="wrapper-label">{{ t('Arena Aktif', 'Active Arena') }}</span>
                 <div class="active-card-slot">
                   <!-- Active Card (Kurawa) -->
                   <div class="tcg-card-flat" *ngIf="p2State.activeCharacter">
@@ -129,7 +136,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
                       <!-- Card Attributes -->
                       <div class="card-detail-info" style="font-size: 12px; margin-top: 6px; display: flex; flex-direction: column; gap: 3px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
                         <div style="display: flex; justify-content: space-between;">
-                          <span style="color: var(--text-light)">🛡️ Pertahanan (DR):</span>
+                          <span style="color: var(--text-light)">🛡️ {{ t('Pertahanan (DR)', 'Defense (DR)') }}:</span>
                           <strong>{{ card.damage_reduction || 0 }} HP</strong>
                         </div>
                         
@@ -140,11 +147,11 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
                             <span>{{ atk.base_damage }} DMG</span>
                           </div>
                           <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
-                            <span>Syarat Prana:</span>
+                            <span>{{ t('Syarat Prana', 'Prana Cost') }}:</span>
                             <strong style="color: var(--secondary-color);">{{ getPranaCostText(atk.prana_cost) }}</strong>
                           </div>
                           <div *ngIf="getEffectDescription(atk)" style="font-size: 11px; color: var(--success-color); margin-top: 2px; font-style: italic; line-height: 1.2;">
-                            Efek: {{ getEffectDescription(atk) }}
+                            {{ t('Efek', 'Effect') }}: {{ getEffectDescription(atk) }}
                           </div>
                         </div>
                       </div>
@@ -157,7 +164,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
               </div>
 
               <div class="bench-cards-wrapper">
-                <span class="wrapper-label">Bench (Cadangan)</span>
+                <span class="wrapper-label">{{ t('Bench (Cadangan)', 'Bench (Reserve)') }}</span>
                 <div class="bench-cards-slot">
                       <div class="tcg-card-flat" *ngFor="let b of p2State.bench">
                         <ng-container *ngIf="getCardDetails(b.name) as card">
@@ -193,7 +200,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
                         </ng-container>
                       </div>
                   <div *ngIf="p2State.bench.length === 0" style="font-size:11px;color:var(--text-light);padding:12px;">
-                    Tidak ada cadangan
+                    {{ t('Tidak ada cadangan', 'No reserves') }}
                   </div>
                 </div>
               </div>
@@ -205,13 +212,13 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
             <div class="faksi-title-bar" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
               <span class="faksi-name" style="font-size: 15px; font-weight: 700;">🛡️ {{ p1State.name }}</span>
               <div class="prana-row" style="display: flex; align-items: center; gap: 6px; font-size: 11px;">
-                <span style="color: var(--text-muted);">Energi Prana (Resource Turn):</span>
+                <span style="color: var(--text-muted);">{{ t('Energi Prana (Resource Turn):', 'Prana Energy (turn resource):') }}</span>
                 <span class="md-badge" [ngClass]="p.key === 'Satwika' ? 'primary' : p.key === 'Tamasika' ? 'error' : p.key === 'Rajasika' ? 'warning' : 'outlined'" *ngFor="let p of p1State.prana | keyvalue" style="font-size: 12px; font-weight: 700; margin-left: 2px;">
                   {{ p.key }}: {{ p.value }}
                 </span>
               </div>
               <div class="prana-row" style="font-size: 11px; color: var(--text-muted);">
-                Sasmita (prize tersisa): <strong>{{ p1State.sasmita }}</strong> ·
+                {{ t('Sasmita (prize tersisa)', 'Sasmita (prizes left)') }}: <strong>{{ p1State.sasmita }}</strong> ·
                 Deck: <strong>{{ p1State.deckCount }}</strong> ·
                 Discard pile: <strong>{{ p1State.discardCount }}</strong>
               </div>
@@ -219,7 +226,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
             
             <div class="cards-row">
               <div class="active-card-wrapper">
-                <span class="wrapper-label">Arena Aktif</span>
+                <span class="wrapper-label">{{ t('Arena Aktif', 'Active Arena') }}</span>
                 <div class="active-card-slot">
                   <!-- Active Card (Pandawa) -->
                   <div class="tcg-card-flat" *ngIf="p1State.activeCharacter">
@@ -246,7 +253,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
                       <!-- Card Attributes -->
                       <div class="card-detail-info" style="font-size: 12px; margin-top: 6px; display: flex; flex-direction: column; gap: 3px; border-top: 1px dashed var(--border-color); padding-top: 6px;">
                         <div style="display: flex; justify-content: space-between;">
-                          <span style="color: var(--text-light)">🛡️ Pertahanan (DR):</span>
+                          <span style="color: var(--text-light)">🛡️ {{ t('Pertahanan (DR)', 'Defense (DR)') }}:</span>
                           <strong>{{ card.damage_reduction || 0 }} HP</strong>
                         </div>
                         
@@ -257,11 +264,11 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
                             <span>{{ atk.base_damage }} DMG</span>
                           </div>
                           <div style="font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
-                            <span>Syarat Prana:</span>
+                            <span>{{ t('Syarat Prana', 'Prana Cost') }}:</span>
                             <strong style="color: var(--secondary-color);">{{ getPranaCostText(atk.prana_cost) }}</strong>
                           </div>
                           <div *ngIf="getEffectDescription(atk)" style="font-size: 11px; color: var(--success-color); margin-top: 2px; font-style: italic; line-height: 1.2;">
-                            Efek: {{ getEffectDescription(atk) }}
+                            {{ t('Efek', 'Effect') }}: {{ getEffectDescription(atk) }}
                           </div>
                         </div>
                       </div>
@@ -274,7 +281,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
               </div>
 
               <div class="bench-cards-wrapper">
-                <span class="wrapper-label">Bench (Cadangan)</span>
+                <span class="wrapper-label">{{ t('Bench (Cadangan)', 'Bench (Reserve)') }}</span>
                 <div class="bench-cards-slot">
                       <div class="tcg-card-flat" *ngFor="let b of p1State.bench">
                         <ng-container *ngIf="getCardDetails(b.name) as card">
@@ -310,7 +317,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
                         </ng-container>
                       </div>
                   <div *ngIf="p1State.bench.length === 0" style="font-size:11px;color:var(--text-light);padding:12px;">
-                    Tidak ada cadangan
+                    {{ t('Tidak ada cadangan', 'No reserves') }}
                   </div>
                 </div>
               </div>
@@ -330,7 +337,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
 
           <div class="log-viewport" #logContainer>
             <div class="log-placeholder" *ngIf="logs.length === 0" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;color:var(--text-light);">
-              Klik "🔄 Reset & Start Match" untuk memulai simulasi per giliran.
+              {{ t('Klik "🔄 Reset & Mulai Pertandingan" untuk memulai simulasi per giliran.', 'Click "🔄 Reset & Start Match" to start a turn-by-turn simulation.') }}
             </div>
             <div 
               *ngFor="let log of logs" 
@@ -340,7 +347,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
               <span class="log-message">{{ log.message }}</span>
             </div>
             <div class="md-card success" *ngIf="winner" style="margin-top: 16px; padding: 12px; border-color: var(--success-color); background: rgba(76,175,80,0.06); text-align: center; font-weight: 700; color: var(--success-color)">
-              🏆 PEMENANG: {{ winner }}
+              🏆 {{ t('PEMENANG', 'WINNER') }}: {{ winner }}
             </div>
           </div>
         </div>
@@ -353,16 +360,65 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
                     [class.md-btn-primary]="activeTab === 'glossary'"
                     [class.md-btn-outlined]="activeTab !== 'glossary'"
                     class="md-btn" style="height: 32px; padding: 0 12px; font-size: 11px;">
-              📖 Glosarium Istilah
+              📖 {{ t('Glosarium Istilah', 'Glossary') }}
             </button>
             <button (click)="activeTab = 'flow'" 
                     [class.md-btn-primary]="activeTab === 'flow'"
                     [class.md-btn-outlined]="activeTab !== 'flow'"
                     class="md-btn" style="height: 32px; padding: 0 12px; font-size: 11px;">
-              🎮 Alur Fase Giliran
+              🎮 {{ t('Alur Fase Giliran', 'Turn Phases') }}
             </button>
           </div>
 
+          @if (i18n.isEn()) {
+          <!-- Tab Content 1: Glossary -->
+          <div *ngIf="activeTab === 'glossary'" class="glossary-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+            <div class="glossary-item">
+              <strong style="color: var(--primary-color);">🛡️ SATWIKA (Pandawa)</strong>
+              <p>The nature of goodness & peace. Yudhistira has Damage Reduction (reduces the damage he takes); Arjuna gets bonus damage from the number of Bench characters. Sabda Rahayu's heal effect is in the card data, but in this engine it <b>never restores anything</b> — Bench characters are never damaged.</p>
+            </div>
+            <div class="glossary-item">
+              <strong style="color: var(--warning-color);">⚔️ RAJASIKA (Aggro/Rajas)</strong>
+              <p>The nature of action, aggression & desire. Karna's attack is strong but he takes Recoil Damage himself on every attack — if the recoil knocks him out, the opponent gets the prize.</p>
+            </div>
+            <div class="glossary-item">
+              <strong style="color: var(--danger-color);">☠️ TAMASIKA (Kurawa/Tamas)</strong>
+              <p>The nature of darkness & inertia. Sengkuni discards cards from the opponent's deck (Mill); Duryodana's Angkara gets bonus damage per card in the opponent's discard pile.</p>
+            </div>
+            <div class="glossary-item">
+              <strong>💠 Sasmita (Prize Cards)</strong>
+              <p>A faction's prize count (starts at 3; it is not team life). Each time the opponent's active character is knocked out, your Sasmita drops by 1. You win when your Sasmita reaches 0, or when the opponent has no reserve on the Bench as their active character falls. If there is no winner after 100 turns, the side whose active character has more HP wins.</p>
+            </div>
+            <div class="glossary-item">
+              <strong>🧪 Prana (Energy)</strong>
+              <p>At the start of each turn, +1 Prana of the active character's type. Unused Prana is kept for the next turn and is spent to pay for attacks.</p>
+            </div>
+            <div class="glossary-item">
+              <strong>🪦 Graveyard (Discard Pile)</strong>
+              <p>Holds only the deck cards discarded by Mill effects (knocked-out characters do not go here). The more it holds, the bigger Duryodana's Angkara bonus.</p>
+            </div>
+          </div>
+
+          <!-- Tab Content 2: Turn Flow -->
+          <div *ngIf="activeTab === 'flow'" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 4px; font-size: 11px;">
+            <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
+              <strong>1. Prana Phase (Resource Phase)</strong>
+              <p style="margin-top: 4px;">The current player gains +1 Prana of their active character's type. Prana accumulates until it is spent.</p>
+            </div>
+            <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
+              <strong>2. Action & Attack Phase (Combat Phase)</strong>
+              <p style="margin-top: 4px;">The engine picks the attack with the highest damage. If there is not enough Prana, the character waits — unless its HP is ≤ 40%, in which case it uses the strongest affordable attack. Damage is reduced by the opponent's DR (Damage Reduction).</p>
+            </div>
+            <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
+              <strong>3. Weapon Effect Phase (Effect Phase)</strong>
+              <p style="margin-top: 4px;">After damage is applied, the attack's effect triggers: Mill (discard cards from the opponent's deck), Recoil (the attacker hurts itself), or Heal Bench (always 0 in this engine).</p>
+            </div>
+            <div class="glossary-item" style="border-left: 3px solid var(--primary-color); background: #f8fafc;">
+              <strong>4. Elimination & Sasmita Phase (Victory Check)</strong>
+              <p style="margin-top: 4px;">If an active character's HP is ≤ 0 it is knocked out, and the faction that defeated it claims 1 prize (Sasmita −1). The first Bench character steps forward. There is no retreat in this engine.</p>
+            </div>
+          </div>
+          } @else {
           <!-- Tab Content 1: Glossary -->
           <div *ngIf="activeTab === 'glossary'" class="glossary-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
             <div class="glossary-item">
@@ -410,6 +466,7 @@ import { SimulatorModeSwitchComponent } from './simulator-mode-switch.component'
               <p style="margin-top: 4px;">Jika HP karakter aktif ≤ 0, ia gugur dan faksi yang menjatuhkannya mengklaim 1 prize (Sasmita −1). Karakter pertama di Bench maju. Tidak ada retreat di engine ini.</p>
             </div>
           </div>
+          }
         </div>
 
       </div>
@@ -453,27 +510,31 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
 
   getPranaCostText(pranaCost: { [key: string]: number }): string {
-    if (!pranaCost) return 'Gratis';
+    if (!pranaCost) return this.t('Gratis', 'Free');
     return Object.entries(pranaCost).map(([k, v]) => `${v} ${k[0]}`).join(', ');
   }
 
   // Mirrors what research-engine.ts actually does with each field, not what the name suggests.
   getEffectDescription(atk: any): string {
     const parts: string[] = [];
-    if (atk?.bench_scaling) parts.push('DMG +5 per karakter di Bench sendiri (maks +15)');
+    const t = this.t;
+    if (atk?.bench_scaling) parts.push(t('DMG +5 per karakter di Bench sendiri (maks +15)', 'DMG +5 per character on your own Bench (max +15)'));
     const val = atk?.value ?? 0;
     switch (atk?.effect) {
-      case 'scaled_damage_per_discard_tamasika': parts.push(`DMG +${atk.scale_value ?? 0} per kartu di discard pile lawan`); break;
-      case 'mill_enemy_deck': parts.push(`Buang ${val} kartu teratas deck lawan`); break;
-      case 'recoil_damage': parts.push(`Penyerang terkena ${val} recoil damage`); break;
-      case 'heal_bench_card': parts.push(`Heal ${val} HP ke Bench — selalu 0 di engine ini (Bench tak pernah terluka)`); break;
+      case 'scaled_damage_per_discard_tamasika': parts.push(t(`DMG +${atk.scale_value ?? 0} per kartu di discard pile lawan`, `DMG +${atk.scale_value ?? 0} per card in the opponent discard pile`)); break;
+      case 'mill_enemy_deck': parts.push(t(`Buang ${val} kartu teratas deck lawan`, `Discard the top ${val} cards of the opponent deck`)); break;
+      case 'recoil_damage': parts.push(t(`Penyerang terkena ${val} recoil damage`, `The attacker takes ${val} recoil damage`)); break;
+      case 'heal_bench_card': parts.push(t(`Heal ${val} HP ke Bench — selalu 0 di engine ini (Bench tak pernah terluka)`, `Heal ${val} HP on the Bench — always 0 in this engine (the Bench is never damaged)`)); break;
       case undefined: case null: case '': break;
-      default: parts.push(`${atk.effect} (tidak dikenal engine, tidak berefek)`);
+      default: parts.push(t(`${atk.effect} (tidak dikenal engine, tidak berefek)`, `${atk.effect} (unknown to the engine, no effect)`));
     }
     return parts.join(' · ');
   }
 
   @ViewChild('logContainer') private logContainer!: ElementRef;
+
+  readonly i18n = inject(LanguageService);
+  readonly t = this.i18n.t;
 
   constructor(
     private simulator: BattleSimulatorService,
@@ -548,8 +609,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
       ...this.p2State.bench.map(c => c.name)
     ].filter(Boolean) as string[];
 
-    // 1. Detect KO (Gugur)
-    if (msg.includes("GUGUR") || msg.includes("kalah")) {
+    // 1. Detect KO (Gugur) — log lines may be Indonesian or English.
+    if (msg.includes("GUGUR") || msg.includes("kalah") || msg.includes("KNOCKED OUT")) {
       const p1Dead = p1Names.find(name => msg.includes(name));
       const p2Dead = p2Names.find(name => msg.includes(name));
       if (p1Dead) {
@@ -562,7 +623,7 @@ export class SimulatorComponent implements OnInit, OnDestroy {
     }
 
     // 2. Detect Damage (Damage Bersih / Recoil)
-    if (msg.includes("damage") || msg.includes("dikurangi dari") || msg.includes("recoil")) {
+    if (msg.includes("damage") || msg.includes("dikurangi dari") || msg.includes("recoil") || msg.includes("dealt to")) {
       const dmgMatch = msg.match(/(\d+)\s*(?:HP|damage|recoil)/i);
       const val = dmgMatch ? `-${dmgMatch[1]} HP` : "⚔️ Damage";
 
@@ -579,7 +640,7 @@ export class SimulatorComponent implements OnInit, OnDestroy {
     }
 
     // 3. Detect Heal (Memulihkan / lifesteal)
-    if (msg.includes("Memulihkan") || msg.includes("memulihkan") || msg.includes("Lifesteal")) {
+    if (msg.includes("Memulihkan") || msg.includes("memulihkan") || msg.includes("Lifesteal") || msg.includes("Restores")) {
       const healMatch = msg.match(/(\d+)\s*HP/i);
       const val = healMatch ? `+${healMatch[1]} HP` : "💚 Heal";
 

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../../core/services/language.service';
 
 type Tone = 'start' | 'gold' | 'green' | 'purple' | 'blue' | 'end';
 
@@ -31,7 +32,7 @@ interface FlowTab {
         <div class="f-stars" aria-hidden="true"></div>
         <div class="f-banner-body">
           <span class="f-kicker">Flow &amp; Schema</span>
-          <h2>Interactive Architecture Diagrams</h2>
+          <h2>{{ tr('Diagram Arsitektur Interaktif', 'Interactive Architecture Diagrams') }}</h2>
           <div class="f-tabs" role="tablist">
             <button *ngFor="let t of tabs" type="button" role="tab" class="f-tab"
                     [class.active]="activeTab === t.id" [attr.aria-selected]="activeTab === t.id"
@@ -46,7 +47,7 @@ interface FlowTab {
         <ng-container *ngFor="let t of tabs">
           <section *ngIf="activeTab === t.id" class="f-diagram" role="tabpanel">
             <p class="f-summary"><strong>{{ t.heading }}:</strong> {{ t.summary }}</p>
-            <div *ngIf="t.id === 'tcg'" class="f-terminal">Mulai Giliran</div>
+            <div *ngIf="t.id === 'tcg'" class="f-terminal">{{ tr('Mulai Giliran', 'Start of Turn') }}</div>
             <ol class="f-flow">
               <li *ngFor="let n of t.nodes; let i = index" [style.animation-delay.ms]="i * 90">
                 <div class="f-node" [ngClass]="'tone-' + (n.tone || 'gold')">
@@ -64,8 +65,8 @@ interface FlowTab {
         <aside class="f-schemas">
           <header>
             <span class="f-kicker">Data</span>
-            <h3>Data Structure Formats</h3>
-            <p>Format pertukaran data yang digunakan antar-faksi:</p>
+            <h3>{{ tr('Format Struktur Data', 'Data Structure Formats') }}</h3>
+            <p>{{ tr('Format pertukaran data yang digunakan antar-faksi:', 'Data exchange formats used across factions:') }}</p>
           </header>
           <div class="f-code">
             <div class="f-code-head"><span class="f-dots"><i></i><i></i><i></i></span>Card Schema Format (JSON)</div>
@@ -161,52 +162,14 @@ interface FlowTab {
   `]
 })
 export class FlowComponent {
+  private readonly i18n = inject(LanguageService);
+  /** Named `tr` because the template already uses `t` for the current tab. */
+  readonly tr = this.i18n.t;
   activeTab = 'tcg';
 
-  readonly tabs: FlowTab[] = [
-    {
-      id: 'tcg', icon: '🕹️', label: 'Turn Logic', heading: 'Core TCG Turn Loop',
-      summary: 'Alur eksekusi per giliran pemain oleh game engine simulator.',
-      nodes: [
-        { icon: '🎴', title: 'Ambil Kartu (Draw Phase)', desc: 'Pemain aktif mengambil kartu dari deck. Jika deck kosong, Kurawa memenangkan penalti mill.' },
-        { icon: '🔮', title: 'Akumulasi Prana', desc: 'Setiap pemain mengundi prana faksi (Satwika/Rajasika/Tamasika) dan Universal sesuai karakter aktif.' },
-        { icon: '⚔️', title: 'Fase Penyerangan (Action Phase)', desc: 'Karakter aktif mengeksekusi serangan atau skill penyembuhan jika syarat prana cost terpenuhi.' },
-        { icon: '🔄', title: 'Fase Retreat (Opsional)', desc: 'Karakter aktif dapat retreat ke Bench dengan membayar cost untuk digantikan cadangan jika HP sekarat.' },
-        { icon: '⚖️', title: 'Cek Kematian (Sasmita Claim)', desc: 'Berhasil membuat karakter aktif lawan gugur mengurangi Sasmita milikmu (-1, klaim prize). Jika Sasmita-mu = 0, kamu menang!', tone: 'end' }
-      ]
-    },
-    {
-      id: 'opt', icon: '🧬', label: 'Balancer Loop', heading: 'Optimization Loop',
-      summary: 'Siklus komputasi penyesuaian parameter menggunakan Genetic Algorithm (GA) dan Particle Swarm (PSO).',
-      nodes: [
-        { icon: '📂', title: 'Inisialisasi Parameter Awal', desc: 'Memuat HP, damage, dr, dan heal kartu TCG dari file JSON default.', tone: 'start' },
-        { icon: '💻', title: 'Simulasi 1.500 Pertandingan', desc: 'Mengeksekusi pertempuran acak asimetris untuk menguji kekuatan mutan parameter secara statistik.' },
-        { icon: '🎚️', title: 'Evaluasi Fungsi Kebugaran (Loss)', desc: 'Menghitung deviasi win rate antar faksi terhadap target seimbang 50:50.' },
-        { icon: '🧬', title: 'Operator Optimasi (GA / PSO)', desc: 'Menggunakan Seleksi & Mutasi (GA) atau Penyesuaian Vektor Kecepatan Swarm (PSO) untuk membuat generasi baru.' },
-        { icon: '💾', title: 'Ekspor File Parameter Seimbang', desc: 'Menyimpan file parameter optimal baru ke folder <code>data/</code> saat tingkat deviasi mendekati nol.', tone: 'end' }
-      ]
-    },
-    {
-      id: 'ml', icon: '🤖', label: 'ML Pipeline', heading: 'AI & ML Pipeline',
-      summary: 'Arsitektur integrasi data log hasil sim, model prediksi, dan pembelajaran reward taktis.',
-      nodes: [
-        { icon: '🏟️', title: 'Data Logger (Simulator & Game Engine)', desc: 'Mengekspor state per giliran, prana, HP, damage, dan hasil akhir pertempuran ke <code>hasil_riset.csv</code>.' },
-        { icon: '📊', title: 'Metode Regresi Random Forest', desc: 'Membaca CSV untuk mencari feature importance dari setiap parameter dan korelasi HP terhadap peluang menang.', tone: 'green' },
-        { icon: '🧠', title: 'Deep Surrogate Model (MLP Classifier)', desc: 'Melatih Multi-Layer Perceptron (MLP) 4-layer untuk bertindak sebagai fungsi aproksimasi loss pengganti simulator.', tone: 'purple' },
-        { icon: '🤖', title: 'Self-Play Reinforcement Learning (Q-Learning)', desc: 'Melatih agen cerdas melawan dirinya sendiri untuk menemukan pola giliran (turn sequence) optimal tiap faksi.', tone: 'end' }
-      ]
-    },
-    {
-      id: 'clean', icon: '🏰', label: 'Clean Arch', heading: 'Clean Architecture Layers',
-      summary: 'Batasan antar-layar kode untuk memisahkan domain inti dari UI.',
-      nodes: [
-        { icon: '🖥️', title: 'Presentation Layer (UI/View)', desc: 'Komponen Angular Standalone: Panel Arena Simulator, Tuning Sliders, dan Canvas Chart.js.', tone: 'blue' },
-        { icon: '⚙️', title: 'Use Cases Layer (Business Services)', desc: "Layanan abstrak 'BattleSimulatorService', 'BalanceOptimizerService', dan 'AnalyticsService'.", tone: 'purple' },
-        { icon: '📦', title: 'Data Repository / Driver Layer', desc: 'Implementasi konkrit log simulator per giliran murni TypeScript dan pencari loss fungsi.', tone: 'green' },
-        { icon: '💎', title: 'Core Domain Layer', desc: "Entitas murni 'Card' dan 'PlayerState' yang terbebas dari library eksternal.", tone: 'end' }
-      ]
-    }
-  ];
+  get tabs(): FlowTab[] {
+    return this.i18n.isEn() ? TABS_EN : TABS_ID;
+  }
 
   cardJsonSchema = `{
   "id": "stw_yudhistira",
@@ -237,3 +200,93 @@ export class FlowComponent {
 2,KURAWA,Sengkuni,attack_hasutan_amarta,35,0,3,3
 ...`;
 }
+
+const TABS_ID: FlowTab[] = [
+  {
+    id: 'tcg', icon: '🕹️', label: 'Turn Logic', heading: 'Core TCG Turn Loop',
+    summary: 'Alur eksekusi per giliran pemain oleh game engine simulator.',
+    nodes: [
+      { icon: '🎴', title: 'Ambil Kartu (Draw Phase)', desc: 'Pemain aktif mengambil kartu dari deck. Jika deck kosong, Kurawa memenangkan penalti mill.' },
+      { icon: '🔮', title: 'Akumulasi Prana', desc: 'Setiap pemain mengundi prana faksi (Satwika/Rajasika/Tamasika) dan Universal sesuai karakter aktif.' },
+      { icon: '⚔️', title: 'Fase Penyerangan (Action Phase)', desc: 'Karakter aktif mengeksekusi serangan atau skill penyembuhan jika syarat prana cost terpenuhi.' },
+      { icon: '🔄', title: 'Fase Retreat (Opsional)', desc: 'Karakter aktif dapat retreat ke Bench dengan membayar cost untuk digantikan cadangan jika HP sekarat.' },
+      { icon: '⚖️', title: 'Cek Kematian (Sasmita Claim)', desc: 'Berhasil membuat karakter aktif lawan gugur mengurangi Sasmita milikmu (-1, klaim prize). Jika Sasmita-mu = 0, kamu menang!', tone: 'end' }
+    ]
+  },
+  {
+    id: 'opt', icon: '🧬', label: 'Balancer Loop', heading: 'Optimization Loop',
+    summary: 'Siklus komputasi penyesuaian parameter menggunakan Genetic Algorithm (GA) dan Particle Swarm (PSO).',
+    nodes: [
+      { icon: '📂', title: 'Inisialisasi Parameter Awal', desc: 'Memuat HP, damage, dr, dan heal kartu TCG dari file JSON default.', tone: 'start' },
+      { icon: '💻', title: 'Simulasi 1.500 Pertandingan', desc: 'Mengeksekusi pertempuran acak asimetris untuk menguji kekuatan mutan parameter secara statistik.' },
+      { icon: '🎚️', title: 'Evaluasi Fungsi Kebugaran (Loss)', desc: 'Menghitung deviasi win rate antar faksi terhadap target seimbang 50:50.' },
+      { icon: '🧬', title: 'Operator Optimasi (GA / PSO)', desc: 'Menggunakan Seleksi & Mutasi (GA) atau Penyesuaian Vektor Kecepatan Swarm (PSO) untuk membuat generasi baru.' },
+      { icon: '💾', title: 'Ekspor File Parameter Seimbang', desc: 'Menyimpan file parameter optimal baru ke folder <code>data/</code> saat tingkat deviasi mendekati nol.', tone: 'end' }
+    ]
+  },
+  {
+    id: 'ml', icon: '🤖', label: 'ML Pipeline', heading: 'AI & ML Pipeline',
+    summary: 'Arsitektur integrasi data log hasil sim, model prediksi, dan pembelajaran reward taktis.',
+    nodes: [
+      { icon: '🏟️', title: 'Data Logger (Simulator & Game Engine)', desc: 'Mengekspor state per giliran, prana, HP, damage, dan hasil akhir pertempuran ke <code>hasil_riset.csv</code>.' },
+      { icon: '📊', title: 'Metode Regresi Random Forest', desc: 'Membaca CSV untuk mencari feature importance dari setiap parameter dan korelasi HP terhadap peluang menang.', tone: 'green' },
+      { icon: '🧠', title: 'Deep Surrogate Model (MLP Classifier)', desc: 'Melatih Multi-Layer Perceptron (MLP) 4-layer untuk bertindak sebagai fungsi aproksimasi loss pengganti simulator.', tone: 'purple' },
+      { icon: '🤖', title: 'Self-Play Reinforcement Learning (Q-Learning)', desc: 'Melatih agen cerdas melawan dirinya sendiri untuk menemukan pola giliran (turn sequence) optimal tiap faksi.', tone: 'end' }
+    ]
+  },
+  {
+    id: 'clean', icon: '🏰', label: 'Clean Arch', heading: 'Clean Architecture Layers',
+    summary: 'Batasan antar-layar kode untuk memisahkan domain inti dari UI.',
+    nodes: [
+      { icon: '🖥️', title: 'Presentation Layer (UI/View)', desc: 'Komponen Angular Standalone: Panel Arena Simulator, Tuning Sliders, dan Canvas Chart.js.', tone: 'blue' },
+      { icon: '⚙️', title: 'Use Cases Layer (Business Services)', desc: "Layanan abstrak 'BattleSimulatorService', 'BalanceOptimizerService', dan 'AnalyticsService'.", tone: 'purple' },
+      { icon: '📦', title: 'Data Repository / Driver Layer', desc: 'Implementasi konkrit log simulator per giliran murni TypeScript dan pencari loss fungsi.', tone: 'green' },
+      { icon: '💎', title: 'Core Domain Layer', desc: "Entitas murni 'Card' dan 'PlayerState' yang terbebas dari library eksternal.", tone: 'end' }
+    ]
+  }
+];
+
+const TABS_EN: FlowTab[] = [
+  {
+    id: 'tcg', icon: '🕹️', label: 'Turn Logic', heading: 'Core TCG Turn Loop',
+    summary: 'How the simulator game engine executes each player turn.',
+    nodes: [
+      { icon: '🎴', title: 'Draw Phase', desc: 'The active player draws a card from the deck. If the deck is empty, Kurawa wins by the mill penalty.' },
+      { icon: '🔮', title: 'Prana Accumulation', desc: 'Each player gains faction prana (Satwika/Rajasika/Tamasika) and Universal prana according to the active character.' },
+      { icon: '⚔️', title: 'Attack Phase (Action Phase)', desc: 'The active character executes an attack or healing skill if its prana cost is met.' },
+      { icon: '🔄', title: 'Retreat Phase (Optional)', desc: 'A badly wounded active character can retreat to the Bench by paying a cost, to be replaced by a reserve.' },
+      { icon: '⚖️', title: 'Knockout Check (Sasmita Claim)', desc: 'Knocking out the opponent\'s active character lowers your Sasmita (-1, claim a prize). If your Sasmita reaches 0, you win!', tone: 'end' }
+    ]
+  },
+  {
+    id: 'opt', icon: '🧬', label: 'Balancer Loop', heading: 'Optimization Loop',
+    summary: 'The compute cycle that adjusts parameters using a Genetic Algorithm (GA) and Particle Swarm Optimization (PSO).',
+    nodes: [
+      { icon: '📂', title: 'Initialize Starting Parameters', desc: 'Loads the TCG cards\' HP, damage, DR and heal values from the default JSON file.', tone: 'start' },
+      { icon: '💻', title: 'Simulate 1,500 Matches', desc: 'Runs randomized asymmetric battles to test the strength of mutated parameters statistically.' },
+      { icon: '🎚️', title: 'Evaluate the Fitness (Loss) Function', desc: 'Computes how far the factions\' win rates deviate from the balanced 50:50 target.' },
+      { icon: '🧬', title: 'Optimization Operators (GA / PSO)', desc: 'Uses Selection & Mutation (GA) or swarm velocity-vector updates (PSO) to create a new generation.' },
+      { icon: '💾', title: 'Export the Balanced Parameter File', desc: 'Saves the new optimal parameter file to the <code>data/</code> folder once the deviation approaches zero.', tone: 'end' }
+    ]
+  },
+  {
+    id: 'ml', icon: '🤖', label: 'ML Pipeline', heading: 'AI & ML Pipeline',
+    summary: 'How simulation log data, prediction models and tactical reward learning fit together.',
+    nodes: [
+      { icon: '🏟️', title: 'Data Logger (Simulator & Game Engine)', desc: 'Exports per-turn state, prana, HP, damage and the final battle result to <code>hasil_riset.csv</code>.' },
+      { icon: '📊', title: 'Random Forest Regression', desc: 'Reads the CSV to find each parameter\'s feature importance and how HP correlates with the chance of winning.', tone: 'green' },
+      { icon: '🧠', title: 'Deep Surrogate Model (MLP Classifier)', desc: 'Trains a 4-layer Multi-Layer Perceptron (MLP) to act as an approximate loss function in place of the simulator.', tone: 'purple' },
+      { icon: '🤖', title: 'Self-Play Reinforcement Learning (Q-Learning)', desc: 'Trains an agent against itself to discover the best turn sequence for each faction.', tone: 'end' }
+    ]
+  },
+  {
+    id: 'clean', icon: '🏰', label: 'Clean Arch', heading: 'Clean Architecture Layers',
+    summary: 'Boundaries between code layers that keep the core domain separate from the UI.',
+    nodes: [
+      { icon: '🖥️', title: 'Presentation Layer (UI/View)', desc: 'Standalone Angular components: Simulator Arena panel, Tuning Sliders and Chart.js canvases.', tone: 'blue' },
+      { icon: '⚙️', title: 'Use Cases Layer (Business Services)', desc: "Abstract services 'BattleSimulatorService', 'BalanceOptimizerService' and 'AnalyticsService'.", tone: 'purple' },
+      { icon: '📦', title: 'Data Repository / Driver Layer', desc: 'Concrete implementations: the pure-TypeScript turn-by-turn simulator log and the loss-function search.', tone: 'green' },
+      { icon: '💎', title: 'Core Domain Layer', desc: "Pure 'Card' and 'PlayerState' entities, free of external libraries.", tone: 'end' }
+    ]
+  }
+];

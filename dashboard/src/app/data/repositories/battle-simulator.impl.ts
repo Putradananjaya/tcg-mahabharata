@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { BattleSimulatorService } from '../../core/usecases/battle-simulator.service';
 import { PlayerState, GameLog, CharacterState } from '../../core/domain/match-state.model';
 import { CardInstance, FactionDeck, Match, PlayerSim, TURN_CAP } from '../../core/engine/research-engine';
+import { tr } from '../../core/engine/lang';
 
 type Phase = 'PRANA' | 'ATTACK' | 'EFFECT' | 'EVALUATION';
 
@@ -47,11 +48,13 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
     this.winner$.next(null);
 
     const first = this.match.order[0];
-    this.addLog(`=== PERTANDINGAN DIMULAI (engine riset, batas ${TURN_CAP} giliran) ===`, 'info');
+    this.addLog(tr(`=== PERTANDINGAN DIMULAI (engine riset, batas ${TURN_CAP} giliran) ===`,
+      `=== MATCH STARTED (research engine, ${TURN_CAP}-turn cap) ===`), 'info');
     for (const p of this.match.players) {
-      this.addLog(`${p.name}: aktif ${p.active?.name ?? '-'}, bench ${p.bench.length} kartu (${this.benchSummary(p)}), deck tersisa ${p.deck.length}.`, 'info');
+      this.addLog(tr(`${p.name}: aktif ${p.active?.name ?? '-'}, bench ${p.bench.length} kartu (${this.benchSummary(p)}), deck tersisa ${p.deck.length}.`,
+        `${p.name}: active ${p.active?.name ?? '-'}, bench ${p.bench.length} cards (${this.benchSummary(p)}), ${p.deck.length} left in deck.`), 'info');
     }
-    this.addLog(`Lempar koin: ${first.name} jalan duluan di setiap giliran.`, 'info');
+    this.addLog(tr(`Lempar koin: ${first.name} jalan duluan di setiap giliran.`, `Coin toss: ${first.name} goes first every turn.`), 'info');
 
     this.activePhase$.next('PRANA');
     this.isRunning$.next(true);
@@ -64,45 +67,49 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
     const actor = match.actor;
 
     if (this.phase === 'PRANA') {
-      this.addLog(`--- GILIRAN ${match.turn} | ${actor.name} ---`, 'info');
+      this.addLog(tr(`--- GILIRAN ${match.turn} | ${actor.name} ---`, `--- TURN ${match.turn} | ${actor.name} ---`), 'info');
       const type = match.stepPrana();
       if (type) {
-        this.addLog(`[FASE PRANA] +1 Prana ${type} untuk ${actor.active?.name} (pool: ${this.poolText(actor)}).`, 'action');
+        this.addLog(tr(`[FASE PRANA] +1 Prana ${type} untuk ${actor.active?.name} (pool: ${this.poolText(actor)}).`,
+          `[PRANA PHASE] +1 ${type} Prana for ${actor.active?.name} (pool: ${this.poolText(actor)}).`), 'action');
       } else {
-        this.addLog(`[FASE PRANA] Tidak ada karakter aktif, tidak ada Prana.`, 'info');
+        this.addLog(tr(`[FASE PRANA] Tidak ada karakter aktif, tidak ada Prana.`, `[PRANA PHASE] No active character, no Prana.`), 'info');
       }
       this.phase = 'ATTACK';
     } else if (this.phase === 'ATTACK') {
       const { attack, skipReason } = match.stepAttack();
       if (attack) {
         const bonus = [
-          attack.benchBonus ? `+${attack.benchBonus} bonus Bench` : '',
-          attack.discardBonus ? `+${attack.discardBonus} bonus discard lawan` : '',
+          attack.benchBonus ? tr(`+${attack.benchBonus} bonus Bench`, `+${attack.benchBonus} Bench bonus`) : '',
+          attack.discardBonus ? tr(`+${attack.discardBonus} bonus discard lawan`, `+${attack.discardBonus} opponent-discard bonus`) : '',
           attack.reduction ? `−${attack.reduction} DR ${attack.defender}` : '',
         ].filter(Boolean).join(', ');
-        this.addLog(`[FASE SERANG] ${attack.attacker} memakai '${attack.attackName}' (base ${attack.baseDamage}${bonus ? ', ' + bonus : ''}).`, 'action');
-        this.addLog(`  * Damage bersih ${attack.finalDamage} HP dikurangi dari ${attack.defender} (sisa HP: ${attack.defenderHpAfter}).`, 'damage');
+        this.addLog(tr(`[FASE SERANG] ${attack.attacker} memakai '${attack.attackName}' (base ${attack.baseDamage}${bonus ? ', ' + bonus : ''}).`,
+          `[ATTACK PHASE] ${attack.attacker} uses '${attack.attackName}' (base ${attack.baseDamage}${bonus ? ', ' + bonus : ''}).`), 'action');
+        this.addLog(tr(`  * Damage bersih ${attack.finalDamage} HP dikurangi dari ${attack.defender} (sisa HP: ${attack.defenderHpAfter}).`,
+          `  * Net damage ${attack.finalDamage} HP dealt to ${attack.defender} (HP left: ${attack.defenderHpAfter}).`), 'damage');
       } else {
-        this.addLog(`[FASE SERANG] ${skipReason}`, 'info');
+        this.addLog(`${tr('[FASE SERANG]', '[ATTACK PHASE]')} ${skipReason}`, 'info');
       }
       this.phase = 'EFFECT';
     } else if (this.phase === 'EFFECT') {
       const effect = match.stepEffect();
       if (effect) {
         const type = effect.effect === 'recoil_damage' ? 'recoil' : effect.effect === 'heal_bench_card' ? 'heal' : 'action';
-        this.addLog(`[FASE EFEK] ${effect.detail}`, type);
+        this.addLog(`${tr('[FASE EFEK]', '[EFFECT PHASE]')} ${effect.detail}`, type);
       } else {
-        this.addLog(`[FASE EFEK] Tidak ada efek.`, 'info');
+        this.addLog(tr(`[FASE EFEK] Tidak ada efek.`, `[EFFECT PHASE] No effect.`), 'info');
       }
       this.phase = 'EVALUATION';
     } else {
       const { knockouts } = match.stepKnockouts();
       for (const ko of knockouts) {
-        const cause = ko.byRecoil ? ' (akibat recoil sendiri)' : '';
-        this.addLog(`  * GUGUR: ${ko.knockedOut}${cause}. ${ko.claimant} mengklaim prize, Sasmita tersisa ${ko.claimantSasmita}.`, 'knockout');
-        if (ko.replacement) this.addLog(`  * ${ko.replacement} maju dari Bench.`, 'info');
+        const cause = ko.byRecoil ? tr(' (akibat recoil sendiri)', ' (by its own recoil)') : '';
+        this.addLog(tr(`  * GUGUR: ${ko.knockedOut}${cause}. ${ko.claimant} mengklaim prize, Sasmita tersisa ${ko.claimantSasmita}.`,
+          `  * KNOCKED OUT: ${ko.knockedOut}${cause}. ${ko.claimant} claims a prize, Sasmita left ${ko.claimantSasmita}.`), 'knockout');
+        if (ko.replacement) this.addLog(tr(`  * ${ko.replacement} maju dari Bench.`, `  * ${ko.replacement} steps up from the Bench.`), 'info');
       }
-      if (!knockouts.length) this.addLog(`[FASE EVALUASI] Tidak ada yang gugur.`, 'info');
+      if (!knockouts.length) this.addLog(tr(`[FASE EVALUASI] Tidak ada yang gugur.`, `[EVALUATION PHASE] Nobody was knocked out.`), 'info');
       this.phase = 'PRANA';
       if (match.finished) this.finish();
     }
@@ -116,9 +123,10 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
     const match = this.match!;
     const winner = match.players[match.winnerIndex!];
     if (match.endedByTurnCap) {
-      this.addLog(`=== BATAS ${TURN_CAP} GILIRAN: pemenang ditentukan HP karakter aktif (seri → P1). Pemenang: ${winner.name} ===`, 'info');
+      this.addLog(tr(`=== BATAS ${TURN_CAP} GILIRAN: pemenang ditentukan HP karakter aktif (seri → P1). Pemenang: ${winner.name} ===`,
+        `=== ${TURN_CAP}-TURN CAP: winner decided by active character HP (tie → P1). Winner: ${winner.name} ===`), 'info');
     } else {
-      this.addLog(`=== GAME OVER: ${winner.name} MENANG ===`, 'info');
+      this.addLog(tr(`=== GAME OVER: ${winner.name} MENANG ===`, `=== GAME OVER: ${winner.name} WINS ===`), 'info');
     }
     this.winner$.next(winner.name);
     this.isRunning$.next(false);
@@ -149,13 +157,13 @@ export class BattleSimulatorImpl implements BattleSimulatorService {
 
   private poolText(p: PlayerSim): string {
     const entries = Object.entries(p.prana).filter(([, v]) => v > 0);
-    return entries.length ? entries.map(([k, v]) => `${k} ${v}`).join(', ') : 'kosong';
+    return entries.length ? entries.map(([k, v]) => `${k} ${v}`).join(', ') : tr('kosong', 'empty');
   }
 
   private benchSummary(p: PlayerSim): string {
     const counts = new Map<string, number>();
     for (const c of p.bench) counts.set(c.name, (counts.get(c.name) ?? 0) + 1);
-    return [...counts].map(([name, n]) => `${n}× ${name}`).join(', ') || 'kosong';
+    return [...counts].map(([name, n]) => `${n}× ${name}`).join(', ') || tr('kosong', 'empty');
   }
 
   private addLog(message: string, type: GameLog['type']): void {

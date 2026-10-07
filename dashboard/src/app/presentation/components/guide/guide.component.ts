@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { LanguageService } from '../../../core/services/language.service';
 
 interface Faction {
   key: string;
@@ -42,12 +43,12 @@ interface Term {
           </g>
         </svg>
         <div class="g-hero-body">
-          <span class="g-eyebrow">Panduan Bermain</span>
+          <span class="g-eyebrow">{{ t('Panduan Bermain', 'How to Play') }}</span>
           <h2 class="g-title">Mahabharata <span>TCG</span></h2>
-          <p class="g-lead">Selamat datang di Research &amp; Balancing Dashboard Mahabharata TCG. Halaman ini menjelaskan aturan main dasar, alur per giliran, dan makna filosofis dari metrik faksi asimetris.</p>
+          <p class="g-lead">{{ t('Selamat datang di Research & Balancing Dashboard Mahabharata TCG. Halaman ini menjelaskan aturan main dasar, alur per giliran, dan makna filosofis dari metrik faksi asimetris.', 'Welcome to the Mahabharata TCG Research & Balancing Dashboard. This page explains the basic rules, the flow of each turn, and the philosophical meaning behind the asymmetric faction metrics.') }}</p>
           <div class="g-cta">
-            <a routerLink="/simulator/tcg" class="g-btn g-btn-gold">⚔️ Mulai Bertarung</a>
-            <a routerLink="/balancer" class="g-btn g-btn-ghost">🔬 Hasil Riset Balancing</a>
+            <a routerLink="/simulator/tcg" class="g-btn g-btn-gold">⚔️ {{ t('Mulai Bertarung', 'Start a Battle') }}</a>
+            <a routerLink="/balancer" class="g-btn g-btn-ghost">🔬 {{ t('Hasil Riset Balancing', 'Balancing Results') }}</a>
           </div>
         </div>
       </section>
@@ -55,8 +56,8 @@ interface Term {
       <!-- Factions -->
       <section class="g-section">
         <header class="g-head">
-          <span class="g-kicker">Tiga Faksi</span>
-          <h3>Pilih Jalan Faksimu</h3>
+          <span class="g-kicker">{{ t('Tiga Faksi', 'Three Factions') }}</span>
+          <h3>{{ t('Pilih Jalan Faksimu', "Choose Your Faction's Path") }}</h3>
         </header>
         <div class="g-factions">
           <article *ngFor="let f of factions; let i = index" class="g-faction" [ngClass]="'f-' + f.key" [style.animation-delay.ms]="i * 120">
@@ -72,15 +73,15 @@ interface Term {
       <!-- Turn flow -->
       <section class="g-section">
         <header class="g-head">
-          <span class="g-kicker">Alur Giliran</span>
-          <h3>Cara &amp; Alur Permainan</h3>
-          <p>Mahabharata TCG dimainkan secara giliran bergiliran antara dua faksi:</p>
+          <span class="g-kicker">{{ t('Alur Giliran', 'Turn Flow') }}</span>
+          <h3>{{ t('Cara & Alur Permainan', 'How the Game Is Played') }}</h3>
+          <p>{{ t('Mahabharata TCG dimainkan secara giliran bergiliran antara dua faksi:', 'Mahabharata TCG is played in alternating turns between two factions:') }}</p>
         </header>
         <ol class="g-timeline">
           <li *ngFor="let p of phases; let i = index" [style.animation-delay.ms]="i * 90">
             <div class="g-node"><span>{{ p.icon }}</span></div>
             <div class="g-step">
-              <span class="g-num">Fase {{ i + 1 }}</span>
+              <span class="g-num">{{ t('Fase', 'Phase') }} {{ i + 1 }}</span>
               <strong>{{ p.title }}</strong>
               <p>{{ p.desc }}</p>
             </div>
@@ -91,16 +92,16 @@ interface Term {
       <!-- Glossary -->
       <section class="g-section">
         <header class="g-head">
-          <span class="g-kicker">Glossarium</span>
-          <h3>Makna Istilah</h3>
-          <p>Penjelasan metrik dan unsur spiritual dalam game Mahabharata TCG:</p>
+          <span class="g-kicker">{{ t('Glosarium', 'Glossary') }}</span>
+          <h3>{{ t('Makna Istilah', 'Key Terms') }}</h3>
+          <p>{{ t('Penjelasan metrik dan unsur spiritual dalam game Mahabharata TCG:', 'The metrics and spiritual elements of the Mahabharata TCG:') }}</p>
         </header>
         <div class="g-terms">
-          <div *ngFor="let t of terms" class="g-term">
-            <span class="g-term-icon">{{ t.icon }}</span>
+          <div *ngFor="let term of terms" class="g-term">
+            <span class="g-term-icon">{{ term.icon }}</span>
             <div>
-              <strong>{{ t.name }}</strong>
-              <p>{{ t.desc }}</p>
+              <strong>{{ term.name }}</strong>
+              <p>{{ term.desc }}</p>
             </div>
           </div>
         </div>
@@ -190,38 +191,85 @@ interface Term {
   `]
 })
 export class GuideComponent {
+  private readonly i18n = inject(LanguageService);
+  readonly t = this.i18n.t;
   readonly spokes = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
 
-  readonly factions: Faction[] = [
-    {
-      key: 'satwika', name: 'Satwika', house: 'Pandawa', icon: '✨',
-      trait: 'Sifat tenang, mulia, dan murni.',
-      desc: 'Faksi Pandawa berfokus pada ketahanan (Damage Reduction) dan regenerasi HP berlanjut di Bench.'
-    },
-    {
-      key: 'rajasika', name: 'Rajasika', house: 'Aggro', icon: '🔥',
-      trait: 'Sifat aktif, bergelora, dan agresif.',
-      desc: 'Faksi Rajasika berfokus pada serangan eksplosif cepat di awal laga namun memiliki resiko recoil damage diri sendiri.'
-    },
-    {
-      key: 'tamasika', name: 'Tamasika', house: 'Kurawa', icon: '🌪️',
-      trait: 'Sifat gelap, destruktif, dan culas.',
-      desc: 'Faksi Kurawa berfokus pada taktik memperlambat tempo (Stall), membuang deck lawan (Mill), dan scaling damage berbasis kartu mati di makam.'
-    }
-  ];
+  get factions(): Faction[] {
+    return this.i18n.isEn() ? FACTIONS_EN : FACTIONS_ID;
+  }
 
-  readonly phases: Phase[] = [
-    { icon: '🃏', title: 'Fase Persiapan Deck', desc: 'Setiap pemain bersiap dengan deck tokoh faksi aktif. Salah satu tokoh masuk ke Arena Aktif, cadangan bersiaga di Bench.' },
-    { icon: '📜', title: 'Fase Ambil Kartu (Draw Phase)', desc: 'Giliran dimulai dengan menarik kartu dari deck. Jika dek habis, pemain dinyatakan kalah terkena penalti Deck Out.' },
-    { icon: '🔮', title: 'Akumulasi Prana', desc: 'Karakter aktif mengundi prana spiritual setiap turn (sesuai elemen faksi/Universal) sebagai resource melancarkan serangan.' },
-    { icon: '⚔️', title: 'Fase Aksi (Combat / Heal)', desc: 'Pemain menyerang karakter aktif lawan atau menggunakan skill penyembuhan (seperti Yudhistira) jika prana mencukupi.' },
-    { icon: '🛡️', title: 'Fase Retreat (Tactical Retreat)', desc: 'Karakter aktif yang sekarat dapat retreat ke Bench dengan membayar cost agar tidak tereliminasi oleh lawan.' },
-    { icon: '🏆', title: 'Victory Check (Sasmita Drop)', desc: 'Ketika kamu berhasil membuat karakter aktif lawan gugur (HP habis), Sasmita milikmu berkurang 1 (kamu mengklaim satu prize). Faksi yang Sasmita-nya lebih dulu mencapai 0 menang!' }
-  ];
+  get phases(): Phase[] {
+    return this.i18n.isEn() ? PHASES_EN : PHASES_ID;
+  }
 
-  readonly terms: Term[] = [
-    { icon: '🛡️', name: 'Sasmita', desc: 'Hitungan prize card faksi (mulai dari 3, bukan life total). Setiap kali kamu berhasil mengalahkan karakter aktif lawan, Sasmita milikmu berkurang 1. Faksi yang lebih dulu mencapai Sasmita 0 menang.' },
-    { icon: '🔮', name: 'Prana', desc: 'Energi spiritual/sumber daya faksi yang diundi setiap giliran untuk mengaktifkan serangan atau skill dari kartu tokoh.' },
-    { icon: '👤', name: 'Bench (Cadangan)', desc: 'Area siaga untuk karakter cadangan. Karakter di bench aman dari serangan aktif lawan dan dapat dipulihkan secara bertahap.' }
-  ];
+  get terms(): Term[] {
+    return this.i18n.isEn() ? TERMS_EN : TERMS_ID;
+  }
 }
+
+const FACTIONS_ID: Faction[] = [
+  {
+    key: 'satwika', name: 'Satwika', house: 'Pandawa', icon: '✨',
+    trait: 'Sifat tenang, mulia, dan murni.',
+    desc: 'Faksi Pandawa berfokus pada ketahanan (Damage Reduction) dan regenerasi HP berlanjut di Bench.'
+  },
+  {
+    key: 'rajasika', name: 'Rajasika', house: 'Aggro', icon: '🔥',
+    trait: 'Sifat aktif, bergelora, dan agresif.',
+    desc: 'Faksi Rajasika berfokus pada serangan eksplosif cepat di awal laga namun memiliki resiko recoil damage diri sendiri.'
+  },
+  {
+    key: 'tamasika', name: 'Tamasika', house: 'Kurawa', icon: '🌪️',
+    trait: 'Sifat gelap, destruktif, dan culas.',
+    desc: 'Faksi Kurawa berfokus pada taktik memperlambat tempo (Stall), membuang deck lawan (Mill), dan scaling damage berbasis kartu mati di makam.'
+  }
+];
+
+const FACTIONS_EN: Faction[] = [
+  {
+    key: 'satwika', name: 'Satwika', house: 'Pandawa', icon: '✨',
+    trait: 'Calm, noble and pure.',
+    desc: 'The Pandawa faction focuses on endurance (Damage Reduction) and ongoing HP regeneration on the Bench.'
+  },
+  {
+    key: 'rajasika', name: 'Rajasika', house: 'Aggro', icon: '🔥',
+    trait: 'Active, passionate and aggressive.',
+    desc: 'The Rajasika faction focuses on fast, explosive attacks early in the match, at the risk of recoil damage to itself.'
+  },
+  {
+    key: 'tamasika', name: 'Tamasika', house: 'Kurawa', icon: '🌪️',
+    trait: 'Dark, destructive and cunning.',
+    desc: 'The Kurawa faction focuses on slowing the tempo (Stall), discarding the opponent\'s deck (Mill), and damage that scales with the cards in the graveyard.'
+  }
+];
+
+const PHASES_ID: Phase[] = [
+  { icon: '🃏', title: 'Fase Persiapan Deck', desc: 'Setiap pemain bersiap dengan deck tokoh faksi aktif. Salah satu tokoh masuk ke Arena Aktif, cadangan bersiaga di Bench.' },
+  { icon: '📜', title: 'Fase Ambil Kartu (Draw Phase)', desc: 'Giliran dimulai dengan menarik kartu dari deck. Jika dek habis, pemain dinyatakan kalah terkena penalti Deck Out.' },
+  { icon: '🔮', title: 'Akumulasi Prana', desc: 'Karakter aktif mengundi prana spiritual setiap turn (sesuai elemen faksi/Universal) sebagai resource melancarkan serangan.' },
+  { icon: '⚔️', title: 'Fase Aksi (Combat / Heal)', desc: 'Pemain menyerang karakter aktif lawan atau menggunakan skill penyembuhan (seperti Yudhistira) jika prana mencukupi.' },
+  { icon: '🛡️', title: 'Fase Retreat (Tactical Retreat)', desc: 'Karakter aktif yang sekarat dapat retreat ke Bench dengan membayar cost agar tidak tereliminasi oleh lawan.' },
+  { icon: '🏆', title: 'Victory Check (Sasmita Drop)', desc: 'Ketika kamu berhasil membuat karakter aktif lawan gugur (HP habis), Sasmita milikmu berkurang 1 (kamu mengklaim satu prize). Faksi yang Sasmita-nya lebih dulu mencapai 0 menang!' }
+];
+
+const PHASES_EN: Phase[] = [
+  { icon: '🃏', title: 'Deck Preparation', desc: 'Each player prepares a deck of their faction\'s characters. One character enters the Active Arena; the reserves wait on the Bench.' },
+  { icon: '📜', title: 'Draw Phase', desc: 'A turn starts by drawing a card from the deck. If the deck is empty, the player loses by the Deck Out penalty.' },
+  { icon: '🔮', title: 'Prana Accumulation', desc: 'Every turn the active character gains spiritual prana (of its faction element or Universal), the resource used to launch attacks.' },
+  { icon: '⚔️', title: 'Action Phase (Combat / Heal)', desc: 'The player attacks the opponent\'s active character, or uses a healing skill (such as Yudhistira\'s) if there is enough prana.' },
+  { icon: '🛡️', title: 'Retreat Phase (Tactical Retreat)', desc: 'A badly wounded active character can retreat to the Bench by paying a cost, so it is not eliminated by the opponent.' },
+  { icon: '🏆', title: 'Victory Check (Sasmita Drop)', desc: 'When you knock out the opponent\'s active character (HP reaches 0), your Sasmita drops by 1 (you claim one prize). The faction whose Sasmita reaches 0 first wins!' }
+];
+
+const TERMS_ID: Term[] = [
+  { icon: '🛡️', name: 'Sasmita', desc: 'Hitungan prize card faksi (mulai dari 3, bukan life total). Setiap kali kamu berhasil mengalahkan karakter aktif lawan, Sasmita milikmu berkurang 1. Faksi yang lebih dulu mencapai Sasmita 0 menang.' },
+  { icon: '🔮', name: 'Prana', desc: 'Energi spiritual/sumber daya faksi yang diundi setiap giliran untuk mengaktifkan serangan atau skill dari kartu tokoh.' },
+  { icon: '👤', name: 'Bench (Cadangan)', desc: 'Area siaga untuk karakter cadangan. Karakter di bench aman dari serangan aktif lawan dan dapat dipulihkan secara bertahap.' }
+];
+
+const TERMS_EN: Term[] = [
+  { icon: '🛡️', name: 'Sasmita', desc: 'A faction\'s prize-card count (starts at 3; it is not a life total). Each time you defeat the opponent\'s active character, your Sasmita drops by 1. The faction that reaches Sasmita 0 first wins.' },
+  { icon: '🔮', name: 'Prana', desc: 'Spiritual energy, the faction resource gained every turn to power the attacks and skills of character cards.' },
+  { icon: '👤', name: 'Bench (Reserve)', desc: 'The waiting area for reserve characters. Characters on the Bench are safe from the opponent\'s attacks and can be healed gradually.' }
+];

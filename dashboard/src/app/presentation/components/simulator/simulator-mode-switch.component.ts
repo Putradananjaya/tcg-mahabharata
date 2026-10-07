@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { LanguageService } from '../../../core/services/language.service';
 
 /** Switch between the research-engine replay (/simulator) and the Pokemon-style Mode TCG (/simulator/tcg). */
 @Component({
@@ -7,14 +8,14 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   template: `
-    <div class="sim-mode-switch" role="tablist" aria-label="Mode simulator">
+    <div class="sim-mode-switch" role="tablist" [attr.aria-label]="t('Mode simulator', 'Simulator mode')">
       <a routerLink="/simulator" role="tab" [class.on]="active === 'research'" [attr.aria-selected]="active === 'research'">
-        <strong>🔬 Engine Riset</strong>
-        <span>Aturan persis seperti simulator Python di paper; serangan dipilih otomatis</span>
+        <strong>🔬 {{ t('Engine Riset', 'Research Engine') }}</strong>
+        <span>{{ t('Aturan persis seperti simulator Python di paper; serangan dipilih otomatis', 'Same rules as the Python simulator in the paper; attacks are chosen automatically') }}</span>
       </a>
       <a routerLink="/simulator/tcg" role="tab" [class.on]="active === 'tcg'" [attr.aria-selected]="active === 'tcg'">
-        <strong>🃏 Mode TCG <em>prototipe</em></strong>
-        <span>Aturan mirip Pokémon TCG; bisa dimainkan (Kamu vs Bot) atau ditonton (Bot vs Bot)</span>
+        <strong>🃏 {{ t('Mode TCG', 'TCG Mode') }} <em>{{ t('prototipe', 'prototype') }}</em></strong>
+        <span>{{ t('Aturan mirip Pokémon TCG; bisa dimainkan (Kamu vs Bot) atau ditonton (Bot vs Bot)', 'Pokémon-TCG-like rules; play it (You vs Bot) or watch it (Bot vs Bot)') }}</span>
       </a>
     </div>
   `,
@@ -38,4 +39,5 @@ import { RouterModule } from '@angular/router';
 })
 export class SimulatorModeSwitchComponent {
   @Input() active: 'research' | 'tcg' = 'research';
+  readonly t = inject(LanguageService).t;
 }

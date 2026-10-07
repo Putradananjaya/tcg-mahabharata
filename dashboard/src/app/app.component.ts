@@ -9,11 +9,13 @@ import { BattleSimulatorService } from './core/usecases/battle-simulator.service
 import { BattleSimulatorImpl } from './data/repositories/battle-simulator.impl';
 import { SandboxService } from './core/usecases/sandbox.service';
 import { SandboxImpl } from './data/repositories/sandbox.impl';
+import { LanguageService } from './core/services/language.service';
 
 interface NavItem {
   path: string;
   icon: string;
   label: string;
+  labelEn: string;
 }
 
 const NAV_COLLAPSED_KEY = 'mtcg.navCollapsed';
@@ -34,14 +36,17 @@ const NAV_COLLAPSED_KEY = 'mtcg.navCollapsed';
 })
 export class AppComponent {
   readonly navItems: NavItem[] = [
-    { path: '/guide', icon: '🕹️', label: 'Panduan Bermain' },
-    { path: '/simulator', icon: '🎮', label: 'Game Simulator' },
-    { path: '/balancer', icon: '🔬', label: 'Hasil Riset Balancing' },
-    { path: '/creator', icon: '🎴', label: 'Card Creator' },
-    { path: '/tuning', icon: '🎛️', label: 'Parameter Sliders' },
-    { path: '/analytics', icon: '📊', label: 'Visual Analytics' },
-    { path: '/flow', icon: '⚙️', label: 'Flow & Schema' },
+    { path: '/overview', icon: '🎯', label: 'Latar Belakang & Tujuan', labelEn: 'Research Overview' },
+    { path: '/guide', icon: '🕹️', label: 'Panduan Bermain', labelEn: 'How to Play' },
+    { path: '/simulator', icon: '🎮', label: 'Game Simulator', labelEn: 'Game Simulator' },
+    { path: '/balancer', icon: '🔬', label: 'Hasil Riset Balancing', labelEn: 'Balancing Results' },
+    { path: '/creator', icon: '🎴', label: 'Card Creator', labelEn: 'Card Creator' },
+    { path: '/tuning', icon: '🎛️', label: 'Parameter Sliders', labelEn: 'Parameter Sliders' },
+    { path: '/analytics', icon: '📊', label: 'Visual Analytics', labelEn: 'Visual Analytics' },
+    { path: '/flow', icon: '⚙️', label: 'Flow & Schema', labelEn: 'Flow & Schema' },
   ];
+
+  readonly i18n = inject(LanguageService);
 
   navCollapsed = readNavCollapsed();
 

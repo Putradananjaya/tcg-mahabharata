@@ -8,25 +8,31 @@
         <p>AI Balancing & Research Suite</p>
       </div>
     </div>
+    <div class="lang-switch" role="group" [attr.aria-label]="i18n.t('Bahasa', 'Language')">
+      <button type="button" [class.on]="i18n.lang() === 'id'" [attr.aria-pressed]="i18n.lang() === 'id'"
+              (click)="i18n.use('id')" title="Bahasa Indonesia">ID</button>
+      <button type="button" [class.on]="i18n.lang() === 'en'" [attr.aria-pressed]="i18n.lang() === 'en'"
+              (click)="i18n.use('en')" title="English">EN</button>
+    </div>
   </header>
 
   <!-- Main Layout -->
   <div class="dashboard-layout" [class.nav-collapsed]="navCollapsed">
     <!-- Navigation Sidebar -->
-    <nav class="dashboard-nav glass-card" aria-label="Navigasi utama">
+    <nav class="dashboard-nav glass-card" [attr.aria-label]="i18n.t('Navigasi utama', 'Main navigation')">
       <button type="button" class="nav-toggle" (click)="toggleNav()"
               [attr.aria-expanded]="!navCollapsed"
-              [attr.aria-label]="navCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
-              [attr.title]="navCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'">
+              [attr.aria-label]="navCollapsed ? i18n.t('Perluas sidebar', 'Expand sidebar') : i18n.t('Ciutkan sidebar', 'Collapse sidebar')"
+              [attr.title]="navCollapsed ? i18n.t('Perluas sidebar', 'Expand sidebar') : i18n.t('Ciutkan sidebar', 'Collapse sidebar')">
         <svg class="toggle-chevron" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        <span class="btn-label">Ciutkan</span>
+        <span class="btn-label">{{ i18n.t('Ciutkan', 'Collapse') }}</span>
       </button>
       <button *ngFor="let item of navItems" [routerLink]="item.path" routerLinkActive="active" class="nav-btn"
-              [attr.title]="navCollapsed ? item.label : null" [attr.aria-label]="item.label">
+              [attr.title]="navCollapsed ? i18n.t(item.label, item.labelEn) : null" [attr.aria-label]="i18n.t(item.label, item.labelEn)">
         <span class="btn-icon">{{ item.icon }}</span>
-        <span class="btn-label">{{ item.label }}</span>
+        <span class="btn-label">{{ i18n.t(item.label, item.labelEn) }}</span>
       </button>
     </nav>
 

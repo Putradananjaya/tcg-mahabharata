@@ -21,6 +21,7 @@
  * cards, evolution, special conditions.
  */
 import { AttackDef, CardDef, FactionDeck, Rng } from './research-engine';
+import { tr } from './lang';
 
 export const TCG_MODE_CONFIG = {
   copiesPerCharacter: 10,
@@ -161,14 +162,14 @@ export class TcgGame {
     this.players = [make(name1, deck1), make(name2, deck2)];
     this.firstPlayer = rng() < 0.5 ? 0 : 1;
     this.current = this.firstPlayer;
-    this.addLog(null, `Lempar koin: ${this.players[this.firstPlayer].name} jalan duluan.`, 'info', { fx: { type: 'coin', player: this.firstPlayer } });
+    this.addLog(null, tr(`Lempar koin: ${this.players[this.firstPlayer].name} jalan duluan.`, `Coin toss: ${this.players[this.firstPlayer].name} goes first.`), 'info', { fx: { type: 'coin', player: this.firstPlayer } });
 
     for (const [i, p] of this.players.entries()) {
-      if (!p.deck.some(isCharacter)) throw new Error(`Deck ${p.name} tidak berisi kartu karakter; mulligan tidak akan pernah selesai.`);
+      if (!p.deck.some(isCharacter)) throw new Error(tr(`Deck ${p.name} tidak berisi kartu karakter; mulligan tidak akan pernah selesai.`, `${p.name}'s deck has no character cards; the mulligan would never end.`));
       this.draw(p, config.handSize);
       while (!p.hand.some(isCharacter)) {
         p.mulligans++;
-        this.addLog(i, `${p.name} mulligan (tidak ada karakter di tangan): kartu dikocok kembali, ambil ${config.handSize} baru.`, 'info');
+        this.addLog(i, tr(`${p.name} mulligan (tidak ada karakter di tangan): kartu dikocok kembali, ambil ${config.handSize} baru.`, `${p.name} mulligans (no character in hand): cards reshuffled, drawing ${config.handSize} new ones.`), 'info');
         p.deck.push(...p.hand);
         p.hand = [];
         shuffle(p.deck, rng);
@@ -179,7 +180,7 @@ export class TcgGame {
       const extra = this.players[1 - i].mulligans;
       if (extra > 0) {
         this.draw(p, extra);
-        this.addLog(i, `${p.name} mengambil ${extra} kartu tambahan karena lawan mulligan ${extra}×.`, 'info');
+        this.addLog(i, tr(`${p.name} mengambil ${extra} kartu tambahan karena lawan mulligan ${extra}×.`, `${p.name} draws ${extra} extra card(s) because the opponent mulliganed ${extra}×.`), 'info');
       }
     }
   }
@@ -295,7 +296,7 @@ export class TcgGame {
         this.require(this.canSetupDone(p), p, action);
         pl.setupDone = true;
         // Setup is face down until both players are done, so the choice is revealed in beginGame().
-        this.addLog(p, `${pl.name} selesai setup.`, 'info');
+        this.addLog(p, tr(`${pl.name} selesai setup.`, `${pl.name} finished setup.`), 'info');
         if (this.players.every((x) => x.setupDone)) this.beginGame();
         break;
       }
@@ -303,7 +304,7 @@ export class TcgGame {
         this.require(this.canPlayBasic(p, action.handIndex), p, action);
         const card = pl.hand.splice(action.handIndex, 1)[0] as CharacterCard;
         pl.bench.push({ card, damage: 0, energies: [] });
-        this.addLog(p, `${pl.name} memainkan ${card.def.name} ke Bench.`, 'action', { fx: { type: 'play', player: p, uid: card.uid } });
+        this.addLog(p, tr(`${pl.name} memainkan ${card.def.name} ke Bench.`, `${pl.name} plays ${card.def.name} to the Bench.`), 'action', { fx: { type: 'play', player: p, uid: card.uid } });
         break;
       }
       case 'attachEnergy': {
@@ -312,7 +313,7 @@ export class TcgGame {
         const target = action.target === -1 ? pl.active! : pl.bench[action.target];
         target.energies.push(energy);
         this.energyAttached = true;
-        this.addLog(p, `${pl.name} menempel energi ${energy.energyType} ke ${target.card.def.name} (${target.energies.length} energi).`, 'energy',
+        this.addLog(p, tr(`${pl.name} menempel energi ${energy.energyType} ke ${target.card.def.name} (${target.energies.length} energi).`, `${pl.name} attaches ${energy.energyType} energy to ${target.card.def.name} (${target.energies.length} energy).`), 'energy',
           { fx: { type: 'energy', player: p, uid: target.card.uid, energyType: energy.energyType } });
         break;
       }
@@ -325,7 +326,7 @@ export class TcgGame {
         pl.active = pl.bench.splice(action.benchIndex, 1)[0];
         pl.bench.push(old);
         this.retreated = true;
-        this.addLog(p, `${pl.name} retreat: ${old.card.def.name} mundur (buang ${cost} energi), ${pl.active.card.def.name} maju.`, 'action',
+        this.addLog(p, tr(`${pl.name} retreat: ${old.card.def.name} mundur (buang ${cost} energi), ${pl.active.card.def.name} maju.`, `${pl.name} retreats: ${old.card.def.name} steps back (discarding ${cost} energy), ${pl.active.card.def.name} steps up.`), 'action',
           { fx: { type: 'retreat', player: p, uid: pl.active.card.uid } });
         break;
       }
@@ -336,7 +337,7 @@ export class TcgGame {
       }
       case 'endTurn': {
         this.require(this.canEndTurn(p), p, action);
-        this.addLog(p, `${pl.name} mengakhiri giliran tanpa menyerang.`, 'info', { fx: { type: 'pass', player: p } });
+        this.addLog(p, tr(`${pl.name} mengakhiri giliran tanpa menyerang.`, `${pl.name} ends the turn without attacking.`), 'info', { fx: { type: 'pass', player: p } });
         this.nextTurn();
         break;
       }
@@ -344,7 +345,7 @@ export class TcgGame {
         this.require(this.canPromote(p, action.benchIndex), p, action);
         pl.active = pl.bench.splice(action.benchIndex, 1)[0];
         this.promotePending.shift();
-        this.addLog(p, `${pl.name} memajukan ${pl.active.card.def.name} dari Bench.`, 'action', { fx: { type: 'promote', player: p, uid: pl.active.card.uid } });
+        this.addLog(p, tr(`${pl.name} memajukan ${pl.active.card.def.name} dari Bench.`, `${pl.name} promotes ${pl.active.card.def.name} from the Bench.`), 'action', { fx: { type: 'promote', player: p, uid: pl.active.card.uid } });
         if (this.promotePending.length === 0) this.nextTurn();
         break;
       }
@@ -352,14 +353,14 @@ export class TcgGame {
   }
 
   private require(ok: boolean, p: number, action: TcgAction): void {
-    if (!ok) throw new Error(`Aksi tidak sah untuk pemain ${p}: ${JSON.stringify(action)} (fase ${this.phase}, giliran ${this.turn})`);
+    if (!ok) throw new Error(tr(`Aksi tidak sah untuk pemain ${p}: ${JSON.stringify(action)} (fase ${this.phase}, giliran ${this.turn})`, `Illegal action for player ${p}: ${JSON.stringify(action)} (phase ${this.phase}, turn ${this.turn})`));
   }
 
   private beginGame(): void {
     for (const [i, p] of this.players.entries()) {
       p.prizes = p.deck.splice(0, this.config.prizeCards);
-      const bench = p.bench.map((b) => b.card.def.name).join(', ') || 'kosong';
-      this.addLog(i, `${p.name} membuka kartu: aktif ${p.active!.card.def.name}, Bench: ${bench}. ${p.prizes.length} kartu prize disisihkan.`, 'info');
+      const bench = p.bench.map((b) => b.card.def.name).join(', ') || tr('kosong', 'empty');
+      this.addLog(i, tr(`${p.name} membuka kartu: aktif ${p.active!.card.def.name}, Bench: ${bench}. ${p.prizes.length} kartu prize disisihkan.`, `${p.name} reveals: active ${p.active!.card.def.name}, Bench: ${bench}. ${p.prizes.length} prize cards set aside.`), 'info');
     }
     this.phase = 'main';
     this.current = this.firstPlayer;
@@ -376,13 +377,13 @@ export class TcgGame {
       return;
     }
     if (pl.deck.length === 0) {
-      this.finish(this.opponentOf(this.current), `${pl.name} tidak bisa mengambil kartu (deck habis).`);
+      this.finish(this.opponentOf(this.current), tr(`${pl.name} tidak bisa mengambil kartu (deck habis).`, `${pl.name} cannot draw a card (deck is empty).`));
       return;
     }
     const [card] = this.draw(pl, 1);
-    const firstNote = this.isFirstTurn() ? ' Pemain pertama tidak boleh menyerang di giliran ini.' : '';
-    const drawn = card.kind === 'energy' ? `energi ${card.energyType}` : card.def.name;
-    this.addLog(this.current, `--- Giliran ${this.turn}: ${pl.name} mengambil 1 kartu.${firstNote}`, 'info',
+    const firstNote = this.isFirstTurn() ? tr(' Pemain pertama tidak boleh menyerang di giliran ini.', ' The first player may not attack this turn.') : '';
+    const drawn = card.kind === 'energy' ? tr(`energi ${card.energyType}`, `${card.energyType} energy`) : card.def.name;
+    this.addLog(this.current, tr(`--- Giliran ${this.turn}: ${pl.name} mengambil 1 kartu.${firstNote}`, `--- Turn ${this.turn}: ${pl.name} draws 1 card.${firstNote}`), 'info',
       { secret: drawn, fx: { type: 'turn', player: this.current } });
   }
 
@@ -401,23 +402,23 @@ export class TcgGame {
     const attack = attacker.card.def.attacks[attackIndex];
     const damage = this.previewDamage(p, attack);
     defender.damage += damage;
-    this.addLog(p, `${attacker.card.def.name} memakai '${attack.name}': ${damage} damage ke ${defender.card.def.name} (sisa HP ${Math.max(0, remainingHp(defender))}).`, 'damage',
+    this.addLog(p, tr(`${attacker.card.def.name} memakai '${attack.name}': ${damage} damage ke ${defender.card.def.name} (sisa HP ${Math.max(0, remainingHp(defender))}).`, `${attacker.card.def.name} uses '${attack.name}': ${damage} damage to ${defender.card.def.name} (HP left ${Math.max(0, remainingHp(defender))}).`), 'damage',
       { fx: { type: 'hit', player: this.opponentOf(p), uid: defender.card.uid, amount: damage, by: p } });
 
     const value = attack.value ?? 0;
     if (attack.effect === 'mill_enemy_deck') {
       const milled = opp.deck.splice(0, value);
       opp.discard.push(...milled);
-      this.addLog(p, `Efek Mill: ${milled.length} kartu teratas deck ${opp.name} dibuang.`, 'action', { fx: { type: 'mill', player: this.opponentOf(p), count: milled.length } });
+      this.addLog(p, tr(`Efek Mill: ${milled.length} kartu teratas deck ${opp.name} dibuang.`, `Mill effect: the top ${milled.length} cards of ${opp.name}'s deck are discarded.`), 'action', { fx: { type: 'mill', player: this.opponentOf(p), count: milled.length } });
     } else if (attack.effect === 'recoil_damage') {
       attacker.damage += value;
-      this.addLog(p, `Efek Recoil: ${attacker.card.def.name} menerima ${value} damage (sisa HP ${Math.max(0, remainingHp(attacker))}).`, 'damage',
+      this.addLog(p, tr(`Efek Recoil: ${attacker.card.def.name} menerima ${value} damage (sisa HP ${Math.max(0, remainingHp(attacker))}).`, `Recoil effect: ${attacker.card.def.name} takes ${value} damage (HP left ${Math.max(0, remainingHp(attacker))}).`), 'damage',
         { fx: { type: 'hit', player: p, uid: attacker.card.uid, amount: value, by: p } });
     } else if (attack.effect === 'heal_bench_card') {
       const target = [...pl.bench].sort((a, b) => b.damage - a.damage)[0];
       const healed = target ? Math.min(value, target.damage) : 0;
       if (target) target.damage -= healed;
-      this.addLog(p, target ? `Efek Heal: ${target.card.def.name} di Bench pulih ${healed} HP.` : 'Efek Heal: Bench kosong.', 'action',
+      this.addLog(p, target ? tr(`Efek Heal: ${target.card.def.name} di Bench pulih ${healed} HP.`, `Heal effect: ${target.card.def.name} on the Bench recovers ${healed} HP.`) : tr('Efek Heal: Bench kosong.', 'Heal effect: the Bench is empty.'), 'action',
         target ? { fx: { type: 'heal', player: p, uid: target.card.uid, amount: healed } } : {});
     }
 
@@ -440,13 +441,13 @@ export class TcgGame {
     pl.active = null;
     const prize = taker.prizes.shift();
     if (prize) taker.hand.push(prize);
-    this.addLog(owner, `GUGUR: ${ko.card.def.name} milik ${pl.name}. ${taker.name} mengambil 1 prize (sisa ${taker.prizes.length}).`, 'knockout',
+    this.addLog(owner, tr(`GUGUR: ${ko.card.def.name} milik ${pl.name}. ${taker.name} mengambil 1 prize (sisa ${taker.prizes.length}).`, `KNOCKED OUT: ${pl.name}'s ${ko.card.def.name}. ${taker.name} takes 1 prize (${taker.prizes.length} left).`), 'knockout',
       { fx: { type: 'ko', player: owner, uid: ko.card.uid } });
 
     if (taker.prizes.length === 0) {
-      this.finish(this.opponentOf(owner), `${taker.name} mengambil prize terakhir.`);
+      this.finish(this.opponentOf(owner), tr(`${taker.name} mengambil prize terakhir.`, `${taker.name} took the last prize.`));
     } else if (pl.bench.length === 0) {
-      this.finish(this.opponentOf(owner), `${pl.name} tidak punya karakter lagi di Bench.`);
+      this.finish(this.opponentOf(owner), tr(`${pl.name} tidak punya karakter lagi di Bench.`, `${pl.name} has no characters left on the Bench.`));
     } else {
       this.promotePending.push(owner);
     }
@@ -454,14 +455,14 @@ export class TcgGame {
 
   private endByTurnCap(): void {
     const [a, b] = this.players;
-    const reason = `Batas ${this.config.turnCap} giliran tercapai (aturan resmi tidak punya batas; ini hanya pengaman).`;
+    const reason = tr(`Batas ${this.config.turnCap} giliran tercapai (aturan resmi tidak punya batas; ini hanya pengaman).`, `The ${this.config.turnCap}-turn cap was reached (the official rules have no cap; this is only a safeguard).`);
     if (a.prizes.length === b.prizes.length) {
       this.phase = 'over';
       this.isDraw = true;
-      this.endReason = `${reason} Prize tersisa sama — seri.`;
+      this.endReason = tr(`${reason} Prize tersisa sama — seri.`, `${reason} Equal prizes left — draw.`);
       this.addLog(null, `=== ${this.endReason} ===`, 'info', { fx: { type: 'tie' } });
     } else {
-      this.finish(a.prizes.length < b.prizes.length ? 0 : 1, `${reason} Pemenang: prize tersisa lebih sedikit.`);
+      this.finish(a.prizes.length < b.prizes.length ? 0 : 1, tr(`${reason} Pemenang: prize tersisa lebih sedikit.`, `${reason} Winner: fewer prizes left.`));
     }
   }
 
@@ -469,7 +470,7 @@ export class TcgGame {
     this.phase = 'over';
     this.winner = winner;
     this.endReason = reason;
-    this.addLog(winner, `=== ${this.players[winner].name} MENANG — ${reason} ===`, 'prize', { fx: { type: 'win', player: winner } });
+    this.addLog(winner, tr(`=== ${this.players[winner].name} MENANG — ${reason} ===`, `=== ${this.players[winner].name} WINS — ${reason} ===`), 'prize', { fx: { type: 'win', player: winner } });
   }
 
   private draw(pl: TcgPlayer, count: number): TcgCard[] {

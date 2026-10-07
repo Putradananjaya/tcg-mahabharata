@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -10,11 +10,16 @@ import { chooseBotAction } from '../../../core/engine/tcg-mode-bot';
 import { SoundService } from '../../../core/services/sound.service';
 import { SimulatorModeSwitchComponent } from '../simulator/simulator-mode-switch.component';
 import { PlayMode, TcgMatchSettings, TcgModeSession } from './tcg-mode-session.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 const HUMAN = 0;
 /** Base pause between bot actions so a person can follow them. Display pacing only. */
 const BOT_DELAY_MS: { [speed: string]: number } = { 'sangat lambat': 3200, lambat: 2200, sedang: 1400, cepat: 500 };
 const DEFAULT_SPEED = 'lambat';
+/** Display names of the bot speeds (keys of BOT_DELAY_MS): [Indonesian, English]. */
+const SPEED_LABEL: { [speed: string]: [string, string] } = {
+  'sangat lambat': ['sangat lambat', 'very slow'], lambat: ['lambat', 'slow'], sedang: ['sedang', 'medium'], cepat: ['cepat', 'fast'],
+};
 /** Longer pause after events worth watching (multiplies the base pause); others use 1. */
 const PAUSE_AFTER: { [fx: string]: number } = { hit: 1.6, ko: 2.2, turn: 1.2 };
 /** Animation lengths in ms; keep in step with the keyframe durations in the styles below. */
@@ -46,8 +51,18 @@ function randomSeed(): number {
     <app-simulator-mode-switch active="tcg"></app-simulator-mode-switch>
 
     <div class="md-card tcg-controls">
-      <h2>🃏 Mode TCG <span class="md-badge warning">prototipe</span></h2>
+      <h2>🃏 {{ t('Mode TCG', 'TCG Mode') }} <span class="md-badge warning">{{ t('prototipe', 'prototype') }}</span></h2>
       <div class="engine-note tcg-note">
+        @if (i18n.isEn()) {
+        The turn structure mimics the Pokémon TCG: draw 1 card each turn, attach at most 1 energy per turn,
+        energy stays attached after attacking, retreat by discarding energy, {{ config.prizeCards }} prize cards.
+        Cards and their numbers use the sandbox parameters (change them in <strong>Parameter Sliders</strong> / <strong>Card Creator</strong>).
+        <strong>This is not the research engine</strong>: match results here are not used in the paper and are not compared with <code>results/</code>.
+        Not yet implemented: weakness/resistance, trainer cards, evolution, special conditions.
+        <span class="tcg-note-diff">A difference that changes card strength: in this mode knocked-out characters and discarded energy go to the discard pile,
+          so <em>Angkara 100 Kurawa</em> (bonus damage per card in the opponent's discard) can be much stronger than in the research engine,
+          whose discard pile is only filled by the Mill effect.</span>
+        } @else {
         Struktur giliran meniru Pokémon TCG: ambil 1 kartu tiap giliran, tempel maksimal 1 energi per giliran,
         energi tetap menempel setelah menyerang, retreat dengan membuang energi, {{ config.prizeCards }} kartu prize.
         Kartu dan angkanya memakai parameter sandbox (ubah di <strong>Parameter Sliders</strong> / <strong>Card Creator</strong>).
@@ -56,79 +71,80 @@ function randomSeed(): number {
         <span class="tcg-note-diff">Perbedaan yang mengubah kekuatan kartu: di mode ini karakter yang gugur dan energi yang dibuang masuk discard pile,
           jadi <em>Angkara 100 Kurawa</em> (bonus damage per kartu di discard lawan) bisa jauh lebih kuat daripada di engine riset,
           yang discard pile-nya hanya terisi lewat efek Mill.</span>
-        <span *ngIf="loadError" class="engine-note-error">Gagal memuat parameter riset: {{ loadError }}</span>
+        }
+        <span *ngIf="loadError" class="engine-note-error">{{ t('Gagal memuat parameter riset', 'Failed to load the research parameters') }}: {{ loadError }}</span>
       </div>
 
       <div class="tcg-control-row">
-        <div class="tcg-segmented" role="group" aria-label="Pemain">
-          <button type="button" [class.on]="playMode === 'human'" (click)="playMode = 'human'">👤 Kamu vs Bot</button>
+        <div class="tcg-segmented" role="group" [attr.aria-label]="t('Pemain', 'Players')">
+          <button type="button" [class.on]="playMode === 'human'" (click)="playMode = 'human'">👤 {{ t('Kamu vs Bot', 'You vs Bot') }}</button>
           <button type="button" [class.on]="playMode === 'bots'" (click)="playMode = 'bots'">🤖 Bot vs Bot</button>
         </div>
-        <label>{{ playMode === 'human' ? 'Faksi kamu' : 'Faksi Bot A' }}
+        <label>{{ playMode === 'human' ? t('Faksi kamu', 'Your faction') : t('Faksi Bot A', 'Bot A faction') }}
           <select class="md-select" [(ngModel)]="p1Faction">
             <option *ngFor="let f of factions" [value]="f">{{ factionLabel[f] }}</option>
           </select>
         </label>
-        <label>{{ playMode === 'human' ? 'Faksi bot' : 'Faksi Bot B' }}
+        <label>{{ playMode === 'human' ? t('Faksi bot', 'Bot faction') : t('Faksi Bot B', 'Bot B faction') }}
           <select class="md-select" [(ngModel)]="p2Faction">
             <option *ngFor="let f of factions" [value]="f">{{ factionLabel[f] }}</option>
           </select>
         </label>
-        <label>Seed kocokan deck
+        <label>{{ t('Seed kocokan deck', 'Deck shuffle seed') }}
           <input class="md-input tcg-seed" type="number" min="0" [(ngModel)]="seed">
         </label>
-        <label>Kecepatan bot
+        <label>{{ t('Kecepatan bot', 'Bot speed') }}
           <select class="md-select" [(ngModel)]="speed" (change)="onSpeedChange()">
-            <option *ngFor="let s of speeds" [value]="s">{{ s }}</option>
+            <option *ngFor="let s of speeds" [value]="s">{{ speedLabel(s) }}</option>
           </select>
         </label>
-        <button type="button" class="md-btn md-btn-outlined" (click)="randomizeSeed()" title="Acak seed tanpa memulai pertandingan">🎲 Acak seed</button>
+        <button type="button" class="md-btn md-btn-outlined" (click)="randomizeSeed()" [title]="t('Acak seed tanpa memulai pertandingan', 'Randomize the seed without starting a match')">🎲 {{ t('Acak seed', 'Random seed') }}</button>
         <button type="button" class="md-btn md-btn-primary" [disabled]="!paramsReady" (click)="start()" data-testid="tcg-start">
-          {{ game ? '🔄 Mulai pertandingan baru' : '▶ Mulai pertandingan' }}
+          {{ game ? t('🔄 Mulai pertandingan baru', '🔄 Start a new match') : t('▶ Mulai pertandingan', '▶ Start match') }}
         </button>
-        <button type="button" class="md-btn md-btn-outlined" (click)="toggleSound()" [attr.aria-pressed]="soundOn">{{ soundOn ? '🔊 Suara' : '🔇 Suara mati' }}</button>
+        <button type="button" class="md-btn md-btn-outlined" (click)="toggleSound()" [attr.aria-pressed]="soundOn">{{ soundOn ? t('🔊 Suara', '🔊 Sound') : t('🔇 Suara mati', '🔇 Sound off') }}</button>
       </div>
       <div class="tcg-pending-note" *ngIf="game && settingsChanged()" data-testid="tcg-pending">
-        Pengaturan di atas berbeda dari pertandingan yang sedang berjalan. Pengaturan baru berlaku setelah kamu menekan "Mulai pertandingan baru".
+        {{ t('Pengaturan di atas berbeda dari pertandingan yang sedang berjalan. Pengaturan baru berlaku setelah kamu menekan "Mulai pertandingan baru".', 'The settings above differ from the match in progress. New settings take effect after you press "Start a new match".') }}
       </div>
       <div class="tcg-control-row" *ngIf="game && gameMode === 'bots'">
         <button type="button" class="md-btn md-btn-secondary" [disabled]="game.phase === 'over'" (click)="toggleAuto()">
-          {{ autoRunning ? '⏸️ Jeda' : '▶️ Jalan otomatis' }}
+          {{ autoRunning ? t('⏸️ Jeda', '⏸️ Pause') : t('▶️ Jalan otomatis', '▶️ Run automatically') }}
         </button>
-        <button type="button" class="md-btn md-btn-outlined" [disabled]="autoRunning || game.phase === 'over'" (click)="botStep()">➡️ Satu aksi</button>
-        <span class="tcg-hint">Bot memakai heuristik sederhana (bukan agen hasil training): tempel energi ke karakter yang belum cukup energi,
-          retreat bila HP ≤ 30%, lalu pilih serangan dengan damage terbesar. Jeda setelah serangan dan KO dibuat lebih panjang agar efeknya bisa diikuti.</span>
+        <button type="button" class="md-btn md-btn-outlined" [disabled]="autoRunning || game.phase === 'over'" (click)="botStep()">➡️ {{ t('Satu aksi', 'One action') }}</button>
+        <span class="tcg-hint">{{ t('Bot memakai heuristik sederhana (bukan agen hasil training): tempel energi ke karakter yang belum cukup energi, retreat bila HP ≤ 30%, lalu pilih serangan dengan damage terbesar. Jeda setelah serangan dan KO dibuat lebih panjang agar efeknya bisa diikuti.',
+          'The bots use a simple heuristic (not a trained agent): attach energy to a character that still needs it, retreat when HP ≤ 30%, then choose the attack with the most damage. The pause after attacks and KOs is longer so the effects can be followed.') }}</span>
       </div>
     </div>
 
     <div *ngIf="!game" class="md-card tcg-lobby" data-testid="tcg-lobby">
       <ng-container *ngIf="paramsReady; else loadingParams">
         <div class="tcg-lobby-coin">🪙</div>
-        <h3>Siap bertanding?</h3>
+        <h3>{{ t('Siap bertanding?', 'Ready to battle?') }}</h3>
         <p>
-          <strong>{{ playMode === 'human' ? 'Kamu' : 'Bot A' }} ({{ factionLabel[p1Faction] }})</strong> melawan
+          <strong>{{ playMode === 'human' ? t('Kamu', 'You') : 'Bot A' }} ({{ factionLabel[p1Faction] }})</strong> {{ t('melawan', 'versus') }}
           <strong>{{ playMode === 'human' ? 'Bot' : 'Bot B' }} ({{ factionLabel[p2Faction] }})</strong>.
-          Atur mode dan faksi di atas. Pertandingan dimulai dengan lempar koin untuk menentukan siapa yang jalan duluan.
+          {{ t('Atur mode dan faksi di atas. Pertandingan dimulai dengan lempar koin untuk menentukan siapa yang jalan duluan.', 'Set the mode and factions above. The match starts with a coin toss to decide who goes first.') }}
         </p>
-        <button type="button" class="md-btn md-btn-primary tcg-lobby-start" (click)="start()">▶ Mulai pertandingan</button>
+        <button type="button" class="md-btn md-btn-primary tcg-lobby-start" (click)="start()">{{ t('▶ Mulai pertandingan', '▶ Start match') }}</button>
         <div class="tcg-error" *ngIf="actionError">{{ actionError }}</div>
       </ng-container>
-      <ng-template #loadingParams>Memuat parameter kartu…</ng-template>
+      <ng-template #loadingParams>{{ t('Memuat parameter kartu…', 'Loading card parameters…') }}</ng-template>
     </div>
 
     <ng-container *ngIf="game as g">
       <div class="tcg-arena" #arena>
-        <div class="tcg-coin-overlay" *ngIf="coin" (click)="skipCoin()" data-testid="tcg-coin" title="Klik untuk lewati">
+        <div class="tcg-coin-overlay" *ngIf="coin" (click)="skipCoin()" data-testid="tcg-coin" [title]="t('Klik untuk lewati', 'Click to skip')">
           <div class="coin-container">
             <div class="coin" [class.flip-p1]="coin.player === 0" [class.flip-p2]="coin.player === 1">
               <div class="side-a"><span class="tcg-coin-icon">⚔️</span><div class="tcg-coin-label">{{ coin.names[0] }}</div></div>
               <div class="side-b"><span class="tcg-coin-icon">🛡️</span><div class="tcg-coin-label">{{ coin.names[1] }}</div></div>
             </div>
             <div class="coin-status">
-              <h3 *ngIf="!coin.landed" class="tcg-coin-title">Lempar koin: siapa jalan duluan?</h3>
+              <h3 *ngIf="!coin.landed" class="tcg-coin-title">{{ t('Lempar koin: siapa jalan duluan?', 'Coin toss: who goes first?') }}</h3>
               <div *ngIf="coin.landed" class="fade-in-text">
-                <h3 class="tcg-coin-result">{{ coin.names[coin.player] }} jalan duluan</h3>
-                <p class="tcg-coin-sub">tapi belum boleh menyerang di giliran pertamanya</p>
+                <h3 class="tcg-coin-result">{{ coin.names[coin.player] }} {{ t('jalan duluan', 'goes first') }}</h3>
+                <p class="tcg-coin-sub">{{ t('tapi belum boleh menyerang di giliran pertamanya', 'but may not attack on their first turn') }}</p>
               </div>
             </div>
           </div>
@@ -136,16 +152,16 @@ function randomSeed(): number {
       <div class="tcg-status" [class.over]="g.phase === 'over'" [class.mine]="humanWaiting()" data-testid="tcg-status">
         <div class="tcg-status-text">{{ statusText() }}</div>
         <div class="tcg-checklist" *ngIf="g.phase === 'main'">
-          <span [class.done]="g.energyAttached">⚡ Energi {{ g.energyAttached ? 'sudah' : 'belum' }} ditempel</span>
-          <span [class.done]="g.retreated">↔ Retreat {{ g.retreated ? 'sudah' : 'belum' }} dipakai</span>
-          <span *ngIf="g.isFirstTurn()" class="locked">🚫 Giliran pertama: tidak boleh menyerang</span>
+          <span [class.done]="g.energyAttached">⚡ {{ g.energyAttached ? t('Energi sudah ditempel', 'Energy attached') : t('Energi belum ditempel', 'Energy not attached yet') }}</span>
+          <span [class.done]="g.retreated">↔ {{ g.retreated ? t('Retreat sudah dipakai', 'Retreat used') : t('Retreat belum dipakai', 'Retreat not used yet') }}</span>
+          <span *ngIf="g.isFirstTurn()" class="locked">🚫 {{ t('Giliran pertama: tidak boleh menyerang', 'First turn: no attacking') }}</span>
         </div>
         <div class="tcg-status-actions">
-          <button type="button" class="md-btn md-btn-primary" *ngIf="humanCan('endTurn')" (click)="act({ type: 'endTurn' })">⏭ Akhiri giliran</button>
-          <button type="button" class="md-btn md-btn-primary" *ngIf="humanCan('setupDone')" (click)="act({ type: 'setupDone' })">✅ Selesai setup</button>
+          <button type="button" class="md-btn md-btn-primary" *ngIf="humanCan('endTurn')" (click)="act({ type: 'endTurn' })">⏭ {{ t('Akhiri giliran', 'End turn') }}</button>
+          <button type="button" class="md-btn md-btn-primary" *ngIf="humanCan('setupDone')" (click)="act({ type: 'setupDone' })">✅ {{ t('Selesai setup', 'Finish setup') }}</button>
           <ng-container *ngIf="g.phase === 'over'">
-            <button type="button" class="md-btn md-btn-primary" (click)="start()">Main lagi (seed sama)</button>
-            <button type="button" class="md-btn md-btn-outlined" (click)="newSeed()">Main lagi (seed baru)</button>
+            <button type="button" class="md-btn md-btn-primary" (click)="start()">{{ t('Main lagi (seed sama)', 'Play again (same seed)') }}</button>
+            <button type="button" class="md-btn md-btn-outlined" (click)="newSeed()">{{ t('Main lagi (seed baru)', 'Play again (new seed)') }}</button>
           </ng-container>
         </div>
         <div class="tcg-error" *ngIf="actionError">{{ actionError }}</div>
@@ -160,29 +176,29 @@ function randomSeed(): number {
             <header class="tcg-side-head">
               <div class="tcg-side-name">{{ p === 1 ? '▲' : '▼' }} {{ g.players[p].name }}</div>
               <div class="tcg-counters">
-                <span class="tcg-counter" title="Ambil semua kartu prize untuk menang" [class.fx-pulse]="fxOn('pulse-prize', p)">
+                <span class="tcg-counter" [title]="t('Ambil semua kartu prize untuk menang', 'Take all prize cards to win')" [class.fx-pulse]="fxOn('pulse-prize', p)">
                   <span class="tcg-float" *ngFor="let f of counterFloats(p, 'prize'); let fi = index; trackBy: byId" [ngClass]="f.kind" [style.top.px]="floatTop(fi)">{{ f.text }}</span>
                   🏆 Prize
                   <ng-container *ngIf="g.phase !== 'setup'; else prizeLater">
                     <span class="tcg-prize-backs"><i *ngFor="let _ of g.players[p].prizes"></i></span> {{ g.players[p].prizes.length }}
                   </ng-container>
-                  <ng-template #prizeLater><small>disisihkan setelah setup</small></ng-template>
+                  <ng-template #prizeLater><small>{{ t('disisihkan setelah setup', 'set aside after setup') }}</small></ng-template>
                 </span>
-                <span class="tcg-counter" title="Kalah bila tidak bisa mengambil kartu di awal giliran" [class.fx-pulse]="fxOn('pulse-deck', p)">
+                <span class="tcg-counter" [title]="t('Kalah bila tidak bisa mengambil kartu di awal giliran', 'You lose if you cannot draw a card at the start of your turn')" [class.fx-pulse]="fxOn('pulse-deck', p)">
                   <span class="tcg-float" *ngFor="let f of counterFloats(p, 'deck'); let fi = index; trackBy: byId" [ngClass]="f.kind" [style.top.px]="floatTop(fi)">{{ f.text }}</span>
                   📚 Deck {{ g.players[p].deck.length }}
                 </span>
-                <span class="tcg-counter">✋ Tangan {{ g.players[p].hand.length }}</span>
-                <span class="tcg-counter" title="Karakter gugur, energi terbuang, kartu terkena Mill">
+                <span class="tcg-counter">✋ {{ t('Tangan', 'Hand') }} {{ g.players[p].hand.length }}</span>
+                <span class="tcg-counter" [title]="t('Karakter gugur, energi terbuang, kartu terkena Mill', 'Knocked-out characters, discarded energy, milled cards')">
                   🗑 Discard {{ g.players[p].discard.length }}
-                  <small>({{ discardCharacters(p) }} karakter, {{ g.players[p].discard.length - discardCharacters(p) }} energi)</small>
+                  <small>({{ discardCharacters(p) }} {{ t('karakter', 'characters') }}, {{ g.players[p].discard.length - discardCharacters(p) }} {{ t('energi', 'energy') }})</small>
                 </span>
               </div>
             </header>
 
             <div class="tcg-zones">
               <div class="tcg-zone tcg-zone-active">
-                <div class="tcg-zone-label">Aktif</div>
+                <div class="tcg-zone-label">{{ t('Aktif', 'Active') }}</div>
                 <div class="tcg-active-slot" [ngClass]="activeFxClasses(p)" [attr.data-fx]="activeFxAttr(p)">
                   <span class="tcg-float big" *ngFor="let f of zoneFloats(p); let fi = index; trackBy: byId" [ngClass]="f.kind" [style.top.px]="floatTop(fi)">{{ f.text }}</span>
                   <ng-container *ngTemplateOutlet="charTpl; context: { $implicit: g.players[p].active, p: p, idx: -1 }"></ng-container>
@@ -194,19 +210,19 @@ function randomSeed(): number {
                   <ng-container *ngFor="let b of g.players[p].bench; let i = index">
                     <ng-container *ngTemplateOutlet="charTpl; context: { $implicit: b, p: p, idx: i }"></ng-container>
                   </ng-container>
-                  <div class="tcg-slot-empty" *ngIf="g.players[p].bench.length === 0">kosong</div>
+                  <div class="tcg-slot-empty" *ngIf="g.players[p].bench.length === 0">{{ t('kosong', 'empty') }}</div>
                 </div>
               </div>
             </div>
 
             <div class="tcg-hand">
-              <div class="tcg-zone-label">Tangan</div>
+              <div class="tcg-zone-label">{{ t('Tangan', 'Hand') }}</div>
               <div class="tcg-hand-row" *ngIf="handVisible(p); else hiddenHand">
                 <div *ngFor="let c of g.players[p].hand; let i = index" class="tcg-hand-card"
                      [class.energy]="c.kind === 'energy'" [class.selected]="p === HUMAN && selectedEnergy === i">
                   <ng-container *ngIf="c.kind === 'energy'; else handChar">
                     <span class="tcg-energy big" [ngClass]="'e-' + c.energyType">{{ letter(c.energyType) }}</span>
-                    <span>Energi {{ c.energyType }}</span>
+                    <span>{{ t('Energi', 'Energy') }} {{ c.energyType }}</span>
                   </ng-container>
                   <ng-template #handChar>
                     <strong>{{ charDef(c).name }}</strong>
@@ -216,7 +232,7 @@ function randomSeed(): number {
                     <button type="button" *ngIf="handAction(i) as a" class="tcg-mini-btn" [disabled]="!a.enabled" (click)="onHandClick(i)">{{ a.label }}</button>
                   </ng-container>
                 </div>
-                <div class="tcg-slot-empty" *ngIf="g.players[p].hand.length === 0">kosong</div>
+                <div class="tcg-slot-empty" *ngIf="g.players[p].hand.length === 0">{{ t('kosong', 'empty') }}</div>
               </div>
               <ng-template #hiddenHand>
                 <div class="tcg-hand-row"><div class="tcg-back" *ngFor="let _ of g.players[p].hand"></div></div>
@@ -226,11 +242,11 @@ function randomSeed(): number {
         </div>
 
         <aside class="md-card tcg-log">
-          <h3>Log pertandingan</h3>
+          <h3>{{ t('Log pertandingan', 'Match log') }}</h3>
           <div class="tcg-log-box" #logBox>
             <div *ngFor="let e of g.log" class="tcg-log-line" [ngClass]="'k-' + e.kind">
-              <span class="tcg-log-turn">G{{ e.turn }}</span>
-              <span>{{ e.message }}<em *ngIf="showSecret(e)"> (kartu: {{ e.secret }})</em></span>
+              <span class="tcg-log-turn">{{ t('G', 'T') }}{{ e.turn }}</span>
+              <span>{{ e.message }}<em *ngIf="showSecret(e)"> ({{ t('kartu', 'card') }}: {{ e.secret }})</em></span>
             </div>
           </div>
         </aside>
@@ -238,6 +254,27 @@ function randomSeed(): number {
       </div>
 
       <details class="md-card tcg-rules">
+        @if (i18n.isEn()) {
+        <summary>Full TCG Mode rules and how they differ from the research engine</summary>
+        <ul>
+          <li><strong>Deck:</strong> {{ config.copiesPerCharacter }} copies of each faction character + {{ config.energyCards }} faction energy cards
+            (official Pokémon uses 60 cards; here the deck size follows the number of characters).</li>
+          <li><strong>Setup:</strong> coin toss, draw {{ config.handSize }} cards. No character in hand = mulligan (reshuffle and draw again), and the opponent
+            may draw 1 extra card per mulligan. Choose 1 Active character and at most {{ config.benchCap }} on the Bench (face down until both players are done),
+            then the top {{ config.prizeCards }} deck cards become prizes.</li>
+          <li><strong>Turn:</strong> draw 1 card → play characters to the Bench (any number) → attach at most 1 energy to any character →
+            retreat at most once (discard energy equal to the retreat cost) → attack (ends the turn) or end the turn.
+            The first player may not attack on their first turn.</li>
+          <li><strong>Attack cost:</strong> faction energy (S/R/T) must match; U (Universal) can be paid with any energy. Energy is <em>not</em> used up by attacking.</li>
+          <li><strong>Knockout (KO):</strong> the character and its energy go to the discard pile, the opponent takes 1 prize into their hand, and the owner must promote a character from the Bench.
+            Recoil that knocks out the attacker also gives the opponent 1 prize.</li>
+          <li><strong>Winning:</strong> take your last prize, the opponent has no character on the Bench when their Active is knocked out, or the opponent cannot draw (empty deck).
+            Safeguard: after {{ config.turnCap }} turns, the player with fewer prizes left wins (equal = draw).</li>
+          <li><strong>Card effects</strong> are the same as in the research engine (Mill, Recoil, Bench bonus max {{ config.benchScalingMax }}, bonus per discard card, damage reduction),
+            except <em>Heal</em>: here Bench characters can be damaged (after a retreat), so Heal restores the most damaged Bench character.</li>
+          <li><strong>The research engine differs:</strong> there, energy (prana) is generated automatically and used up when spent, and there is no per-turn draw, no retreat and no player decision.</li>
+        </ul>
+        } @else {
         <summary>Aturan lengkap Mode TCG dan bedanya dengan engine riset</summary>
         <ul>
           <li><strong>Deck:</strong> {{ config.copiesPerCharacter }} salinan tiap karakter faksi + {{ config.energyCards }} kartu energi faksi
@@ -257,12 +294,13 @@ function randomSeed(): number {
             kecuali <em>Heal</em>: di sini karakter Bench bisa terluka (setelah retreat), jadi Heal memulihkan karakter Bench yang paling terluka.</li>
           <li><strong>Engine riset berbeda:</strong> di sana energi (prana) dihasilkan otomatis dan habis dipakai, tidak ada draw per giliran, retreat, maupun keputusan pemain.</li>
         </ul>
+        }
       </details>
 
       <ng-template #charTpl let-slot let-p="p" let-idx="idx">
-        <div class="tcg-back tcg-back-lg" [class.bench]="idx >= 0" *ngIf="faceDown(p)" title="Tertutup sampai kedua pemain selesai setup"></div>
+        <div class="tcg-back tcg-back-lg" [class.bench]="idx >= 0" *ngIf="faceDown(p)" [title]="t('Tertutup sampai kedua pemain selesai setup', 'Face down until both players finish setup')"></div>
         <ng-container *ngIf="!faceDown(p)">
-          <div class="tcg-slot-empty tcg-card" *ngIf="!slot">belum ada</div>
+          <div class="tcg-slot-empty tcg-card" *ngIf="!slot">{{ t('belum ada', 'none yet') }}</div>
           <div class="tcg-card" *ngIf="slot" [class.bench]="idx >= 0" [class.target]="canAttachHere(p, idx)" [class.fx-glow]="fxOn('glow', slot.card.uid)">
             <span class="tcg-float" *ngFor="let f of cardFloats(slot.card.uid); let fi = index; trackBy: byId" [ngClass]="f.kind" [style.top.px]="floatTop(fi)">{{ f.text }}</span>
             <div class="tcg-card-head">
@@ -271,8 +309,8 @@ function randomSeed(): number {
             </div>
             <div class="tcg-hp-bar"><div [style.width.%]="hpPct(slot)" [ngClass]="hpClass(slot)"></div></div>
             <div class="tcg-energy-row">
-              <span *ngFor="let e of slot.energies" class="tcg-energy" [ngClass]="'e-' + e.energyType" [title]="'Energi ' + e.energyType">{{ letter(e.energyType) }}</span>
-              <span class="tcg-muted" *ngIf="slot.energies.length === 0">tanpa energi</span>
+              <span *ngFor="let e of slot.energies" class="tcg-energy" [ngClass]="'e-' + e.energyType" [title]="t('Energi ', 'Energy ') + e.energyType">{{ letter(e.energyType) }}</span>
+              <span class="tcg-muted" *ngIf="slot.energies.length === 0">{{ t('tanpa energi', 'no energy') }}</span>
             </div>
             <div class="tcg-meta">
               Retreat {{ slot.card.def.retreat_cost }}<span *ngIf="slot.card.def.damage_reduction"> · DR {{ slot.card.def.damage_reduction }}</span>
@@ -289,22 +327,22 @@ function randomSeed(): number {
                 <div class="tcg-attack-effect" *ngIf="effectText(a)">{{ effectText(a) }}</div>
                 <ng-container *ngIf="idx === -1 && isHumanMain(p)">
                   <button type="button" class="tcg-mini-btn attack" [disabled]="!g.canAttack(p, ai)" (click)="act({ type: 'attack', attackIndex: ai })">
-                    ⚔️ Serang: {{ g.previewDamage(p, a) }} damage
+                    ⚔️ {{ t('Serang', 'Attack') }}: {{ g.previewDamage(p, a) }} damage
                   </button>
                   <div class="tcg-why" *ngIf="!g.canAttack(p, ai)">{{ attackBlockReason(p, ai) }}</div>
                 </ng-container>
               </div>
             </div>
             <ng-container *ngIf="p === HUMAN && gameMode === 'human'">
-              <button type="button" class="tcg-mini-btn energy" *ngIf="canAttachHere(p, idx)" (click)="attachTo(idx)">⚡ Tempel energi di sini</button>
+              <button type="button" class="tcg-mini-btn energy" *ngIf="canAttachHere(p, idx)" (click)="attachTo(idx)">⚡ {{ t('Tempel energi di sini', 'Attach energy here') }}</button>
               <ng-container *ngIf="idx >= 0 && isHumanMain(p)">
                 <button type="button" class="tcg-mini-btn" [disabled]="!g.canRetreat(p, idx)" (click)="act({ type: 'retreat', benchIndex: idx })">
-                  ↔ Retreat: majukan ini
+                  ↔ {{ t('Retreat: majukan ini', 'Retreat: promote this one') }}
                 </button>
                 <div class="tcg-why" *ngIf="!g.canRetreat(p, idx)">{{ retreatBlockReason(p) }}</div>
               </ng-container>
               <button type="button" class="tcg-mini-btn attack" *ngIf="idx >= 0 && g.canPromote(p, idx)" (click)="act({ type: 'promote', benchIndex: idx })">
-                ⬆ Majukan jadi Aktif
+                ⬆ {{ t('Majukan jadi Aktif', 'Promote to Active') }}
               </button>
             </ng-container>
           </div>
@@ -543,7 +581,15 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
   private nextPause = 1;
   private coinUntil = 0;
 
+  readonly i18n = inject(LanguageService);
+  readonly t = this.i18n.t;
+
   constructor(private sandbox: SandboxService, private sound: SoundService, private session: TcgModeSession) {}
+
+  speedLabel(speed: string): string {
+    const label = SPEED_LABEL[speed];
+    return label ? this.t(label[0], label[1]) : speed;
+  }
 
   ngOnInit(): void {
     this.restoreSession();
@@ -601,7 +647,7 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (!deck1 || !deck2) return;
     this.started = this.currentSettings();
     this.gameMode = this.playMode;
-    const [n1, n2] = this.gameMode === 'human' ? ['Kamu', 'Bot'] : ['Bot A', 'Bot B'];
+    const [n1, n2] = this.gameMode === 'human' ? [this.t('Kamu', 'You'), 'Bot'] : ['Bot A', 'Bot B'];
     try {
       this.game = new TcgGame(deck1, deck2,
         `${n1} (${FACTION_LABEL[this.p1Faction]})`, `${n2} (${FACTION_LABEL[this.p2Faction]})`,
@@ -678,7 +724,7 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
         g.apply(p, chooseBotAction(g, p));
       }
     } catch (e) {
-      this.actionError = `Bot melakukan aksi tidak sah: ${(e as Error).message}`;
+      this.actionError = this.t('Bot melakukan aksi tidak sah', 'The bot made an illegal action') + `: ${(e as Error).message}`;
       this.autoRunning = false;
       return;
     }
@@ -749,15 +795,15 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
     const card = pl.hand[i];
     if (g.phase === 'setup' && !pl.setupDone) {
       if (!isCharacter(card)) return null;
-      if (!pl.active) return { label: 'Jadikan Aktif', enabled: g.canSetupActive(HUMAN, i) };
-      return { label: pl.bench.length < this.config.benchCap ? 'Taruh di Bench' : 'Bench penuh', enabled: g.canSetupBench(HUMAN, i) };
+      if (!pl.active) return { label: this.t('Jadikan Aktif', 'Make Active'), enabled: g.canSetupActive(HUMAN, i) };
+      return { label: pl.bench.length < this.config.benchCap ? this.t('Taruh di Bench', 'Put on Bench') : this.t('Bench penuh', 'Bench full'), enabled: g.canSetupBench(HUMAN, i) };
     }
     if (!this.isHumanMain(HUMAN)) return null;
     if (isCharacter(card)) {
-      return { label: g.canPlayBasic(HUMAN, i) ? 'Mainkan ke Bench' : 'Bench penuh', enabled: g.canPlayBasic(HUMAN, i) };
+      return { label: g.canPlayBasic(HUMAN, i) ? this.t('Mainkan ke Bench', 'Play to Bench') : this.t('Bench penuh', 'Bench full'), enabled: g.canPlayBasic(HUMAN, i) };
     }
-    if (g.energyAttached) return { label: 'Sudah tempel energi giliran ini', enabled: false };
-    return { label: this.selectedEnergy === i ? 'Batal pilih' : 'Pilih untuk ditempel', enabled: true };
+    if (g.energyAttached) return { label: this.t('Sudah tempel energi giliran ini', 'Energy already attached this turn'), enabled: false };
+    return { label: this.selectedEnergy === i ? this.t('Batal pilih', 'Deselect') : this.t('Pilih untuk ditempel', 'Select to attach'), enabled: true };
   }
 
   onHandClick(i: number): void {
@@ -787,16 +833,19 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
     const g = this.game!;
     const active = g.players[p].active!;
     const attack = active.card.def.attacks[attackIndex];
-    if (g.isFirstTurn()) return 'Giliran pertama: pemain yang jalan duluan belum boleh menyerang.';
-    if (!costMet(attack.prana_cost ?? {}, active.energies)) return `Energi kurang: butuh ${this.costText(attack)}.`;
+    if (g.isFirstTurn()) return this.t('Giliran pertama: pemain yang jalan duluan belum boleh menyerang.', 'First turn: the player who goes first may not attack yet.');
+    if (!costMet(attack.prana_cost ?? {}, active.energies)) return this.t(`Energi kurang: butuh ${this.costText(attack)}.`, `Not enough energy: needs ${this.costText(attack)}.`);
     return '';
   }
 
   retreatBlockReason(p: number): string {
     const g = this.game!;
-    if (g.retreated) return 'Retreat sudah dipakai giliran ini.';
+    if (g.retreated) return this.t('Retreat sudah dipakai giliran ini.', 'Retreat already used this turn.');
     const active = g.players[p].active;
-    return active ? `Aktif butuh ${active.card.def.retreat_cost} energi untuk retreat (punya ${active.energies.length}).` : '';
+    return active
+      ? this.t(`Aktif butuh ${active.card.def.retreat_cost} energi untuk retreat (punya ${active.energies.length}).`,
+        `The Active needs ${active.card.def.retreat_cost} energy to retreat (has ${active.energies.length}).`)
+      : '';
   }
 
   // ---------------------------------------------------------------- effects
@@ -816,12 +865,12 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
       pause = Math.max(pause, PAUSE_AFTER[fx.type] ?? 1);
       switch (fx.type) {
         case 'coin': this.showCoin(fx.player); break;
-        case 'turn': this.banner(`Giliran ${entry.turn}`, g.players[fx.player].name, 'turn', FX_MS.banner); break;
-        case 'play': this.cardFx(fx.uid, fx.player, '＋ masuk Bench', 'info'); this.sfx(() => this.sound.playCardPlay()); break;
+        case 'turn': this.banner(this.t(`Giliran ${entry.turn}`, `Turn ${entry.turn}`), g.players[fx.player].name, 'turn', FX_MS.banner); break;
+        case 'play': this.cardFx(fx.uid, fx.player, this.t('＋ masuk Bench', '＋ to Bench'), 'info'); this.sfx(() => this.sound.playCardPlay()); break;
         case 'energy': this.cardFx(fx.uid, fx.player, `+⚡ ${this.letter(fx.energyType)}`, 'energy'); this.sfx(() => this.sound.playCardPlay()); break;
-        case 'retreat': this.cardFx(fx.uid, fx.player, '↔ maju (retreat)', 'info'); this.sfx(() => this.sound.playCardPlay()); break;
-        case 'promote': this.cardFx(fx.uid, fx.player, '⬆ jadi Aktif', 'info'); this.sfx(() => this.sound.playCardPlay()); break;
-        case 'pass': this.addFloat(fx.player, null, 'active', '⏭ lewat', 'info'); break;
+        case 'retreat': this.cardFx(fx.uid, fx.player, this.t('↔ maju (retreat)', '↔ steps up (retreat)'), 'info'); this.sfx(() => this.sound.playCardPlay()); break;
+        case 'promote': this.cardFx(fx.uid, fx.player, this.t('⬆ jadi Aktif', '⬆ now Active'), 'info'); this.sfx(() => this.sound.playCardPlay()); break;
+        case 'pass': this.addFloat(fx.player, null, 'active', this.t('⏭ lewat', '⏭ pass'), 'info'); break;
         case 'hit':
           if (fx.by !== fx.player) this.flash(`lunge-${fx.by}`, FX_MS.lunge);
           this.flash(`shake-${fx.player}`, FX_MS.shake);
@@ -831,7 +880,7 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
         case 'heal': this.cardFx(fx.uid, fx.player, `+${fx.amount} HP`, 'heal'); this.sfx(() => this.sound.playHeal()); break;
         case 'mill':
           this.flash(`pulse-deck-${fx.player}`, FX_MS.pulse);
-          this.addFloat(fx.player, null, 'deck', `-${fx.count} kartu (Mill)`, 'mill');
+          this.addFloat(fx.player, null, 'deck', this.t(`-${fx.count} kartu (Mill)`, `-${fx.count} cards (Mill)`), 'mill');
           break;
         case 'ko': {
           const taker = g.opponentOf(fx.player);
@@ -842,10 +891,10 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
           break;
         }
         case 'win':
-          this.banner(`🏆 ${g.players[fx.player].name} menang`, g.endReason, 'win', FX_MS.endBanner);
+          this.banner(this.t(`🏆 ${g.players[fx.player].name} menang`, `🏆 ${g.players[fx.player].name} wins`), g.endReason, 'win', FX_MS.endBanner);
           this.sfx(() => this.sound.playVictory());
           break;
-        case 'tie': this.banner('Seri', g.endReason, 'tie', FX_MS.endBanner); break;
+        case 'tie': this.banner(this.t('Seri', 'Draw'), g.endReason, 'tie', FX_MS.endBanner); break;
       }
     }
     this.nextPause = pause;
@@ -956,34 +1005,39 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   statusText(): string {
     const g = this.game!;
+    const t = this.t;
     const name = (p: number) => g.players[p].name;
     if (g.phase === 'over') {
-      return g.isDraw ? `Seri. ${g.endReason}` : `🏆 ${name(g.winner!)} menang. ${g.endReason}`;
+      return g.isDraw ? t(`Seri. ${g.endReason}`, `Draw. ${g.endReason}`) : t(`🏆 ${name(g.winner!)} menang. ${g.endReason}`, `🏆 ${name(g.winner!)} wins. ${g.endReason}`);
     }
     if (this.gameMode === 'bots' && !this.autoRunning) {
-      return `⏸ Dijeda (giliran ${g.turn}). Tekan "Jalan otomatis" untuk melanjutkan, atau "Satu aksi" untuk maju satu langkah.`;
+      return t(`⏸ Dijeda (giliran ${g.turn}). Tekan "Jalan otomatis" untuk melanjutkan, atau "Satu aksi" untuk maju satu langkah.`,
+        `⏸ Paused (turn ${g.turn}). Press "Run automatically" to continue, or "One action" to advance one step.`);
     }
     if (g.phase === 'setup') {
-      if (this.gameMode === 'bots') return 'Setup: kedua bot memilih karakter Aktif dan Bench.';
+      if (this.gameMode === 'bots') return t('Setup: kedua bot memilih karakter Aktif dan Bench.', 'Setup: both bots choose their Active and Bench characters.');
       const me = g.players[HUMAN];
-      if (me.setupDone) return 'Menunggu bot selesai setup…';
-      if (me.mulligans > 0 && !me.active) return `Kamu mulligan ${me.mulligans}× (tidak ada karakter di tangan). Pilih karakter Aktif.`;
+      if (me.setupDone) return t('Menunggu bot selesai setup…', 'Waiting for the bot to finish setup…');
+      if (me.mulligans > 0 && !me.active) {
+        return t(`Kamu mulligan ${me.mulligans}× (tidak ada karakter di tangan). Pilih karakter Aktif.`,
+          `You mulliganed ${me.mulligans}× (no character in hand). Choose an Active character.`);
+      }
       return me.active
-        ? 'Setup: taruh karakter lain di Bench bila mau, lalu tekan "Selesai setup".'
-        : 'Setup: klik "Jadikan Aktif" pada salah satu karakter di tanganmu.';
+        ? t('Setup: taruh karakter lain di Bench bila mau, lalu tekan "Selesai setup".', 'Setup: put other characters on the Bench if you like, then press "Finish setup".')
+        : t('Setup: klik "Jadikan Aktif" pada salah satu karakter di tanganmu.', 'Setup: click "Make Active" on one of the characters in your hand.');
     }
     if (g.phase === 'promote') {
       const p = g.waitingFor()[0];
       return this.gameMode === 'human' && p === HUMAN
-        ? 'Karaktermu gugur. Pilih "Majukan jadi Aktif" pada salah satu kartu Bench.'
-        : `${name(p)} memajukan karakter dari Bench…`;
+        ? t('Karaktermu gugur. Pilih "Majukan jadi Aktif" pada salah satu kartu Bench.', 'Your character was knocked out. Choose "Promote to Active" on one of your Bench cards.')
+        : t(`${name(p)} memajukan karakter dari Bench…`, `${name(p)} is promoting a character from the Bench…`);
     }
     if (this.gameMode === 'human' && g.current === HUMAN) {
       return this.selectedEnergy !== null
-        ? `Giliran ${g.turn} — giliranmu. Klik "Tempel energi di sini" pada karakter tujuan.`
-        : `Giliran ${g.turn} — giliranmu. Mainkan kartu, tempel energi, lalu serang atau akhiri giliran.`;
+        ? t(`Giliran ${g.turn} — giliranmu. Klik "Tempel energi di sini" pada karakter tujuan.`, `Turn ${g.turn} — your turn. Click "Attach energy here" on the target character.`)
+        : t(`Giliran ${g.turn} — giliranmu. Mainkan kartu, tempel energi, lalu serang atau akhiri giliran.`, `Turn ${g.turn} — your turn. Play cards, attach energy, then attack or end your turn.`);
     }
-    return `Giliran ${g.turn} — ${name(g.current)} sedang berpikir…`;
+    return t(`Giliran ${g.turn} — ${name(g.current)} sedang berpikir…`, `Turn ${g.turn} — ${name(g.current)} is thinking…`);
   }
 
   isTurnOf(p: number): boolean {
@@ -1039,18 +1093,21 @@ export class TcgModeComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   costText(attack: AttackDef): string {
-    return Object.entries(attack.prana_cost ?? {}).filter(([, n]) => n > 0).map(([t, n]) => `${n} ${t}`).join(' + ') || 'gratis';
+    return Object.entries(attack.prana_cost ?? {}).filter(([, n]) => n > 0).map(([type, n]) => `${n} ${type}`).join(' + ') || this.t('gratis', 'free');
   }
 
   effectText(attack: AttackDef): string {
     const v = attack.value ?? 0;
     switch (attack.effect) {
-      case 'mill_enemy_deck': return `Mill: buang ${v} kartu teratas deck lawan.`;
-      case 'recoil_damage': return `Recoil: penyerang menerima ${v} damage.`;
-      case 'heal_bench_card': return `Heal: pulihkan ${v} HP karakter Bench yang paling terluka.`;
-      case 'scaled_damage_per_discard_tamasika': return `+${attack.scale_value ?? 0} damage per kartu di discard lawan.`;
+      case 'mill_enemy_deck': return this.t(`Mill: buang ${v} kartu teratas deck lawan.`, `Mill: discard the top ${v} cards of the opponent deck.`);
+      case 'recoil_damage': return this.t(`Recoil: penyerang menerima ${v} damage.`, `Recoil: the attacker takes ${v} damage.`);
+      case 'heal_bench_card': return this.t(`Heal: pulihkan ${v} HP karakter Bench yang paling terluka.`, `Heal: restore ${v} HP to the most damaged Bench character.`);
+      case 'scaled_damage_per_discard_tamasika': return this.t(`+${attack.scale_value ?? 0} damage per kartu di discard lawan.`, `+${attack.scale_value ?? 0} damage per card in the opponent discard.`);
     }
-    if (attack.bench_scaling) return `+${this.config.benchScalingPerCard} per karakter di Bench-mu (maks +${this.config.benchScalingMax}).`;
+    if (attack.bench_scaling) {
+      return this.t(`+${this.config.benchScalingPerCard} per karakter di Bench-mu (maks +${this.config.benchScalingMax}).`,
+        `+${this.config.benchScalingPerCard} per character on your Bench (max +${this.config.benchScalingMax}).`);
+    }
     return '';
   }
 }
