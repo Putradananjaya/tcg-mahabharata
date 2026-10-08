@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LanguageService } from '../../../core/services/language.service';
 import { HeroCardsComponent } from './hero-cards.component';
+import { ResearcherProfileComponent } from './researcher-profile.component';
 
 /** A piece of text in both languages. */
 interface Txt {
@@ -47,7 +48,7 @@ interface PageLink {
 @Component({
   selector: 'app-overview',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeroCardsComponent],
+  imports: [CommonModule, RouterModule, HeroCardsComponent, ResearcherProfileComponent],
   template: `
     <div class="o-page">
 
@@ -218,6 +219,15 @@ interface PageLink {
         <p class="o-footnote">{{ t(
           'Catatan: simulasi interaktif di dashboard ini memakai port TypeScript dari engine riset dan hanya untuk demonstrasi. Angka yang dikutip di paper selalu berasal dari pipeline Python (results/ dan CLAIMS_LEDGER.md).',
           'Note: the interactive simulations in this dashboard use a TypeScript port of the research engine and are for demonstration only. Numbers cited in the paper always come from the Python pipeline (results/ and CLAIMS_LEDGER.md).') }}</p>
+      </section>
+
+      <!-- 9. About the researcher -->
+      <section class="o-section">
+        <header class="o-head">
+          <span class="o-kicker">08 · {{ t('Tentang Peneliti', 'About the Researcher') }}</span>
+          <h3>{{ t('Siapa di balik penelitian ini?', 'Who is behind this research?') }}</h3>
+        </header>
+        <app-researcher-profile></app-researcher-profile>
       </section>
 
     </div>
